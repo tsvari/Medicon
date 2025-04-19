@@ -1,0 +1,12 @@
+.vs
+CMakeUserPresets.json
+CMakeSettings.json
+CMakeLists.txt.user
+out
+build
+assets/CA
+assets/SQLAPI_installers
+assets/app-data/provider/log
+/source/include/3party/grpc
+/source/include/3party
+source/backend/include/3party

@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<CONFIG>
+  <host>host=localhost port=5432 dbname=Provider sslmode=prefer connect_timeout=10</host>
+  <user>postgres</user>
+  <pass>tsvari</pass>
+</CONFIG>
