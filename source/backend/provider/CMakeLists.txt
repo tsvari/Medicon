@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(../../cmake/global-settings.cmake)
+include(../cmake/global-settings.cmake)
 
 # Markup should compile with STL
 add_compile_definitions(MARKUP_STL)
@@ -19,22 +20,8 @@ add_compile_definitions(SA_STATIC_PQSQL)
 # Use project name in c++ code
 add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")
 
-set(INCLUDE_DIR "../../include")
-set(BACKEND_INCLUDE_DIR "../include")
-set(THIRD_PARTY_INCLUDE_DIR ${INCLUDE_DIR}/3party)
-set(THIRD_PARTY_BACKEND_DIR ${BACKEND_INCLUDE_DIR}/3party)
-
 # Tests turn on/off
 set(BUILD_TESTS ON CACHE BOOL "If enabled, build 'provider' unit tests")
-
-include_directories(${INCLUDE_DIR})
-include_directories(${BACKEND_INCLUDE_DIR})
-include_directories(${THIRD_PARTY_INCLUDE_DIR})
-include_directories(${THIRD_PARTY_BACKEND_DIR})
-include_directories(${THIRD_PARTY_BACKEND_DIR}/cpp-httplib)
-include_directories(${THIRD_PARTY_BACKEND_DIR}/json-develop/include)
-include_directories(${THIRD_PARTY_INCLUDE_DIR}/markup)
-include_directories(${THIRD_PARTY_BACKEND_DIR}/easylogging)
 
 # one level above CMAKE_CURRENT_SOURCE_DIR
 get_filename_component(PARENT_CURRENT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" DIRECTORY)
@@ -64,7 +51,6 @@ set(HEADER_FILES
 )
 
 set(SOURCE_FILES
-    #main.cpp
     ${THIRD_PARTY_INCLUDE_DIR}/markup/Markup.cpp
 
     ${BACKEND_INCLUDE_DIR}/include_backend_util.cpp
@@ -103,11 +89,6 @@ target_link_libraries(provider_lib
 )
 endif(WIN32)
 
-# Just executive
-add_executable(provider
-    main.cpp
-)
-
 target_link_libraries(provider_lib
     PRIVATE
         # SQL API
@@ -117,6 +98,11 @@ target_link_libraries(provider_lib
         easyloggingpp::easyloggingpp
         sentry-native::sentry-native
         gtest::gtest
+)
+
+# Just executable
+add_executable(provider
+    main.cpp
 )
 
 IF(WIN32)
