@@ -14,18 +14,18 @@ using std::variant;
 using std::set;
 
 struct DataInfo {
+    enum Type{
+        Int = 0,
+        String,
+        Double,
+        DateTime,
+        DateTimeNoSec,
+        Date,
+        Time
+    };
     string param;
     string value;
-    unsigned int type;
-        enum Type{
-            Int = 0,
-            String,
-            Double,
-            DateTime,
-            DateTimeNoSec,
-            Date,
-            Time
-        };
+    Type type;
 };
 
 namespace {
