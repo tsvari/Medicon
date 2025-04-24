@@ -9,8 +9,6 @@
 //#define PROJECT_PATH "/home/vaky/tida-web/"
 #endif
 
-extern ConfigFile qGlobalConfig;
-
 
 
 

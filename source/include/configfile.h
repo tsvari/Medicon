@@ -51,44 +51,40 @@ to use std::visit
 search google std::visit example c++
 */
 
-class IConfigFile
+class ConfigFile
 {
-    virtual bool load() = 0;
-};
-
-class ConfigFile : public IConfigFile
-{
-public:
+private:
     explicit ConfigFile(const  char *  allProjectPath, const  char *  projectName);
-    ConfigFile(){}
 
-    void setProjectPath(const  char *  allProjectPath, const  char *  projectName);
+public:
+    static ConfigFile * Instance();
+
+    void setProjectPath(const  char *  m_allProjectPath, const  char *  projectName);
 
     std::string & operator[](const  char *  key);
+    std::string value(const  char *  key);
 
 public:
-    virtual bool load();
-    bool value(const char * inParam, std::string & out_value) const;
+    bool load();
 
-    inline string &	error() { return lastErrorMsg_; }
-
-    inline string appletPath () const {return appletePath_;}
-    inline string templatetPath () const {return templatePath_;}
-    inline string logFilePath () const {return logFilePath_;}
+    inline string &	xmlReadError() { return m_xmlReadError; }
+    inline string appletPath () const {return m_appletePath;}
+    inline string templatetPath () const {return m_templatePath;}
+    inline string logFilePath () const {return m_logFilePath;}
 
     string projectPath () const;
 
 private:
-    map<std::string, std::string> xmlData_;
+    map<std::string, std::string> m_xmlData;
 
-    string allProjectPath_;
-    string projectName_;
+    string m_allProjectPath;
+    string m_projectName;
 
-    string configFilePath_;
-    string appletePath_;
-    string templatePath_;
-    string logFilePath_;
-    string lastErrorMsg_;
+    string m_configFilePath;
+    string m_appletePath;
+    string m_templatePath;
+    string m_logFilePath;
+    string m_xmlReadError;
 };
 
 

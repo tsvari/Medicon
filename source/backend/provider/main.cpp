@@ -15,8 +15,6 @@
 //using namespace httplib;
 //using json = nlohmann::json;
 
-ConfigFile qGlobalConfig;
-
 INITIALIZE_EASYLOGGINGPP
 
 static sentry_value_t on_crash_callback(const sentry_ucontext_t *uctx, sentry_value_t event, void *closure)
@@ -112,16 +110,16 @@ int main()
 
     sentry_close();
     //============================================================
-     // Initialize global config object
-    qGlobalConfig.setProjectPath(ALL_PROJECT_APPDATA_PATH, PROJECT_NAME);
-    if(!qGlobalConfig.load()) {
+    ConfigFile * config = ConfigFile::Instance();
+    if(!config->load()) {
+        LOG(INFO) << config->xmlReadError();
         return -1;
     }
 
     // Initialize logger with global settings
     el::Configurations qGlobalLog;
     qGlobalLog.setGlobally(el::ConfigurationType::Format, "%user:%fbase:%line:%datetime:%level:%msg:");
-    qGlobalLog.setGlobally(el::ConfigurationType::Filename, qGlobalConfig.logFilePath());
+    qGlobalLog.setGlobally(el::ConfigurationType::Filename, config->logFilePath());
     qGlobalLog.set(el::Level::Global, el::ConfigurationType::ToFile, "true");
     qGlobalLog.set(el::Level::Global, el::ConfigurationType::ToStandardOutput, "false");
     el::Loggers::setDefaultConfigurations(qGlobalLog, true);
@@ -129,7 +127,7 @@ int main()
     TypeToStringFormatter formatter;
 
     // Initialize project applet path
-    SQLApplet::InitPath(qGlobalConfig.appletPath().c_str());
+    SQLApplet::InitPathToApplets(config->appletPath().c_str());
 
     //============================================
     SQLApplet applet("illnessgroup_name_update.xml",
@@ -145,9 +143,9 @@ int main()
     LOG(INFO) << applet2.sql();
     //============================================
 
-    SAString  db_host = qGlobalConfig["host"].c_str();
-    SAString  db_user = qGlobalConfig["user"].c_str();
-    SAString  db_pass = qGlobalConfig["pass"].c_str();
+    SAString  db_host = config->value("host").c_str();
+    SAString  db_user = config->value("user").c_str();
+    SAString  db_pass = config->value("pass").c_str();
     SAConnection con;
     try
     {

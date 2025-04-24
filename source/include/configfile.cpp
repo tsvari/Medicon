@@ -10,31 +10,46 @@ ConfigFile::ConfigFile(const char * allProjectPath, const  char *  projectName)
     setProjectPath(allProjectPath, projectName);
 }
 
+ConfigFile * ConfigFile::Instance()
+{
+    static ConfigFile configFile(ALL_PROJECT_APPDATA_PATH, PROJECT_NAME);
+    return & configFile;
+}
+
 void ConfigFile::setProjectPath(const  char *  allProjectPath, const  char *  projectName)
 {
-    allProjectPath_ = allProjectPath;
-    projectName_ = projectName;
-    if(allProjectPath_.back() != '/') {
-        allProjectPath_.push_back('/');
+    m_allProjectPath = allProjectPath;
+    m_projectName = projectName;
+    if(m_allProjectPath.back() != '/') {
+        m_allProjectPath.push_back('/');
     }
     //fs::path absolutePath = fs::absolute(projectPath);
-    assert(fs::is_directory(allProjectPath_));
+    assert(fs::is_directory(m_allProjectPath));
 
-    configFilePath_ = allProjectPath_ + string(projectName_) + string("/") + string(projectName_) + string(".xml");
-    logFilePath_ = allProjectPath_ + string(projectName_) + string("/log/") + string(projectName_) + string(".log");
-    assert(fs::exists(configFilePath_));
-    assert(fs::exists(logFilePath_));
+    m_configFilePath = m_allProjectPath + string(m_projectName) + string("/") + string(m_projectName) + string(".xml");
+    m_logFilePath = m_allProjectPath + string(m_projectName) + string("/log/") + string(m_projectName) + string(".log");
 
-    appletePath_ = allProjectPath_ + string(projectName_) + string("/sql-applets/");
-    templatePath_ = allProjectPath_ + string(projectName_) + string("/templates/");
+    assert(fs::exists(m_configFilePath));
+    assert(fs::exists(m_logFilePath));
+
+    m_appletePath = m_allProjectPath + string(m_projectName) + string("/sql-applets/");
+    m_templatePath = m_allProjectPath + string(m_projectName) + string("/templates/");
 }
 
 std::string & ConfigFile::operator[](const  char *  key)
 {
-    if(!xmlData_.contains(key)) {
+    if(!m_xmlData.contains(key)) {
         throw std::out_of_range("Index out of bounds");
     }
-    return xmlData_[key];
+    return m_xmlData[key];
+}
+
+string ConfigFile::value(const char *key)
+{
+    if(!m_xmlData.contains(key)) {
+        throw std::out_of_range("Index out of bounds");
+    }
+    return m_xmlData[key];
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -44,15 +59,15 @@ std::string & ConfigFile::operator[](const  char *  key)
 bool ConfigFile::load()
 {
     CMarkup xmlFile;
-    if (!xmlFile.Load(configFilePath_)) {
-        lastErrorMsg_ = "Config file: " + xmlFile.GetError();
+    if (!xmlFile.Load(m_configFilePath)) {
+        m_xmlReadError = "Config file: " + xmlFile.GetError();
         return false;
     }
 
     xmlFile.IntoElem();
 
     while(xmlFile.FindChildElem()) {
-        xmlData_[xmlFile.GetChildTagName()] = xmlFile.GetChildData();
+        m_xmlData[xmlFile.GetChildTagName()] = xmlFile.GetChildData();
     }
 
     return true;
@@ -60,22 +75,8 @@ bool ConfigFile::load()
 
 string ConfigFile::projectPath () const
 {
-    return allProjectPath_ + "/" + string(projectName_);
+    return m_allProjectPath + "/" + string(m_projectName);
 }
-//////////////////////////////////////////////////////////////////////////////
-/// \brief ConfigFile::value
-/// \param inParam
-/// \param out_value
-/// \return
-///
-bool ConfigFile::value(const char * inParam, std::string & valueOut) const
-{
-    std::map<std::string, std::string>::const_iterator it = xmlData_.find(inParam);
-    if(it == xmlData_.end()) {
-        return false;
-    }
-    valueOut = it->second;
-    return true;
-}
+
 
 
