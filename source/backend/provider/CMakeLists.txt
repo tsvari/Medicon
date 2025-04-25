@@ -7,8 +7,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include(../../cmake/global-settings.cmake)
-include(../cmake/global-settings.cmake)
+include(../../../source/cmake/global-settings.cmake)
 
 # Markup should compile with STL
 add_compile_definitions(MARKUP_STL)
