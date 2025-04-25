@@ -1,29 +1,38 @@
 #include "sqlapplet.h"
 #include "Markup.h"
-#include <time.h>
-#include <easylogging++.h>
 #include <format>
+#include <filesystem>
+#include <cassert>
 
 using std::map;
 
+namespace fs = std::filesystem;
 namespace {
-string AppletPath="";
+    static string AppletPath = "";
+    map<string, DataInfo::Type> const xmlTypeToDataInfo={{"NUMERIC", DataInfo::Int},
+                                      {"STRING", DataInfo::String},
+                                      {"DATETIME", DataInfo::DateTime},
+                                      {"DATE", DataInfo::Date},
+                                      {"TIME", DataInfo::Time}};
 }
 
 SQLApplet::SQLApplet(const char * appletName, map<string, string> formattedParamValueList):
-    formattedParamValueList_(formattedParamValueList)
+    m_formattedParamValueList(formattedParamValueList)
 {
-    appletPath_ = std::format("{}{}", AppletPath, appletName);
-    LOG(INFO) << "Applet constructor";
+    // If you forget call SQLApplet::InitPathToApplets to initialize global path
+    assert(AppletPath.size() > 0);
+    m_appletPath = std::format("{}{}", AppletPath, appletName);
 }
 
 SQLApplet::SQLApplet(const char *appletName, const TypeToStringFormatter & formatter) :
-    formattedParamValueList_(formatter.formattedParamValueList())
+    m_formattedParamValueList(formatter.formattedParamValueList())
 {
-    appletPath_ = std::format("{}{}", AppletPath, appletName);
+    // If you forget call SQLApplet::InitPathToApplets to initialize global path
+    assert(AppletPath.size() > 0);
+    m_appletPath = std::format("{}{}", AppletPath, appletName);
 }
 
-void SQLApplet::InitPath(const char * appletPath)
+void SQLApplet::InitPathToApplets(const char * appletPath)
 {
     AppletPath = appletPath;
 }
@@ -31,23 +40,23 @@ void SQLApplet::InitPath(const char * appletPath)
 void SQLApplet::parse()
 {
     // check existense of applett and data content
-    if(appletPath_.empty()) {
-        throw SQLAppletException( "SQLApplet: No path applet name! ");
+    if(!fs::exists(m_appletPath)) {
+        throw SQLAppletException(APPLET_ERR_WRONG_PATH.c_str());
     }
 
     CMarkup	parser;
     // reuse parser
-    if (!parser.Load(appletPath_)) {
+    if (!parser.Load(m_appletPath)) {
         throw SQLAppletException(parser.GetError().c_str() );
     }
 
     // find Description Tag/Value
-    if(!parser.FindChildElem( "Description" )) {
-        throw SQLAppletException( "SQLApplet - Description-tag was not found" );
+    if(!parser.FindChildElem("Description")) {
+        throw SQLAppletException(APPLET_ERR_NO_DESCRIPTION.c_str());
     }
 
     description_ = parser.GetChildData();
-
+     vector<DataInfo> xmlDataInfoParams;
     // - find params and fill vector
     while (parser.FindChildElem("Param")) {
         parser.IntoElem();
@@ -56,44 +65,44 @@ void SQLApplet::parse()
 
         if (parser.FindChildElem("Name")) {
             ob.param = parser.GetChildData();
+        } else {
+            throw SQLAppletException(APPLET_ERR_PARAM_NO_NAME.c_str());
         }
         if (parser.FindChildElem("Type")) {
-            // find appropriate data type
             string sType = parser.GetChildData();
-            if(sType == "NUMERIC")
-                ob.type = DataInfo::Int;
-            else if(sType == "STRING")
-                ob.type = DataInfo::String;
-            else if(sType == "DATETIME")
-                ob.type = DataInfo::DateTime;
-            else if(sType == "DATE")
-                ob.type = DataInfo::Date;
-            else if(sType == "TIME")
-                ob.type = DataInfo::Time;
-        }
-
-        // check param/value in data file
-        if(formattedParamValueList_.find(ob.param) == formattedParamValueList_.end()) {
-            if (parser.FindChildElem("DefVal"))
-                ob.value = parser.GetChildData();
+            ob.type = xmlTypeToDataInfo.at(sType);
         } else {
-            ob.value = formattedParamValueList_[ob.param];
+            throw SQLAppletException(APPLET_ERR_PARAM_NO_TYPE.c_str());
         }
 
-        params_.push_back(ob);
+        // check param/value in m_formattedParamValueList
+        if(m_formattedParamValueList.find(ob.param) == m_formattedParamValueList.end()) {
+            if (parser.FindChildElem("DefVal")) {
+                ob.value = parser.GetChildData();
+            } else {
+                throw SQLAppletException(APPLET_ERR_PARAM_NO_DEFVAL.c_str());
+            }
+        } else {
+            if(m_formattedParamValueList.contains(ob.param)) {
+                ob.value = m_formattedParamValueList[ob.param];
+            } else {
+                throw SQLAppletException(APPLET_ERR_PARAM_NO_VALUE.c_str());
+            }
+        }
+
+        xmlDataInfoParams.push_back(ob);
         parser.OutOfElem();
     }
 
     // - find SQL code
     if (!parser.FindChildElem("Code")) {
-        throw SQLAppletException( "SQLApplet - SQL-script could not found!" );
+        throw SQLAppletException(APPLET_ERR_PARAM_NO_CODE.c_str());
     }
 
-    sqlSource_ = parser.GetChildData();
+    m_sqlSource = parser.GetChildData();
 
     // replace params by value
-    for( unsigned int i = 0; i < params_.size(); i++ ) {
-        DataInfo ob = params_.at(i);
+    for( DataInfo & ob: xmlDataInfoParams) {
         string sTo = ":" + ob.param;
 
         if(ob.type == DataInfo::String ) {
@@ -108,11 +117,11 @@ void SQLApplet::parse()
             }
         }
 
-        size_t start_pos = sqlSource_.find(sTo);
-        while(start_pos && start_pos < sqlSource_.length()) {
-            sqlSource_.replace(start_pos, sTo.length(), ob.value);
-            start_pos = sqlSource_.find(sTo, start_pos);
+        size_t start_pos = m_sqlSource.find(sTo);
+        while(start_pos && start_pos < m_sqlSource.length()) {
+            m_sqlSource.replace(start_pos, sTo.length(), ob.value);
+            start_pos = m_sqlSource.find(sTo, start_pos);
         }
     }
-    sqlSource_ = trimLeftRight(sqlSource_);
+    m_sqlSource = trimLeftRight(m_sqlSource);
 }

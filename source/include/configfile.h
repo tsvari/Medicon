@@ -57,22 +57,25 @@ private:
     explicit ConfigFile(const  char *  allProjectPath, const  char *  projectName);
 
 public:
+    // Use in project
     static ConfigFile * Instance();
+    // Use in tests
+    static ConfigFile * InstanceCustom(const  char *  allProjectPath, const  char *  projectName);
 
-    void setProjectPath(const  char *  m_allProjectPath, const  char *  projectName);
-
-    std::string & operator[](const  char *  key);
-    std::string value(const  char *  key);
-
-public:
     bool load();
 
-    inline string &	xmlReadError() { return m_xmlReadError; }
-    inline string appletPath () const {return m_appletePath;}
-    inline string templatetPath () const {return m_templatePath;}
-    inline string logFilePath () const {return m_logFilePath;}
+    string value(const  char *  key);
+    string & operator[](const  char *  key);
+
+    string & xmlReadError() { return m_xmlReadError; }
+    string appletPath () const {return m_appletePath;}
+    string templatetPath () const {return m_templatePath;}
+    string logFilePath () const {return m_logFilePath;}
 
     string projectPath () const;
+
+protected:
+    void setProjectPath(const  char *  m_allProjectPath, const  char *  projectName);
 
 private:
     map<std::string, std::string> m_xmlData;

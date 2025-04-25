@@ -1,4 +1,4 @@
-#include "TypeToStringFormatter.h"
+#include "../TypeToStringFormatter.h"
 #include "gtest/gtest.h"
 
 #include <ctime>

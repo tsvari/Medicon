@@ -16,6 +16,12 @@ ConfigFile * ConfigFile::Instance()
     return & configFile;
 }
 
+ConfigFile * ConfigFile::InstanceCustom(const  char *  allProjectPath, const  char *  projectName)
+{
+    static ConfigFile configFile(allProjectPath, projectName);
+    return & configFile;
+}
+
 void ConfigFile::setProjectPath(const  char *  allProjectPath, const  char *  projectName)
 {
     m_allProjectPath = allProjectPath;
