@@ -14,9 +14,11 @@ else()
     set(ALL_PROJECT_PATH "")
 endif()
 
+set(ALL_PROJECT_PATH ${ALL_PROJECT_PATH})
 set(ALL_PROJECT_APPDATA_PATH ${ALL_PROJECT_PATH}/assets/app-data/)
 set(ALL_PROJECT_TEST_PATH ${ALL_PROJECT_PATH}/source/include/tests/app-data/)
 
+add_definitions("-DALL_PROJECT_PATH=\"${ALL_PROJECT_PATH}\"")
 add_definitions("-DALL_PROJECT_APPDATA_PATH=\"${ALL_PROJECT_APPDATA_PATH}\"")
 add_definitions("-DALL_PROJECT_TEST_PATH=\"${ALL_PROJECT_TEST_PATH}\"")
 
