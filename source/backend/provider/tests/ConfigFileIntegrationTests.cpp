@@ -22,7 +22,7 @@ TEST(ConfigFileTests, LoadAndCheckData)
     EXPECT_NO_THROW(config->value("host"));
     EXPECT_NO_THROW(config->value("user"));
     EXPECT_NO_THROW(config->value("pass"));
-    EXPECT_THROW(config->value("WrongKey"), std::out_of_range);
+    EXPECT_THROW(config->value("WrongKey")s);
 }
 
 

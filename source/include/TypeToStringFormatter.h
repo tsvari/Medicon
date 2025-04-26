@@ -12,12 +12,6 @@ const char * FORMATER_ERR_WRONG_KEY_PARAMETER_NAME = "Wrong name for provided pa
 const char * FORMATER_ERR_WRONG_TYPE = "The system does not support this type!";
 } // namespace
 namespace TimeFormatHelper {
-extern std::string const formatDateTime;
-extern std::string const formatDateTimeNoSec;
-extern std::string const formatDate;
-extern std::string const formatTime;
-extern std::map<DataInfo::Type, std::string> const dateTimeTypeToFormatString;
-
 std::string chronoSysSecToString(const std::chrono::sys_seconds dateTimeInSecs, DataInfo::Type nType);
 std::chrono::sys_seconds stringTochronoSysSec(const std::string & formattedDateTime, DataInfo::Type nType);
 std::chrono::sys_seconds chronoNow();
