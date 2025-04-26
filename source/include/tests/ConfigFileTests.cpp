@@ -8,7 +8,7 @@ TEST(ConfigFileTests, WrongPath)
         ConfigFile * config = ConfigFile::InstanceCustom("", "");
     } catch(const std::invalid_argument & err) {
         // and this tests that it has the correct message
-        EXPECT_STREQ(CONFIG_ERR_ALL_PROJECT_PATH.c_str(), err.what());
+        EXPECT_STREQ(CONFIG_ERR_ALL_PROJECT_PATH, err.what());
     } catch (...) {
         FAIL() << "Expected a different exception type.";
     }
@@ -21,7 +21,7 @@ TEST(ConfigFileTests, WrongPathToConfig)
         ConfigFile * config = ConfigFile::InstanceCustom(ALL_PROJECT_PATH, "");
     } catch(const std::invalid_argument & err) {
         // and this tests that it has the correct message
-        EXPECT_STREQ(CONFIG_ERR_CONFIG_FILE.c_str(), err.what());
+        EXPECT_STREQ(CONFIG_ERR_CONFIG_FILE, err.what());
     } catch (...) {
         FAIL() << "Expected a different exception type.";
     }
@@ -30,10 +30,10 @@ TEST(ConfigFileTests, WrongPathToConfig)
 TEST(ConfigFileTests, RightPathToConfigAndWrongProjectName)
 {
     try {
-        ConfigFile * config = ConfigFile::InstanceCustom(ALL_PROJECT_TEST_PATH, "WrongProject");
+        ConfigFile * config = ConfigFile::InstanceCustom(ALL_PROJECT_TEST_APPDATA_PATH, "WrongProject");
     } catch(const std::invalid_argument & err) {
         // and this tests that it has the correct message
-        EXPECT_STREQ(CONFIG_ERR_CONFIG_FILE.c_str(), err.what());
+        EXPECT_STREQ(CONFIG_ERR_CONFIG_FILE, err.what());
     } catch (...) {
         FAIL() << "Expected a different exception type.";
     }
@@ -42,10 +42,10 @@ TEST(ConfigFileTests, RightPathToConfigAndWrongProjectName)
 TEST(ConfigFileTests, WrongLogFilePath)
 {
     try {
-        ConfigFile * config = ConfigFile::InstanceCustom(ALL_PROJECT_TEST_PATH, PROJECT_NAME);
+        ConfigFile * config = ConfigFile::InstanceCustom(ALL_PROJECT_TEST_APPDATA_PATH, PROJECT_NAME);
     } catch(const std::invalid_argument & err) {
         // and this tests that it has the correct message
-        EXPECT_STREQ(CONFIG_ERR_LOG_FILE.c_str(), err.what());
+        EXPECT_STREQ(CONFIG_ERR_LOG_FILE, err.what());
     } catch (...) {
         FAIL() << "Expected a different exception type.";
     }

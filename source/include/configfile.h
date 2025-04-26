@@ -52,11 +52,10 @@ search google std::visit example c++
 */
 
 namespace {
-string const CONFIG_ERR_ALL_PROJECT_PATH = "Config: All project path not found!";
-string const CONFIG_ERR_CONFIG_FILE = "Config: Config file was not found";
-string const CONFIG_ERR_LOG_FILE = "Config: Log file was not found";
+const char * CONFIG_ERR_ALL_PROJECT_PATH = "Config: All project path not found!";
+const char * CONFIG_ERR_CONFIG_FILE = "Config: Config file was not found";
+const char * CONFIG_ERR_LOG_FILE = "Config: Log file was not found";
 }
-
 class ConfigFile
 {
 private:
@@ -73,12 +72,12 @@ public:
     string value(const  char *  key);
     string & operator[](const  char *  key);
 
-    string & xmlReadError() { return m_xmlReadError; }
-    string appletPath () const {return m_appletePath;}
-    string templatetPath () const {return m_templatePath;}
-    string logFilePath () const {return m_logFilePath;}
+    string & xmlReadError() {return m_xmlReadError;}
+    string appletPath() const {return m_appletePath;}
+    string templatetPath() const {return m_templatePath;}
+    string logFilePath() const {return m_logFilePath;}
 
-    string projectPath () const;
+    string projectPath() const;
 
 protected:
     void setProjectPath(const  char *  m_allProjectPath, const  char *  projectName);

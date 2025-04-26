@@ -7,7 +7,7 @@ set(TEST_GENERATED_ROOT ${CMAKE_CURRENT_BINARY_DIR}/generated)
 file(MAKE_DIRECTORY ${TEST_GENERATED_ROOT})
 
 add_executable(offline_tests
-    test.cpp
+    ConfigFileIntegrationTests.cpp
 )
 
 target_compile_definitions(offline_tests PRIVATE

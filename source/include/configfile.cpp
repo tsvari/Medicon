@@ -85,7 +85,7 @@ bool ConfigFile::load()
 
 string ConfigFile::projectPath () const
 {
-    return m_allProjectPath + "/" + string(m_projectName);
+    return m_allProjectPath + string(m_projectName) + string("/");
 }
 
 
