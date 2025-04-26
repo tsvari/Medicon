@@ -6,17 +6,6 @@
 #include <format>
 
 namespace TimeFormatHelper{
-std::string const formatDateTime = "{:%Y-%m-%d %H:%M:%S}";
-std::string const formatDateTimeNoSec = "{:%Y-%m-%d %H:%M}";
-std::string const formatDate = "{:%Y-%m-%d}";
-std::string const formatTime = "{:%H:%M:%S}";
-std::map<DataInfo::Type, std::string> const dateTimeTypeToFormatString = {
-    {DataInfo::DateTime, formatDateTime},
-    {DataInfo::DateTimeNoSec, formatDateTimeNoSec},
-    {DataInfo::Date, formatDate},
-    {DataInfo::Time, formatTime}
-};
-
 std::string chronoSysSecToString(const std::chrono::sys_seconds dateTimeInSecs, DataInfo::Type nType)
 {
     string formattedString;
