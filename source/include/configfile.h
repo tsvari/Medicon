@@ -51,6 +51,12 @@ to use std::visit
 search google std::visit example c++
 */
 
+namespace {
+string const CONFIG_ERR_ALL_PROJECT_PATH = "Config: All project path not found!";
+string const CONFIG_ERR_CONFIG_FILE = "Config: Config file was not found";
+string const CONFIG_ERR_LOG_FILE = "Config: Log file was not found";
+}
+
 class ConfigFile
 {
 private:

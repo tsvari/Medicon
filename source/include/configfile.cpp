@@ -1,7 +1,6 @@
 #include "configfile.h"
 #include "Markup.h"
 #include <filesystem>
-#include <cassert>
 
 namespace fs = std::filesystem;
 
@@ -12,8 +11,7 @@ ConfigFile::ConfigFile(const char * allProjectPath, const  char *  projectName)
 
 ConfigFile * ConfigFile::Instance()
 {
-    static ConfigFile configFile(ALL_PROJECT_APPDATA_PATH, PROJECT_NAME);
-    return & configFile;
+    return InstanceCustom(ALL_PROJECT_APPDATA_PATH, PROJECT_NAME);
 }
 
 ConfigFile * ConfigFile::InstanceCustom(const  char *  allProjectPath, const  char *  projectName)
@@ -26,17 +24,23 @@ void ConfigFile::setProjectPath(const  char *  allProjectPath, const  char *  pr
 {
     m_allProjectPath = allProjectPath;
     m_projectName = projectName;
-    if(m_allProjectPath.back() != '/') {
+    if(m_allProjectPath.size() > 0 && m_allProjectPath.back() != '/') {
         m_allProjectPath.push_back('/');
     }
     //fs::path absolutePath = fs::absolute(projectPath);
-    assert(fs::is_directory(m_allProjectPath));
+    if(!fs::is_directory(m_allProjectPath)) {
+        throw std::invalid_argument(CONFIG_ERR_ALL_PROJECT_PATH);
+    }
 
     m_configFilePath = m_allProjectPath + string(m_projectName) + string("/") + string(m_projectName) + string(".xml");
     m_logFilePath = m_allProjectPath + string(m_projectName) + string("/log/") + string(m_projectName) + string(".log");
 
-    assert(fs::exists(m_configFilePath));
-    assert(fs::exists(m_logFilePath));
+    if(!fs::exists(m_configFilePath)) {
+        throw std::invalid_argument(CONFIG_ERR_CONFIG_FILE);
+    }
+    if(!fs::exists(m_logFilePath)) {
+        throw std::invalid_argument(CONFIG_ERR_LOG_FILE);
+    }
 
     m_appletePath = m_allProjectPath + string(m_projectName) + string("/sql-applets/");
     m_templatePath = m_allProjectPath + string(m_projectName) + string("/templates/");
