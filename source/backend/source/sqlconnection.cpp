@@ -1,52 +1,59 @@
-#include "configfile.h"
 #include "sqlconnection.h"
+#include "configfile.h"
+#include <stdexcept>
 
-SQLConnection::SQLConnection():
-    driver_(NULL),
-    con_(NULL)
+namespace {
+static eSAClient g_client;
+
+static SAString  g_host;
+static SAString  g_user;
+static SAString  g_pass;
+}
+SqlConnection::SqlConnection()
 {
+    if(g_host.IsEmpty() || g_user.IsEmpty() || g_pass.IsEmpty()) {
+        throw std::runtime_error(SQL_CONNECTION_ERR_INIT);
+    }
+    db_host = g_host;
+    db_user = g_user;
+    db_pass = g_pass;
 
+    db_con.setClient(g_client);
 }
 
-SQLConnection::SQLConnection(const ConfigFile& config):
-    con_(NULL)
+SqlConnection::SqlConnection(eSAClient client, const char * host, const char * user, const char * pass)
+    : db_host(host)
+    , db_user(user)
+    , db_pass(pass)
 {
-    SetConfigFile(config);
+    db_con.setClient(client);
 }
 
-SQLConnection::~SQLConnection()
+SqlConnection::~SqlConnection()
 {
-    Close();
+    if(db_con.isConnected()) {
+        db_con.Disconnect();
+    }
 }
 
-
-void SQLConnection::SetConfigFile(const ConfigFile& config)
+void SqlConnection::InitAllConnections(eSAClient client, const char * host, const char * user, const char * pass)
 {
-    config.GetValue("host", host_);
-    config.GetValue("user", user_);
-    config.GetValue("pass", pass_);
-    config.GetValue("schema", database_);
-    //config.GetValue("applet-path", applet_path_);
-    applet_path_ = config.GetAppletPath();
+    g_client = client;
 
-    driver_ = get_driver_instance();
+    g_host = host;
+    g_user = user;
+    g_pass = pass;
 }
 
-void SQLConnection::Connect()
+void SqlConnection::connect()
 {
-    if(!driver_)
-        throw sql::SQLException("Not any driver instance!");
-
-    con_ = driver_->connect(host_, user_, pass_);
-    con_->setSchema(database_);
+    if(db_con.isConnected()) {
+        db_con.Disconnect();
+    }
+    db_con.Connect(db_host, db_user, db_pass);
 }
 
-void SQLConnection::Close()
+void SqlConnection::rollback()
 {
-    if(con_)
-        {
-        con_->close();
-        delete con_;
-        con_ = NULL;
-        }
+    db_con.Rollback();
 }
