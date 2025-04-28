@@ -31,8 +31,8 @@ IF (WIN32)
     include_directories(${THIRD_PARTY_BACKEND_DIR}/SQLAPI/windows/include)
     # Set SQLAPI paths for debug and release configurations
     set_target_properties(sqlapi PROPERTIES
-        IMPORTED_LOCATION_DEBUG "${PARENT_CURRENT_SOURCE_DIR}/include/3party/SQLAPI/windows/vs2022/x86_64/lib/sqlapisd.lib"
-        IMPORTED_LOCATION_RELEASE "${PARENT_CURRENT_SOURCE_DIR}/include/3party/SQLAPI/windows/vs2022/x86_64/lib/sqlapis.lib"
+        IMPORTED_LOCATION_DEBUG "${PARENT_CURRENT_SOURCE_DIR}/source/3party/SQLAPI/windows/vs2022/x86_64/lib/sqlapisd.lib"
+        IMPORTED_LOCATION_RELEASE "${PARENT_CURRENT_SOURCE_DIR}/source/3party/SQLAPI/windows/vs2022/x86_64/lib/sqlapis.lib"
     )
 ELSE()
   # set stuff for other systems
