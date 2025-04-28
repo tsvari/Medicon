@@ -9,4 +9,4 @@ assets/SQLAPI_installers
 assets/app-data/provider/log
 /source/include/3party/grpc
 /source/include/3party
-source/backend/include/3party
+source/backend/source/3party
