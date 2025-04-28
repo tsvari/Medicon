@@ -8,6 +8,7 @@ file(MAKE_DIRECTORY ${TEST_GENERATED_ROOT})
 
 add_executable(offline_tests
     ConfigFileIntegrationTests.cpp
+    SentryTests.cpp
 )
 
 target_compile_definitions(offline_tests PRIVATE
