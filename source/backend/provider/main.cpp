@@ -12,10 +12,10 @@ INITIALIZE_EASYLOGGINGPP
 int main()
 {
 
+    // Initialize and open config file
     ConfigFile * config = ConfigFile::Instance();
     if(!config->load()) {
-        LOG(INFO) << config->xmlReadError();
-        return -1;
+        throw config->xmlReadError();
     }
 
     // Initialize logger with global settings
@@ -34,30 +34,6 @@ int main()
                                         config->value("host").c_str(),
                                         config->value("user").c_str(),
                                         config->value("pass").c_str());
-
-    SqlConnection con;
-    try
-    {
-        con.connect();
-        SACommand select(con.connectionSa(), _TSA(""));
-
-        //con.Disconnect();
-
-    } catch(SAException & x) {
-        // SAConnection::Rollback()
-        // can also throw an exception
-        // (if a network error for example),
-        // we will be ready
-        try
-        {
-            // on error rollback changes
-            con.rollback();
-        } catch(SAException &) {
-
-        }
-        // print error message
-        //LOG(ERROR) << "DBConnection: " << x.ErrText().GetMultiByteChars();
-    }
 
     return 0;
 }

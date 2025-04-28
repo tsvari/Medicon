@@ -45,17 +45,17 @@ public:
     void AddDataInfo(const char * paramName,  const char * paramValue, DataInfo::Type nType);
 
 public:
-    static void InitPathToApplets(const char * appletPath);
-    void parse();
+    static void InitPathToApplets(const char * appletPath, bool useDefaultValue = false);
 
-    inline string description(){ return description_; }
-    inline string sql(){ return m_sqlSource; }
+    void parse();
+    string description(){ return m_description; }
+    string sql(){ return m_sqlSource; }
 
 private:
     map<string, string> m_paramValueList;
     TypeToStringFormatter m_formatter;
     string m_appletPath;
-    string description_;
+    string m_description;
     string m_sqlSource;
 
 };
