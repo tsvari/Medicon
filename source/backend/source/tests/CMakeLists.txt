@@ -23,6 +23,21 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(TEST_GENERATED_ROOT ${CMAKE_CURRENT_BINARY_DIR}/generated)
 file(MAKE_DIRECTORY ${TEST_GENERATED_ROOT})
 
+# sqlapi static
+add_compile_definitions(SA_STATIC_PQSQL)
+# Import SQLAPI the prebuilt static library
+add_library(sqlapi STATIC IMPORTED)
+IF (WIN32)
+    include_directories(${THIRD_PARTY_BACKEND_DIR}/SQLAPI/windows/include)
+    # Set SQLAPI paths for debug and release configurations
+    set_target_properties(sqlapi PROPERTIES
+        IMPORTED_LOCATION_DEBUG "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/windows/vs2022/x86_64/lib/sqlapisd.lib"
+        IMPORTED_LOCATION_RELEASE "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/windows/vs2022/x86_64/lib/sqlapis.lib"
+    )
+ELSE()
+  # set stuff for other systems
+ENDIF()
+
 set(HEADER_FILES
     ${INCLUDE_DIR}/TypeToStringFormatter.h
     ${INCLUDE_DIR}/include_util.h
@@ -31,6 +46,7 @@ set(HEADER_FILES
 
     ${BACKEND_INCLUDE_DIR}/include_backend_util.h
     ${BACKEND_INCLUDE_DIR}/sqlapplet.h
+    ${BACKEND_INCLUDE_DIR}/sqlconnection.h
 )
 
 set(SOURCE_FILES
@@ -41,8 +57,10 @@ set(SOURCE_FILES
 
     ${BACKEND_INCLUDE_DIR}/include_backend_util.cpp
     ${BACKEND_INCLUDE_DIR}/sqlapplet.cpp
+    ${BACKEND_INCLUDE_DIR}/sqlconnection.cpp
 
     SQLAppletTests.cpp
+    SqlConnectionTests.cpp
 )
 
 add_executable(BackendTestProject
@@ -59,5 +77,16 @@ find_package(GTest REQUIRED)
 
 target_link_libraries(BackendTestProject
     PRIVATE
+    sqlapi
     gtest::gtest
 )
+
+IF(WIN32)
+target_link_libraries(BackendTestProject
+    PRIVATE
+        user32.lib
+        version.lib
+        oleaut32.lib
+        ole32.lib
+)
+endif(WIN32)

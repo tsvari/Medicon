@@ -1,37 +1,30 @@
 #ifndef SQLCONNECTION_H
 #define SQLCONNECTION_H
 
+#include <SQLAPI.h>
 
-#include <mysql_driver.h>
-#include <mysql_connection.h>
-
-//#include <string>
-using std::string;
-
-class ConfigFile;
-
-class SQLConnection
+namespace {
+const char * SQL_CONNECTION_ERR_INIT = "Connection data: host, user or password were not initialized!";
+}
+class SqlConnection
 {
 public:
-    SQLConnection();
-    explicit SQLConnection(const ConfigFile& config);
-    virtual ~SQLConnection();
+    SqlConnection();
+    SqlConnection(eSAClient client, const char * host, const char * user, const char * pass);
+    ~SqlConnection();
 
-    void SetConfigFile(const ConfigFile& config);
-    void Connect();
-    void Close();
+    static void InitAllConnections(eSAClient client, const char * host, const char * user, const char * pass);
 
-    inline sql::Connection* GetConnection() const {return con_;}
-    inline const string GetAppletPath() const{return applet_path_;}
+    void connect();
+    void rollback();
+    SAConnection * connectionSa(){return & db_con;}
+
 private:
-    sql::Driver *driver_;
-    sql::Connection *con_;
+    SAString  db_host;
+    SAString  db_user;
+    SAString  db_pass;
 
-    string host_;
-    string user_;
-    string pass_;
-    string applet_path_;
-    string database_;
+    SAConnection db_con;
 };
 
 #endif // SQLCONNECTION_H

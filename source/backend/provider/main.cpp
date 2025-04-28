@@ -1,11 +1,11 @@
 #include <iostream>
 
-#include <SQLAPI.h>
 #include <easylogging++.h>
 
 #include "include_backend_util.h"
 #include "configfile.h"
 #include "sqlapplet.h"
+#include "sqlconnection.h"
 
 INITIALIZE_EASYLOGGINGPP
 
@@ -29,18 +29,19 @@ int main()
     // Initialize project applet path
     SQLApplet::InitPathToApplets(config->appletPath().c_str());
 
-    // SQLAPI example
-    SAString  db_host = config->value("host").c_str();
-    SAString  db_user = config->value("user").c_str();
-    SAString  db_pass = config->value("pass").c_str();
-    SAConnection con;
+    // Inilialize sql connections with data: host, user, pass
+    SqlConnection::InitAllConnections(SA_PostgreSQL_Client,
+                                        config->value("host").c_str(),
+                                        config->value("user").c_str(),
+                                        config->value("pass").c_str());
+
+    SqlConnection con;
     try
     {
-        con.setClient( SA_PostgreSQL_Client );
-        con.Connect(db_host, db_user, db_pass);
-        SACommand select(&con, _TSA(""));
+        con.connect();
+        SACommand select(con.connectionSa(), _TSA(""));
 
-        con.Disconnect();
+        //con.Disconnect();
 
     } catch(SAException & x) {
         // SAConnection::Rollback()
@@ -50,7 +51,7 @@ int main()
         try
         {
             // on error rollback changes
-            con.Rollback();
+            con.rollback();
         } catch(SAException &) {
 
         }
