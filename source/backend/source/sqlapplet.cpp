@@ -5,6 +5,7 @@
 
 namespace {
     static string AppletPath = "";
+    static bool UseDefaultValue = false;
     map<string, DataInfo::Type> const xmlTypeToDataInfo={{"NUMERIC", DataInfo::Int},
                                       {"STRING", DataInfo::String},
                                       {"DATETIME", DataInfo::DateTime},
@@ -22,9 +23,10 @@ SQLApplet::SQLApplet(const char * appletName, map<string, string> formattedParam
     m_appletPath = std::format("{}{}", AppletPath, appletName);
 }
 
-void SQLApplet::InitPathToApplets(const char * appletPath)
+void SQLApplet::InitPathToApplets(const char * appletPath, bool useDefaultValue)
 {
     AppletPath = appletPath;
+    UseDefaultValue = useDefaultValue;
 }
 
 void SQLApplet::AddDataInfo(const char * paramName, const char * paramValue)
@@ -32,21 +34,25 @@ void SQLApplet::AddDataInfo(const char * paramName, const char * paramValue)
     FormatterDataType data(paramValue);
     m_formatter.AddDataInfo(paramName, data);
 }
+
 void SQLApplet::AddDataInfo(const char * paramName, int paramValue)
 {
     FormatterDataType data(paramValue);
     m_formatter.AddDataInfo(paramName, data);
 }
+
 void SQLApplet::AddDataInfo(const char * paramName, double paramValue)
 {
     FormatterDataType data(paramValue);
     m_formatter.AddDataInfo(paramName, data);
 }
+
 void SQLApplet::AddDataInfo(const char * paramName, bool paramValue)
 {
     FormatterDataType data(paramValue);
     m_formatter.AddDataInfo(paramName, data);
 }
+
 void SQLApplet::AddDataInfo(const char * paramName, const std::chrono::sys_seconds paramValue, DataInfo::Type nType)
 {
     m_formatter.AddDataInfo(paramName, paramValue, nType);
@@ -78,7 +84,7 @@ void SQLApplet::parse()
         throw SQLAppletException(APPLET_ERR_NO_DESCRIPTION);
     }
 
-    description_ = parser.GetChildData();
+    m_description = parser.GetChildData();
      vector<DataInfo> xmlDataInfoParams;
     // - find params and fill vector
     while (parser.FindChildElem("Param")) {
@@ -100,10 +106,12 @@ void SQLApplet::parse()
 
         // check param/value in formattedList
         if(formattedList.find(ob.param) == formattedList.end()) {
-            if (parser.FindChildElem("DefVal")) {
-                ob.value = parser.GetChildData();
-            } else {
-                throw SQLAppletException(APPLET_ERR_PARAM_NO_DEFVAL);
+            if(UseDefaultValue) {
+                if (parser.FindChildElem("DefVal")) {
+                    ob.value = parser.GetChildData();
+                } else {
+                    throw SQLAppletException(APPLET_ERR_PARAM_NO_DEFVAL);
+                }
             }
         } else {
             if(formattedList.contains(ob.param)) {
