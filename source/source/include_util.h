@@ -6,7 +6,6 @@
 #include <variant>
 #include <set>
 
-
 using std::string;
 using std::vector;
 using std::map;
@@ -28,12 +27,13 @@ struct DataInfo {
     Type type;
 };
 
-namespace {
-    string trimLeftRight(const string & str) {
-        size_t first = str.find_first_not_of(' ');
-        size_t last = str.find_last_not_of(' ');
-        return str.substr(first, (last-first + 1));
-    }
-}
+namespace Trimmer {
+    extern const char * ws;
+    // trim from end of string (right)
+    std::string & rtrim(std::string & s, const char* t = ws);
+    // trim from beginning of string (left)
+    std::string & ltrim(std::string & s, const char* t = ws);
+    // trim from both ends of string (right then left)
+    std::string & trim(std::string & s, const char* t = ws);
+};
 
-//extern el::Configurations qGlobalLog;
