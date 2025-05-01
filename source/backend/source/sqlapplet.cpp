@@ -154,5 +154,5 @@ void SQLApplet::parse()
             start_pos = m_sqlSource.find(sTo, start_pos);
         }
     }
-    m_sqlSource = trimLeftRight(m_sqlSource);
+    m_sqlSource = Trimmer::trim(m_sqlSource);
 }
