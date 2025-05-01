@@ -132,5 +132,6 @@ install(TARGETS provider_lib
 if(BUILD_TESTS)
     enable_testing()
     set(CMAKE_CTEST_ARGUMENTS "--no-compress-output;--interactive-debug-mode;0;-LE;Online;-L;GoogleTest;--verbose")
-    add_subdirectory(tests)
+    add_subdirectory(unit_tests)
+    add_subdirectory(integration_tests)
 endif()
