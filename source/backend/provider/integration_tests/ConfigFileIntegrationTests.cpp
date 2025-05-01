@@ -1,7 +1,7 @@
 #include "configfile.h"
 #include "gtest/gtest.h"
 
-TEST(ConfigFileTests, LoadAndCheckData)
+TEST(ConfigFileIntegrationTests, LoadAndCheckData)
 {
     ConfigFile * config = nullptr;
     EXPECT_NO_THROW(config = ConfigFile::Instance());

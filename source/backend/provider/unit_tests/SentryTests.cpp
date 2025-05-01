@@ -29,7 +29,7 @@
 //    memset((char *)invalid_mem, 1, 100);
 //}
 
-TEST(ConfigFileTests, SentryTests)
+TEST(SentryTests, VoidTests)
 {
     // main()
         //sentry_options_t *options = sentry_options_new();
