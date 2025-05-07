@@ -31,15 +31,20 @@ IF (WIN32)
     include_directories(${THIRD_PARTY_BACKEND_DIR}/SQLAPI/windows/include)
     # Set SQLAPI paths for debug and release configurations
     set_target_properties(sqlapi PROPERTIES
-        IMPORTED_LOCATION_DEBUG "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/windows/vs2022/x86_64/lib/sqlapisd.lib"
-        IMPORTED_LOCATION_RELEASE "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/windows/vs2022/x86_64/lib/sqlapis.lib"
+      IMPORTED_LOCATION_DEBUG "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/windows/vs2022/x86_64/lib/sqlapisd.lib"
+      IMPORTED_LOCATION_RELEASE "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/windows/vs2022/x86_64/lib/sqlapis.lib"
     )
 ELSE()
-  # set stuff for other systems
+    include_directories(${THIRD_PARTY_BACKEND_DIR}/SQLAPI/linux/sqlapi-5.3.5/include)
+    # set stuff for other systems
+    set_target_properties(sqlapi PROPERTIES
+      IMPORTED_LOCATION_DEBUG "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/linux/sqlapi-5.3.5/lib/libsqlapi.a"
+      IMPORTED_LOCATION_RELEASE "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/linux/sqlapi-5.3.5/lib/libsqlapi.a"
+    )
 ENDIF()
 
 set(HEADER_FILES
-    ${THIRD_PARTY_INCLUDE_DIR}/markup/Markup.h
+    ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.h
 
     ${BACKEND_INCLUDE_DIR}/include_backend_util.h
     ${BACKEND_INCLUDE_DIR}/sqlapplet.h
@@ -51,7 +56,7 @@ set(HEADER_FILES
 )
 
 set(SOURCE_FILES
-    ${THIRD_PARTY_INCLUDE_DIR}/markup/Markup.cpp
+    ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.cpp
 
     ${BACKEND_INCLUDE_DIR}/include_backend_util.cpp
     ${BACKEND_INCLUDE_DIR}/sqlapplet.cpp
@@ -66,7 +71,7 @@ set(SOURCE_FILES
 find_package(easyloggingpp REQUIRED)
 
 # sentry-native
-find_package(sentry REQUIRED)
+#find_package(sentry REQUIRED)
 
 # gRPC library
 list(APPEND CMAKE_PREFIX_PATH ${THIRD_PARTY_INCLUDE_DIR}/grpc/build/windows/lib/cmake)
@@ -97,7 +102,7 @@ target_link_libraries(provider_lib
 
         # Conan packages
         easyloggingpp::easyloggingpp
-        sentry-native::sentry-native
+        #sentry-native::sentry-native
         gtest::gtest
 )
 
@@ -120,7 +125,7 @@ target_link_libraries(provider
         provider_lib
         # Conan packages
         easyloggingpp::easyloggingpp
-        sentry-native::sentry-native
+        #sentry-native::sentry-native
 )
 
 include(GNUInstallDirs)

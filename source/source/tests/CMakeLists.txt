@@ -24,7 +24,7 @@ set(TEST_GENERATED_ROOT ${CMAKE_CURRENT_BINARY_DIR}/generated)
 file(MAKE_DIRECTORY ${TEST_GENERATED_ROOT})
 
 set(HEADER_FILES
-    ${THIRD_PARTY_INCLUDE_DIR}/markup/Markup.h
+    ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.h
 
     ${INCLUDE_DIR}/include_util.h
     ${INCLUDE_DIR}/configfile.h
@@ -32,13 +32,13 @@ set(HEADER_FILES
 )
 
 set(SOURCE_FILES
-    ${THIRD_PARTY_INCLUDE_DIR}/markup/Markup.cpp
+    ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.cpp
 
     ${INCLUDE_DIR}/include_util.cpp
     ${INCLUDE_DIR}/configfile.cpp
     ${INCLUDE_DIR}/TypeToStringFormatter.cpp
 
-    ConfigFileTests.cpp
+    ConfigFIleTests.cpp
     TypeToStringFormatterTests.cpp
 )
 

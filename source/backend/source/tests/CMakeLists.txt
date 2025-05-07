@@ -35,14 +35,19 @@ IF (WIN32)
         IMPORTED_LOCATION_RELEASE "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/windows/vs2022/x86_64/lib/sqlapis.lib"
     )
 ELSE()
-  # set stuff for other systems
+    include_directories(${THIRD_PARTY_BACKEND_DIR}/SQLAPI/linux/sqlapi-5.3.5/include)
+    # set stuff for other systems
+    set_target_properties(sqlapi PROPERTIES
+      IMPORTED_LOCATION_DEBUG "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/linux/sqlapi-5.3.5/lib/libsqlapi.a"
+      IMPORTED_LOCATION_RELEASE "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/linux/sqlapi-5.3.5/lib/libsqlapi.a"
+    )
 ENDIF()
 
 set(HEADER_FILES
     ${INCLUDE_DIR}/TypeToStringFormatter.h
     ${INCLUDE_DIR}/include_util.h
 
-    ${THIRD_PARTY_INCLUDE_DIR}/markup/Markup.h
+    ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.h
 
     ${BACKEND_INCLUDE_DIR}/include_backend_util.h
     ${BACKEND_INCLUDE_DIR}/sqlapplet.h
@@ -54,7 +59,7 @@ set(SOURCE_FILES
     ${INCLUDE_DIR}/TypeToStringFormatter.cpp
     ${INCLUDE_DIR}/include_util.cpp
 	
-    ${THIRD_PARTY_INCLUDE_DIR}/markup/Markup.cpp
+    ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.cpp
 
     ${BACKEND_INCLUDE_DIR}/include_backend_util.cpp
     ${BACKEND_INCLUDE_DIR}/sqlapplet.cpp

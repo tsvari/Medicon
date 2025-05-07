@@ -17,7 +17,7 @@ class provider(ConanFile):
  
     requires = (
     "easyloggingpp/9.97.1",
-    "sentry-native/0.8.1",
+    #"sentry-native/0.8.1",
     "gtest/1.16.0"
     )
 

@@ -11,7 +11,7 @@ elseif(APPLE)
     set(ALL_PROJECT_PATH "")
 else()
     # Linux or other Unix-like systems
-    set(ALL_PROJECT_PATH "")
+    set(ALL_PROJECT_PATH "/home/tsvari/Projects/Medicon")
 endif()
 
 # All project definations
