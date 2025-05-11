@@ -4,9 +4,10 @@ CMakeSettings.json
 CMakeLists.txt.user
 out
 build
+github.txt
 assets/CA
 assets/SQLAPI_installers
 assets/app-data/provider/log
 /source/source/3party/grpc
 /source/source/3party
-source/backend/source/3party
+/source/backend/source/3party/SQLAPI
