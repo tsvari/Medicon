@@ -18,11 +18,12 @@ endif()
 set(ALL_PROJECT_PATH ${ALL_PROJECT_PATH})
 set(ALL_PROJECT_APPDATA_PATH ${ALL_PROJECT_PATH}/assets/app-data/)
 set(ALL_PROJECT_TEST_APPDATA_PATH ${ALL_PROJECT_PATH}/source/source/tests/app-data/)
+set(ALL_PROJECT_GRPC_PROTOS_PATH ${ALL_PROJECT_PATH}/source/grpc/protos/)
+set(ALL_GRPC_CPP_SOURCE ${ALL_PROJECT_PATH}/source/grpc/cpp-source/)
 
 add_definitions("-DALL_PROJECT_PATH=\"${ALL_PROJECT_PATH}\"")
 add_definitions("-DALL_PROJECT_APPDATA_PATH=\"${ALL_PROJECT_APPDATA_PATH}\"")
 add_definitions("-DALL_PROJECT_TEST_APPDATA_PATH=\"${ALL_PROJECT_TEST_APPDATA_PATH}\"")
-
 
 set(TEST_PROJECT "AllTestProject")
 add_definitions("-DTEST_PROJECT=\"${TEST_PROJECT}\"")
@@ -53,3 +54,34 @@ add_definitions("-DALL_BACKEND_PROJECT_PATH=\"${ALL_BACKEND_PROJECT_PATH}\"")
 add_definitions("-DALL_BACKEND_TEST_APPDATA_PATH=\"${ALL_BACKEND_TEST_APPDATA_PATH}\"")
 
 
+find_package(Threads REQUIRED)
+list(APPEND CMAKE_PREFIX_PATH ${ALL_PROJECT_PATH}/source/source/3party/grpc/build/windows/lib/cmake)
+
+# This branch assumes that gRPC and all its dependencies are already installed
+# on this system, so they can be located by find_package().
+
+# Find Protobuf installation
+# Looks for protobuf-config.cmake file installed by Protobuf's cmake installation.
+option(protobuf_MODULE_COMPATIBLE TRUE)
+find_package(Protobuf CONFIG REQUIRED)
+message(STATUS "Using protobuf ${Protobuf_VERSION}")
+
+set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
+set(_REFLECTION gRPC::grpc++_reflection)
+if(CMAKE_CROSSCOMPILING)
+  find_program(_PROTOBUF_PROTOC protoc)
+else()
+  set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+endif()
+
+# Find gRPC installation
+# Looks for gRPCConfig.cmake file installed by gRPC's cmake installation.
+find_package(gRPC CONFIG REQUIRED)
+message(STATUS "Using gRPC ${gRPC_VERSION}")
+
+set(_GRPC_GRPCPP gRPC::grpc++)
+if(CMAKE_CROSSCOMPILING)
+  find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
+else()
+  set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
+endif()
