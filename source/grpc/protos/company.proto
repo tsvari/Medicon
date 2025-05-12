@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package CompanyEdit;
+
+// Interface exported by the server.
+service CompanyEditor {
+
+  rpc AddCompany(Company) returns (CompanyResult) {}
+
+  rpc EditCompany(Company) returns (CompanyResult) {}
+
+  rpc DeleteCompany(Company) returns (CompanyResult) {}
+
+  rpc QueryCompanies(XmlParameters) returns (CompanyList) {}
+}
+
+message Company {
+  string UID = 1;
+  string SERVER_UID = 2;
+  uint32 COMPANY_TYPE = 3;
+  string NAME = 4;
+  string ADDRESS = 5;
+  uint32 REG_DATE = 6;
+  uint32 JOINT_DATE = 7;
+  string LICENSE = 8;
+  bytes LOGO = 19;
+}
+
+message CompanyResult {
+  bool success = 1;
+  string error = 2;
+  string uid = 3;
+}
+
+message CompanyList {
+  repeated Company companies = 1;
+}
+
+message XmlParameters {
+  string xmlParams = 1;
+}

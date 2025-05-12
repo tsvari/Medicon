@@ -1,0 +1,54 @@
+<?xml version="1.0" ?>
+<APPLET>
+	<!-- 
+	list of comments
+	-->
+  <Description>Query selection users by user ID </Description>
+  <Param>
+        <!-- Name -->
+        <Name>Name</Name>
+	<Type>STRING</Type>
+        <MaxLen>100</MaxLen>
+        <DefVal>Givi</DefVal>
+  </Param>
+  <Param>
+        <!-- BirthDate -->
+        <Name>BirthDate</Name>
+        <Type>DATE</Type>
+        <MaxLen>20</MaxLen>
+        <DefVal>2007-01-20</DefVal>
+  </Param>
+  <Param>
+        <!-- BirthDateTime -->
+        <Name>WholeDateTime</Name>
+        <Type>DATETIME</Type>
+        <MaxLen>32</MaxLen>
+        <DefVal>2007-01-20 10:11:12</DefVal>
+  </Param>
+  <Param>
+        <!-- BirthTime -->
+        <Name>BirthTime</Name>
+        <Type>TIME</Type>
+        <MaxLen>24</MaxLen>
+        <DefVal>10:11:12</DefVal>
+  </Param>
+  <Param>
+        <!-- Height -->
+        <Name>Height</Name>
+        <Type>NUMERIC</Type>
+        <MaxLen>10</MaxLen>
+        <DefVal>175</DefVal>
+  </Param>
+  <Param>
+        <!-- Money -->
+        <Name>Money</Name>
+        <Type>NUMERIC</Type>
+        <MaxLen>12</MaxLen>
+        <DefVal>122.123000</DefVal>
+  </Param>
+  <Code>
+      <![CDATA[
+        Money=:Money:,Height=:Height:,BirthTime=:BirthTime:,WholeDateTime=:WholeDateTime:,BirthDate=:BirthDate:,Name=:Name:
+      ]]>
+  </Code>
+</APPLET>
