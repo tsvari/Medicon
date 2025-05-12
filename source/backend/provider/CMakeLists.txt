@@ -54,8 +54,8 @@ set(HEADER_FILES
     ${INCLUDE_DIR}/configfile.h
     ${INCLUDE_DIR}/TypeToStringFormatter.h
 
-    ${ALL_GRPC_CPP_SOURCE}/company.pb.h
-    ${ALL_GRPC_CPP_SOURCE}/company.grpc.pb.h
+    ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.pb.h
+    ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.h
 )
 
 set(SOURCE_FILES
@@ -69,8 +69,10 @@ set(SOURCE_FILES
     ${INCLUDE_DIR}/configfile.cpp
     ${INCLUDE_DIR}/TypeToStringFormatter.cpp
 
-    ${ALL_GRPC_CPP_SOURCE}/company.pb.cc
-    ${ALL_GRPC_CPP_SOURCE}/company.grpc.pb.cc
+    ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.pb.cc
+    ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.cc
+
+    ${BACKEND_GRPC_DIR}/company_server.hpp
 )
 
 # easylogging++
@@ -115,6 +117,11 @@ target_link_libraries(provider_lib
         easyloggingpp::easyloggingpp
         #sentry-native::sentry-native
         gtest::gtest
+
+        absl::check
+        ${_REFLECTION}
+        ${_GRPC_GRPCPP}
+        ${_PROTOBUF_LIBPROTOBUF}
 )
 
 # Just executable
@@ -137,6 +144,10 @@ target_link_libraries(provider
         # Conan packages
         easyloggingpp::easyloggingpp
         #sentry-native::sentry-native
+        absl::check
+        ${_REFLECTION}
+        ${_GRPC_GRPCPP}
+        ${_PROTOBUF_LIBPROTOBUF}
 )
 
 include(GNUInstallDirs)

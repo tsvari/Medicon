@@ -1,12 +1,10 @@
-#include <iostream>
-
-#include <easylogging++.h>
-
+#include "../grpc/company_server.hpp"
 #include "include_backend_util.h"
 #include "configfile.h"
 #include "sqlapplet.h"
 #include "sqlconnection.h"
 
+#include <easylogging++.h>
 INITIALIZE_EASYLOGGINGPP
 
 int main()
@@ -34,6 +32,8 @@ int main()
                                         config->value("host").c_str(),
                                         config->value("user").c_str(),
                                         config->value("pass").c_str());
+
+    RunCompanyServer(12345);
 
     return 0;
 }
