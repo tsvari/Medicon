@@ -6,6 +6,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 if(WIN32)
     # Windows-specific settings
     set(ALL_PROJECT_PATH "C:/projects/MediCon")
+    include_directories(${ALL_PROJECT_PATH}/source/source/3party/grpc/build/windows/include/)
 elseif(APPLE)
     # macOS-specific settings
     set(ALL_PROJECT_PATH "")
@@ -40,11 +41,12 @@ set(BACKEND_TEST_PROJECT "BackendTestProject")
 add_definitions("-DBACKEND_TEST_PROJECT=\"${BACKEND_TEST_PROJECT}\"")
 
 set(BACKEND_INCLUDE_DIR ${ALL_PROJECT_PATH}/source/backend/source)
-set(THIRD_PARTY_BACKEND_DIR ${BACKEND_INCLUDE_DIR}/3party)
+set(BACKEND_THIRD_PARTY_DIR ${BACKEND_INCLUDE_DIR}/3party)
+set(BACKEND_GRPC_DIR ${ALL_PROJECT_PATH}/source/backend/grpc)
 
 include_directories(${BACKEND_INCLUDE_DIR})
-include_directories(${THIRD_PARTY_BACKEND_DIR})
-include_directories(${THIRD_PARTY_BACKEND_DIR}/easylogging)
+include_directories(${BACKEND_THIRD_PARTY_DIR})
+include_directories(${BACKEND_GRPC_DIR})
 
 set(ALL_BACKEND_PROJECT_PATH ${ALL_PROJECT_PATH}/source/backend/)
 set(ALL_BACKEND_TEST_APPDATA_PATH ${BACKEND_INCLUDE_DIR}/tests/app-data/)
@@ -52,4 +54,18 @@ set(ALL_BACKEND_TEST_APPDATA_PATH ${BACKEND_INCLUDE_DIR}/tests/app-data/)
 add_definitions("-DALL_BACKEND_PROJECT_PATH=\"${ALL_BACKEND_PROJECT_PATH}\"")
 add_definitions("-DALL_BACKEND_TEST_APPDATA_PATH=\"${ALL_BACKEND_TEST_APPDATA_PATH}\"")
 
+# Frontend settings
+set(FRONTEND_INCLUDE_DIR ${ALL_PROJECT_PATH}/source/frontend/source)
+set(FRONTEND_THIRD_PARTY_DIR ${BACKEND_INCLUDE_DIR}/3party)
+set(FRONTEND_GRPC_DIR ${ALL_PROJECT_PATH}/source/frontend/grpc)
+
+include_directories(${FRONTEND_INCLUDE_DIR})
+include_directories(${FRONTEND_THIRD_PARTY_DIR})
+include_directories(${FRONTEND_GRPC_DIR})
+
+set(ALL_FRONTEND_PROJECT_PATH ${ALL_PROJECT_PATH}/source/backend/)
+set(ALL_FRONTEND_TEST_APPDATA_PATH ${FRONTEND_INCLUDE_DIR}/tests/app-data/)
+
+add_definitions("-DALL_FRONTEND_PROJECT_PATH=\"${ALL_FRONTEND_PROJECT_PATH}\"")
+add_definitions("-DALL_FRONTEND_TEST_APPDATA_PATH=\"${ALL_FRONTEND_TEST_APPDATA_PATH}\"")
 

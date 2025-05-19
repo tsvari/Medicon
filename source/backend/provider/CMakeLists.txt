@@ -28,14 +28,14 @@ set(BUILD_TESTS ON CACHE BOOL "If enabled, build 'provider' unit tests")
 # Import SQLAPI the prebuilt static library
 add_library(sqlapi STATIC IMPORTED)
 IF (WIN32)
-    include_directories(${THIRD_PARTY_BACKEND_DIR}/SQLAPI/windows/include)
+    include_directories(${BACKEND_THIRD_PARTY_DIR}/SQLAPI/windows/include)
     # Set SQLAPI paths for debug and release configurations
     set_target_properties(sqlapi PROPERTIES
       IMPORTED_LOCATION_DEBUG "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/windows/vs2022/x86_64/lib/sqlapisd.lib"
       IMPORTED_LOCATION_RELEASE "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/windows/vs2022/x86_64/lib/sqlapis.lib"
     )
 ELSE()
-    include_directories(${THIRD_PARTY_BACKEND_DIR}/SQLAPI/linux/sqlapi-5.3.5/include)
+    include_directories(${BACKEND_THIRD_PARTY_DIR}/SQLAPI/linux/sqlapi-5.3.5/include)
     # set stuff for other systems
     set_target_properties(sqlapi PROPERTIES
       IMPORTED_LOCATION_DEBUG "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/linux/sqlapi-5.3.5/lib/libsqlapi.a"
@@ -53,6 +53,9 @@ set(HEADER_FILES
     ${INCLUDE_DIR}/include_util.h
     ${INCLUDE_DIR}/configfile.h
     ${INCLUDE_DIR}/TypeToStringFormatter.h
+
+    ${ALL_GRPC_CPP_SOURCE}/company.pb.h
+    ${ALL_GRPC_CPP_SOURCE}/company.grpc.pb.h
 )
 
 set(SOURCE_FILES
@@ -65,6 +68,9 @@ set(SOURCE_FILES
     ${INCLUDE_DIR}/include_util.cpp
     ${INCLUDE_DIR}/configfile.cpp
     ${INCLUDE_DIR}/TypeToStringFormatter.cpp
+
+    ${ALL_GRPC_CPP_SOURCE}/company.pb.cc
+    ${ALL_GRPC_CPP_SOURCE}/company.grpc.pb.cc
 )
 
 # easylogging++
