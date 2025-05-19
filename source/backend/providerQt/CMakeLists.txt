@@ -17,14 +17,14 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 set(INCLUDE_DIR "../../include")
 set(BACKEND_INCLUDE_DIR "../include")
 set(THIRD_PARTY_INCLUDE_DIR ${INCLUDE_DIR}/3party)
-set(THIRD_PARTY_BACKEND_DIR ${BACKEND_INCLUDE_DIR}/3party)
+set(BACKEND_THIRD_PARTY_DIR ${BACKEND_INCLUDE_DIR}/3party)
 
 include_directories(${INCLUDE_DIR})
 include_directories(${BACKEND_INCLUDE_DIR})
 include_directories(${THIRD_PARTY_INCLUDE_DIR})
-include_directories(${THIRD_PARTY_BACKEND_DIR})
-include_directories(${THIRD_PARTY_BACKEND_DIR}/cpp-httplib)
-include_directories(${THIRD_PARTY_BACKEND_DIR}/json-develop/include)
+include_directories(${BACKEND_THIRD_PARTY_DIR})
+include_directories(${BACKEND_THIRD_PARTY_DIR}/cpp-httplib)
+include_directories(${BACKEND_THIRD_PARTY_DIR}/json-develop/include)
 
 set(HEADER_FILES
 )
