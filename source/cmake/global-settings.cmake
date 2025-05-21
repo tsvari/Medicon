@@ -6,7 +6,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 if(WIN32)
     # Windows-specific settings
     set(ALL_PROJECT_PATH "C:/projects/MediCon")
-    include_directories(${ALL_PROJECT_PATH}/source/source/3party/grpc/build/windows/include/)
 elseif(APPLE)
     # macOS-specific settings
     set(ALL_PROJECT_PATH "")
@@ -66,12 +65,24 @@ set(ALL_FRONTEND_TEST_APPDATA_PATH ${FRONTEND_INCLUDE_DIR}/tests/app-data/)
 add_definitions("-DALL_FRONTEND_PROJECT_PATH=\"${ALL_FRONTEND_PROJECT_PATH}\"")
 add_definitions("-DALL_FRONTEND_TEST_APPDATA_PATH=\"${ALL_FRONTEND_TEST_APPDATA_PATH}\"")
 
-find_package(Threads REQUIRED)
-list(APPEND CMAKE_PREFIX_PATH ${ALL_PROJECT_PATH}/source/source/3party/grpc/build/windows/lib/cmake)
+
+#list(APPEND CMAKE_PREFIX_PATH ${ALL_PROJECT_PATH}/source/source/3party/grpc/build/windows/lib/cmake)
+
+IF (WIN32)
+    #if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        include_directories(${ALL_PROJECT_PATH}/source/source/3party/grpc/build/windows/Debug/include/)
+        list(APPEND CMAKE_PREFIX_PATH ${THIRD_PARTY_INCLUDE_DIR}/grpc/build/windows/Debug/lib/cmake)
+    #elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+        #list(APPEND CMAKE_PREFIX_PATH ${THIRD_PARTY_INCLUDE_DIR}/grpc/build/windows/Release/lib/cmake)
+    #endif()
+ELSE()
+    list(APPEND CMAKE_PREFIX_PATH ${THIRD_PARTY_INCLUDE_DIR}/grpc/build/linux/lib/cmake)
+ENDIF()
 
 # This branch assumes that gRPC and all its dependencies are already installed
 # on this system, so they can be located by find_package().
 
+find_package(Threads REQUIRED)
 # Find Protobuf installation
 # Looks for protobuf-config.cmake file installed by Protobuf's cmake installation.
 option(protobuf_MODULE_COMPATIBLE TRUE)

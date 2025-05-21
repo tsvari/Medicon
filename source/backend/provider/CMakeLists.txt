@@ -81,16 +81,6 @@ find_package(easyloggingpp REQUIRED)
 # sentry-native
 #find_package(sentry REQUIRED)
 
-# gRPC library
-IF (WIN32)
-    list(APPEND CMAKE_PREFIX_PATH ${THIRD_PARTY_INCLUDE_DIR}/grpc/build/windows/lib/cmake)
-ELSE()
-    list(APPEND CMAKE_PREFIX_PATH ${THIRD_PARTY_INCLUDE_DIR}/grpc/build/linux/lib/cmake)
-ENDIF()
-
-find_package(Threads REQUIRED)
-find_package(Protobuf CONFIG REQUIRED)
-find_package(gRPC CONFIG REQUIRED)
 find_package(GTest REQUIRED)
 
 add_library(provider_lib STATIC

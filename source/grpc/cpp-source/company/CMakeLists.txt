@@ -22,14 +22,14 @@ add_custom_command(
         --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
         "${hw_proto}"
       DEPENDS "${hw_proto}"
-      COMMAND ${CMAKE_COMMAND} -E copy ${hw_proto_srcs} ${ALL_GRPC_CPP_SOURCE}/company.pb.cc
-      COMMAND ${CMAKE_COMMAND} -E copy ${hw_proto_hdrs} ${ALL_GRPC_CPP_SOURCE}/company.pb.h
-      COMMAND ${CMAKE_COMMAND} -E copy ${hw_grpc_srcs} ${ALL_GRPC_CPP_SOURCE}/company.grpc.pb.cc
-      COMMAND ${CMAKE_COMMAND} -E copy ${hw_grpc_hdrs} ${ALL_GRPC_CPP_SOURCE}/company.grpc.pb.h
+      COMMAND ${CMAKE_COMMAND} -E copy ${hw_proto_srcs} ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.pb.cc
+      COMMAND ${CMAKE_COMMAND} -E copy ${hw_proto_hdrs} ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.pb.h
+      COMMAND ${CMAKE_COMMAND} -E copy ${hw_grpc_srcs} ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.cc
+      COMMAND ${CMAKE_COMMAND} -E copy ${hw_grpc_hdrs} ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.h
 )
 
 ## Include generated *.pb.h files
-include_directories("${ALL_GRPC_CPP_SOURCE}")
+include_directories("${ALL_PROJECT_GRPC_CPP_SOURCE}")
 #
 ## hw_grpc_proto
 add_library(company
