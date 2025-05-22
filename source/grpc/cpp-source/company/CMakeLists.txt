@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.16)
 
 project(company C CXX)
 
-include(../../../cmake/global-settings.cmake)
-
 # Proto file
 get_filename_component(hw_proto "${ALL_PROJECT_GRPC_PROTOS_PATH}/company.proto" ABSOLUTE)
 get_filename_component(hw_proto_path "${hw_proto}" PATH)
@@ -28,9 +26,6 @@ add_custom_command(
       COMMAND ${CMAKE_COMMAND} -E copy ${hw_grpc_hdrs} ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.h
 )
 
-## Include generated *.pb.h files
-include_directories("${ALL_PROJECT_GRPC_CPP_SOURCE}")
-#
 ## hw_grpc_proto
 add_library(company
   ${hw_grpc_srcs}
