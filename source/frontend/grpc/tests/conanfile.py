@@ -5,8 +5,8 @@ from conan.errors import ConanInvalidConfiguration
 from conan.tools.scm import Version
 from conan.tools.cmake import CMake, CMakeDeps, cmake_layout
 
-class GlobalTestProject(ConanFile):
-    name = "BackendTestProject"
+class FrontendTestProject(ConanFile):
+    name = "FrontendTestProject"
     version = "0.1.0"
     
     url = "url.com"
