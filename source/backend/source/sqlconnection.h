@@ -17,7 +17,10 @@ public:
 
     void connect();
     void rollback();
+    void commit();
+
     SAConnection * connectionSa(){return & db_con;}
+    void setAutoCommit(bool autoCommit);
 
 private:
     SAString  db_host;
