@@ -41,6 +41,12 @@ void SQLApplet::AddDataInfo(const char * paramName, int paramValue)
     m_formatter.AddDataInfo(paramName, data);
 }
 
+void SQLApplet::AddDataInfo(const char *paramName, int64_t paramValue)
+{
+    FormatterDataType data(paramValue);
+    m_formatter.AddDataInfo(paramName, data);
+}
+
 void SQLApplet::AddDataInfo(const char * paramName, double paramValue)
 {
     FormatterDataType data(paramValue);
@@ -108,7 +114,12 @@ void SQLApplet::parse()
         if(formattedList.find(ob.param) == formattedList.end()) {
             if(UseDefaultValue) {
                 if (parser.FindChildElem("DefVal")) {
-                    ob.value = parser.GetChildData();
+                    string defaultValue = parser.GetChildData();
+                    if(defaultValue == "uuid") {
+                        ob.value = TimeFormatHelper::generateUniqueString();
+                    } else {
+                        ob.value = parser.GetChildData();
+                    }
                 } else {
                     throw SQLAppletException(APPLET_ERR_PARAM_NO_DEFVAL);
                 }

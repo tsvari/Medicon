@@ -18,7 +18,7 @@ std::chrono::sys_seconds chronoNow();
 std::string generateUniqueString();
 } // namespace
 
-typedef variant<int, double, string, bool> FormatterDataType;
+typedef variant<int, int64_t, double, string, bool> FormatterDataType;
 
 class TypeToStringFormatter
 {
