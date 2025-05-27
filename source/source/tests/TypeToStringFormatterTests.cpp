@@ -1,9 +1,6 @@
 #include "../TypeToStringFormatter.h"
 #include "gtest/gtest.h"
 
-#include <ctime>
-#include <iomanip>
-#include <sstream>
 #include <chrono>
 
 
@@ -31,6 +28,10 @@ TEST(FormaterTest, TimeFormatHelperTests)
     EXPECT_EQ(TimeFormatHelper::chronoSysSecToString(sysSecs, DataInfo::Time), "10:11:12");
 }
 
+TEST(FormaterTest, GenerateUniqueStringTests)
+{
+    EXPECT_EQ(TimeFormatHelper::generateUniqueString().size(), 128);
+}
 
 TEST(TypeToStringFormatterTests, TypeToStringFormatterWrongParamValueTests)
 {
@@ -180,6 +181,7 @@ TEST(TypeToStringFormatterTests, TypeToStringFormatterToTimeTests)
     EXPECT_NO_THROW(formatter.toTime("Date"));
     EXPECT_NO_THROW(formatter.toTime("Time"));
 }
+
 
 
 

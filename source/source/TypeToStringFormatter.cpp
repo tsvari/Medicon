@@ -1,9 +1,8 @@
 #include "TypeToStringFormatter.h"
 #include <cassert>
-#include <ctime>
-#include <iomanip>
 #include <sstream>
 #include <format>
+#include <random>
 
 namespace TimeFormatHelper{
 std::string chronoSysSecToString(const std::chrono::sys_seconds dateTimeInSecs, DataInfo::Type nType)
@@ -60,6 +59,25 @@ std::chrono::sys_seconds stringTochronoSysSec(const string & formattedDateTime, 
 std::chrono::sys_seconds chronoNow()
 {
     return std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now());
+}
+
+std::string generateUniqueString() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(0, 127);
+
+    std::vector<uint8_t> randomBytes(64);
+    for (int i = 0; i < 64; ++i) {
+        randomBytes[i] = distrib(gen);
+    }
+
+    std::stringstream ss;
+    ss << std::hex << std::setfill('0');
+    for (uint8_t byte : randomBytes) {
+        ss << std::setw(2) << static_cast<int>(byte);
+    }
+
+    return ss.str();
 }
 
 } // namespace
@@ -157,26 +175,10 @@ std::chrono::sys_seconds TypeToStringFormatter::toTime(const char * paramName)
 
     string infoValue = it->value;
     if(it->type == DataInfo::Time) {
+        // There is no Time alone without a Date, so write something like 1-1-1 to avoid being thrown DataInfo::Time type
         infoValue = string("1-1-1 ") + infoValue;
     }
 
     return TimeFormatHelper::stringTochronoSysSec(infoValue, it->type);
 }
 
-/*
-    std::string input = "1211-10-11 10:11:12";
-
-    // 1. Parse input into std::chrono::local_time
-    // Parse into a sys_seconds (UTC)
-    std::istringstream ss(input);
-    std::chrono::sys_seconds tp;
-    ss >> std::chrono::parse("%Y-%m-%d %H:%M:%S", tp);
-
-    if (ss.fail()) {
-        std::cerr << "Parsing failed\n";
-        return 1;
-    }
-
-    // Directly format sys_time without converting to time_t
-    std::cout << "Parsed UTC time: " << std::format("{:%Y-%m-%d %H:%M:%S}", tp) << '\n';
-*/
