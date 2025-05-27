@@ -15,6 +15,7 @@ namespace TimeFormatHelper {
 std::string chronoSysSecToString(const std::chrono::sys_seconds dateTimeInSecs, DataInfo::Type nType);
 std::chrono::sys_seconds stringTochronoSysSec(const std::string & formattedDateTime, DataInfo::Type nType);
 std::chrono::sys_seconds chronoNow();
+std::string generateUniqueString();
 } // namespace
 
 typedef variant<int, double, string, bool> FormatterDataType;
