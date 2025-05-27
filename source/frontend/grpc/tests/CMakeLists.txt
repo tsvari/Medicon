@@ -17,6 +17,9 @@ add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")
 
 set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVER_MODE PRE_TEST)
 
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+
 find_package(Threads REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
@@ -29,6 +32,8 @@ file(MAKE_DIRECTORY ${TEST_GENERATED_ROOT})
 
 set(HEADER_FILES
     ${INCLUDE_DIR}/include_util.h
+    ${INCLUDE_DIR}/TypeToStringFormatter.h
+
     ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.h
 
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.pb.h
@@ -36,11 +41,14 @@ set(HEADER_FILES
 )
 
 set(SOURCE_FILES
-    ${INCLUDE_DIR}/include_util.cpp	
+    ${INCLUDE_DIR}/include_util.cpp
+    ${INCLUDE_DIR}/TypeToStringFormatter.cpp
+
     ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.cpp
 
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.pb.cc
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.cc
+
     ${FRONTEND_GRPC_DIR}/company_client.hpp
 
     GrpcTests.cpp
@@ -67,10 +75,7 @@ target_link_libraries(FrontendTestProject
     ${_GRPC_GRPCPP}
     ${_PROTOBUF_LIBPROTOBUF}
 
-    #user32.lib
-    #version.lib
-    #oleaut32.lib
-    #ole32.lib
-    #ws2_32.lib
+    Qt${QT_VERSION_MAJOR}::Core
+
 )
 

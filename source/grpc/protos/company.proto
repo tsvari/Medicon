@@ -13,15 +13,15 @@ service CompanyEditor {
 
   rpc QueryCompanies(XmlParameters) returns (CompanyList) {}
 }
-
+// Add/Edit/Delete Logo 
 message Company {
   string UID = 1;
-  string SERVER_UID = 2;
+  uint32 SERVER_UID = 2;
   uint32 COMPANY_TYPE = 3;
   string NAME = 4;
   string ADDRESS = 5;
-  uint32 REG_DATE = 6;
-  uint32 JOINT_DATE = 7;
+  int64 REG_DATE = 6;
+  int64 JOINT_DATE = 7;
   string LICENSE = 8;
   bytes LOGO = 19;
 }

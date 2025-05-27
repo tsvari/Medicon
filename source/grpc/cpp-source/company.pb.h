@@ -649,11 +649,11 @@ class Company final
   // accessors -------------------------------------------------------
   enum : int {
     kUIDFieldNumber = 1,
-    kSERVERUIDFieldNumber = 2,
     kNAMEFieldNumber = 4,
     kADDRESSFieldNumber = 5,
     kLICENSEFieldNumber = 8,
     kLOGOFieldNumber = 19,
+    kSERVERUIDFieldNumber = 2,
     kCOMPANYTYPEFieldNumber = 3,
     kREGDATEFieldNumber = 6,
     kJOINTDATEFieldNumber = 7,
@@ -672,22 +672,6 @@ class Company final
   inline PROTOBUF_ALWAYS_INLINE void _internal_set_uid(
       const std::string& value);
   std::string* _internal_mutable_uid();
-
-  public:
-  // string SERVER_UID = 2;
-  void clear_server_uid() ;
-  const std::string& server_uid() const;
-  template <typename Arg_ = const std::string&, typename... Args_>
-  void set_server_uid(Arg_&& arg, Args_... args);
-  std::string* mutable_server_uid();
-  PROTOBUF_NODISCARD std::string* release_server_uid();
-  void set_allocated_server_uid(std::string* value);
-
-  private:
-  const std::string& _internal_server_uid() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_server_uid(
-      const std::string& value);
-  std::string* _internal_mutable_server_uid();
 
   public:
   // string NAME = 4;
@@ -754,6 +738,16 @@ class Company final
   std::string* _internal_mutable_logo();
 
   public:
+  // uint32 SERVER_UID = 2;
+  void clear_server_uid() ;
+  ::uint32_t server_uid() const;
+  void set_server_uid(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_server_uid() const;
+  void _internal_set_server_uid(::uint32_t value);
+
+  public:
   // uint32 COMPANY_TYPE = 3;
   void clear_company_type() ;
   ::uint32_t company_type() const;
@@ -764,24 +758,24 @@ class Company final
   void _internal_set_company_type(::uint32_t value);
 
   public:
-  // uint32 REG_DATE = 6;
+  // int64 REG_DATE = 6;
   void clear_reg_date() ;
-  ::uint32_t reg_date() const;
-  void set_reg_date(::uint32_t value);
+  ::int64_t reg_date() const;
+  void set_reg_date(::int64_t value);
 
   private:
-  ::uint32_t _internal_reg_date() const;
-  void _internal_set_reg_date(::uint32_t value);
+  ::int64_t _internal_reg_date() const;
+  void _internal_set_reg_date(::int64_t value);
 
   public:
-  // uint32 JOINT_DATE = 7;
+  // int64 JOINT_DATE = 7;
   void clear_joint_date() ;
-  ::uint32_t joint_date() const;
-  void set_joint_date(::uint32_t value);
+  ::int64_t joint_date() const;
+  void set_joint_date(::int64_t value);
 
   private:
-  ::uint32_t _internal_joint_date() const;
-  void _internal_set_joint_date(::uint32_t value);
+  ::int64_t _internal_joint_date() const;
+  void _internal_set_joint_date(::int64_t value);
 
   public:
   // @@protoc_insertion_point(class_scope:CompanyEdit.Company)
@@ -790,7 +784,7 @@ class Company final
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
       3, 9, 0,
-      67, 2>
+      57, 2>
       _table_;
 
   friend class ::google::protobuf::MessageLite;
@@ -808,14 +802,14 @@ class Company final
                           ::google::protobuf::Arena* arena, const Impl_& from,
                           const Company& from_msg);
     ::google::protobuf::internal::ArenaStringPtr uid_;
-    ::google::protobuf::internal::ArenaStringPtr server_uid_;
     ::google::protobuf::internal::ArenaStringPtr name_;
     ::google::protobuf::internal::ArenaStringPtr address_;
     ::google::protobuf::internal::ArenaStringPtr license_;
     ::google::protobuf::internal::ArenaStringPtr logo_;
+    ::uint32_t server_uid_;
     ::uint32_t company_type_;
-    ::uint32_t reg_date_;
-    ::uint32_t joint_date_;
+    ::int64_t reg_date_;
+    ::int64_t joint_date_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1085,52 +1079,26 @@ inline void Company::set_allocated_uid(std::string* value) {
   // @@protoc_insertion_point(field_set_allocated:CompanyEdit.Company.UID)
 }
 
-// string SERVER_UID = 2;
+// uint32 SERVER_UID = 2;
 inline void Company::clear_server_uid() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.server_uid_.ClearToEmpty();
+  _impl_.server_uid_ = 0u;
 }
-inline const std::string& Company::server_uid() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline ::uint32_t Company::server_uid() const {
   // @@protoc_insertion_point(field_get:CompanyEdit.Company.SERVER_UID)
   return _internal_server_uid();
 }
-template <typename Arg_, typename... Args_>
-inline PROTOBUF_ALWAYS_INLINE void Company::set_server_uid(Arg_&& arg,
-                                                     Args_... args) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.server_uid_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+inline void Company::set_server_uid(::uint32_t value) {
+  _internal_set_server_uid(value);
   // @@protoc_insertion_point(field_set:CompanyEdit.Company.SERVER_UID)
 }
-inline std::string* Company::mutable_server_uid() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  std::string* _s = _internal_mutable_server_uid();
-  // @@protoc_insertion_point(field_mutable:CompanyEdit.Company.SERVER_UID)
-  return _s;
-}
-inline const std::string& Company::_internal_server_uid() const {
+inline ::uint32_t Company::_internal_server_uid() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.server_uid_.Get();
+  return _impl_.server_uid_;
 }
-inline void Company::_internal_set_server_uid(const std::string& value) {
+inline void Company::_internal_set_server_uid(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.server_uid_.Set(value, GetArena());
-}
-inline std::string* Company::_internal_mutable_server_uid() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  return _impl_.server_uid_.Mutable( GetArena());
-}
-inline std::string* Company::release_server_uid() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:CompanyEdit.Company.SERVER_UID)
-  return _impl_.server_uid_.Release();
-}
-inline void Company::set_allocated_server_uid(std::string* value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.server_uid_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.server_uid_.IsDefault()) {
-    _impl_.server_uid_.Set("", GetArena());
-  }
-  // @@protoc_insertion_point(field_set_allocated:CompanyEdit.Company.SERVER_UID)
+  _impl_.server_uid_ = value;
 }
 
 // uint32 COMPANY_TYPE = 3;
@@ -1251,46 +1219,46 @@ inline void Company::set_allocated_address(std::string* value) {
   // @@protoc_insertion_point(field_set_allocated:CompanyEdit.Company.ADDRESS)
 }
 
-// uint32 REG_DATE = 6;
+// int64 REG_DATE = 6;
 inline void Company::clear_reg_date() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.reg_date_ = 0u;
+  _impl_.reg_date_ = ::int64_t{0};
 }
-inline ::uint32_t Company::reg_date() const {
+inline ::int64_t Company::reg_date() const {
   // @@protoc_insertion_point(field_get:CompanyEdit.Company.REG_DATE)
   return _internal_reg_date();
 }
-inline void Company::set_reg_date(::uint32_t value) {
+inline void Company::set_reg_date(::int64_t value) {
   _internal_set_reg_date(value);
   // @@protoc_insertion_point(field_set:CompanyEdit.Company.REG_DATE)
 }
-inline ::uint32_t Company::_internal_reg_date() const {
+inline ::int64_t Company::_internal_reg_date() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.reg_date_;
 }
-inline void Company::_internal_set_reg_date(::uint32_t value) {
+inline void Company::_internal_set_reg_date(::int64_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.reg_date_ = value;
 }
 
-// uint32 JOINT_DATE = 7;
+// int64 JOINT_DATE = 7;
 inline void Company::clear_joint_date() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.joint_date_ = 0u;
+  _impl_.joint_date_ = ::int64_t{0};
 }
-inline ::uint32_t Company::joint_date() const {
+inline ::int64_t Company::joint_date() const {
   // @@protoc_insertion_point(field_get:CompanyEdit.Company.JOINT_DATE)
   return _internal_joint_date();
 }
-inline void Company::set_joint_date(::uint32_t value) {
+inline void Company::set_joint_date(::int64_t value) {
   _internal_set_joint_date(value);
   // @@protoc_insertion_point(field_set:CompanyEdit.Company.JOINT_DATE)
 }
-inline ::uint32_t Company::_internal_joint_date() const {
+inline ::int64_t Company::_internal_joint_date() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.joint_date_;
 }
-inline void Company::_internal_set_joint_date(::uint32_t value) {
+inline void Company::_internal_set_joint_date(::int64_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.joint_date_ = value;
 }
