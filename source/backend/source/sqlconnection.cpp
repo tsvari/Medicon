@@ -57,3 +57,17 @@ void SqlConnection::rollback()
 {
     db_con.Rollback();
 }
+
+void SqlConnection::commit()
+{
+    db_con.Commit();
+}
+
+void SqlConnection::setAutoCommit(bool autoCommit)
+{
+    if(autoCommit) {
+        db_con.setAutoCommit(SA_AutoCommitOn);
+    } else {
+        db_con.setAutoCommit(SA_AutoCommitOff);
+    }
+}
