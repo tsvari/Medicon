@@ -23,6 +23,7 @@ public:
     void addDataInfo(const char * paramName,  const char * paramValue, DataInfo::Type nType);
 
     void execute();
+    string sql();
 
 protected:
     SQLApplet m_applet;
