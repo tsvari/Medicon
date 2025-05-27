@@ -1,5 +1,6 @@
 #include "sqlcommand.h"
 #include "sqlconnection.h"
+#include <easylogging++.h>
 
 SqlCommand::SqlCommand(SqlConnection & connection,
                        const char * appletName,
@@ -45,7 +46,13 @@ void SqlCommand::addDataInfo(const char *paramName, const char *paramValue, Data
 void SqlCommand::execute()
 {
     m_applet.parse();
+    LOG(INFO) << m_applet.sql();
     setCommandText(m_applet.sql().c_str());
     Execute();
+}
+
+string SqlCommand::sql()
+{
+    return m_applet.sql();
 }
 
