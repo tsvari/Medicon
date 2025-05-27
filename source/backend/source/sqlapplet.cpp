@@ -82,7 +82,7 @@ void SQLApplet::parse()
     CMarkup	parser;
     // reuse parser
     if (!parser.Load(m_appletPath)) {
-        throw SQLAppletException(parser.GetError().c_str() );
+        throw SQLAppletException(string(string(APPLET_ERR_PARAM_XML) + string(" - ") + parser.GetError()).c_str());
     }
 
     // find Description Tag/Value
