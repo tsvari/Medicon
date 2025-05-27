@@ -15,9 +15,11 @@ namespace Trimmer {
         return s;
     }
     // trim from both ends of string (right then left)
-    std::string& trim(std::string & s, const char * t)
+    std::string& trim(std::string & str, const char * t)
     {
-        return ltrim(rtrim(s, t), t);
+        str.erase(std::remove(str.begin(), str.end(), '\n'), str.end());
+        str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
+        return ltrim(rtrim(str, t), t);
     }
 };
 
