@@ -50,6 +50,7 @@ set(HEADER_FILES
     ${BACKEND_INCLUDE_DIR}/sqlapplet.h
     ${BACKEND_INCLUDE_DIR}/sqlconnection.h
     ${BACKEND_INCLUDE_DIR}/sqlcommand.h
+    ${BACKEND_INCLUDE_DIR}/sqlquery.h
 
     ${INCLUDE_DIR}/include_util.h
     ${INCLUDE_DIR}/configfile.h
@@ -66,6 +67,7 @@ set(SOURCE_FILES
     ${BACKEND_INCLUDE_DIR}/sqlapplet.cpp
     ${BACKEND_INCLUDE_DIR}/sqlconnection.cpp
     ${BACKEND_INCLUDE_DIR}/sqlcommand.cpp
+    ${BACKEND_INCLUDE_DIR}/sqlquery.cpp
 
     ${INCLUDE_DIR}/include_util.cpp
     ${INCLUDE_DIR}/configfile.cpp

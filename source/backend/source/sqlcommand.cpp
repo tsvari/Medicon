@@ -46,9 +46,10 @@ void SqlCommand::addDataInfo(const char *paramName, const char *paramValue, Data
 void SqlCommand::execute()
 {
     m_applet.parse();
-    LOG(INFO) << m_applet.sql();
+    //LOG(INFO) << m_applet.sql();
     setCommandText(m_applet.sql().c_str());
     Execute();
+    m_executed = true;
 }
 
 string SqlCommand::sql()
