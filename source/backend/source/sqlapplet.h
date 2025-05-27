@@ -14,6 +14,7 @@ const char * APPLET_ERR_PARAM_NO_TYPE = "SQLApplet: No 'Type' tag inside the Par
 const char * APPLET_ERR_PARAM_NO_DEFVAL = "SQLApplet: No 'DefVal' tag inside the Param";
 const char * APPLET_ERR_PARAM_NO_VALUE = "SQLApplet: m_formattedParamValueList doesn't have param/value pair provided in Applet";
 const char * APPLET_ERR_PARAM_NO_CODE = "SQLApplet: SQL-script could not found!";
+const char * APPLET_ERR_PARAM_XML = "SQLApplet: Xml reading problem!";
 }
 
 class DataInfo;
