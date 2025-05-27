@@ -15,6 +15,7 @@ using std::set;
 struct DataInfo {
     enum Type{
         Int = 0,
+        Int64,
         String,
         Double,
         DateTime,

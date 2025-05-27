@@ -90,7 +90,10 @@ void TypeToStringFormatter::AddDataInfo(const char * paramName, FormatterDataTyp
     if (int * ptr = std::get_if<int>(&paramValue)) {
         info.value = std::to_string(*ptr);
         info.type = DataInfo::Int;
-    } else if (double * ptr = std::get_if<double>(&paramValue)) {
+    } else if (int64_t * ptr = std::get_if<int64_t>(&paramValue)) {
+        info.value = std::to_string(*ptr);
+        info.type = DataInfo::Int64;
+    }else if (double * ptr = std::get_if<double>(&paramValue)) {
         info.value = std::to_string(*ptr);
         info.type = DataInfo::Double;
     } else if (string * ptr = std::get_if<string>(&paramValue)) {
