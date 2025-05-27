@@ -27,6 +27,7 @@ public:
 
 protected:
     SQLApplet m_applet;
+    bool m_executed = false;
 };
 
 #endif // SQLCOMMAND_H
