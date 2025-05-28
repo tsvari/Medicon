@@ -27,6 +27,13 @@ std::string chronoSysSecToString(const std::chrono::sys_seconds dateTimeInSecs, 
     return formattedString;
 }
 
+std::string chronoSysSecToString(int64_t dateTimeInSecs, DataInfo::Type nType)
+{
+    std::chrono::seconds duration(dateTimeInSecs);
+    std::chrono::sys_seconds timePoint(duration);
+    return chronoSysSecToString(timePoint, nType);
+}
+
 std::chrono::sys_seconds stringTochronoSysSec(const string & formattedDateTime, DataInfo::Type nType)
 {
     std::chrono::sys_seconds dateTimeInSecs;

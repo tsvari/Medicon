@@ -13,6 +13,7 @@ const char * FORMATER_ERR_WRONG_TYPE = "The system does not support this type!";
 } // namespace
 namespace TimeFormatHelper {
 std::string chronoSysSecToString(const std::chrono::sys_seconds dateTimeInSecs, DataInfo::Type nType);
+std::string chronoSysSecToString(int64_t dateTimeInSecs, DataInfo::Type nType);
 std::chrono::sys_seconds stringTochronoSysSec(const std::string & formattedDateTime, DataInfo::Type nType);
 std::chrono::sys_seconds chronoNow();
 std::string generateUniqueString();
