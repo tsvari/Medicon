@@ -17,6 +17,7 @@
 #include "sqlapplet.h"
 #include "sqlcommand.h"
 #include "sqlconnection.h"
+#include "sqlquery.h"
 #include <easylogging++.h>
 
 using grpc::Server;
@@ -31,6 +32,7 @@ using CompanyEdit::Company;
 using CompanyEdit::CompanyResult;
 using CompanyEdit::CompanyList;
 using CompanyEdit::XmlParameters;
+using CompanyEdit::CompanyUid;
 
 //ABSL_FLAG(uint16_t, port, 50051, "Server port for the service");
 
@@ -79,15 +81,16 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
             result->set_success(false);
             result->set_error(x.ErrText().GetMultiByteChars());
             result->set_uid("");
-
             return Status::CANCELLED;
         } catch(const SQLAppletException & e) {
             LOG(ERROR) << e.what();
             result->set_success(false);
             result->set_error(e.what());
             result->set_uid("");
+            return Status::CANCELLED;
         } catch(...) {
             LOG(ERROR) << "Unknown error!";
+            return Status::CANCELLED;
         }
 
         return Status::OK;
@@ -150,6 +153,58 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
 
         return Status::OK;
     }
+
+    Status QueryCompanyByUid(ServerContext * context, const CompanyUid * request, Company * response) override
+    {
+        SqlConnection con;
+        SqlQuery cmd(con, "company_select_by_uid.xml");
+        try {
+            con.connect();
+            cmd.addDataInfo("UID", request->uid().c_str());
+            if(cmd.query()) {
+                SAString address = cmd.Field("ADDRESS").asString();
+                address.TrimRight();
+                SAString license = cmd.Field("LICENSE").asString();
+                license.TrimRight();
+
+                string strRegDate = cmd.Field("REG_DATE").asString().GetMultiByteChars();
+                string strJointDate = cmd.Field("JOINT_DATE").asString().GetMultiByteChars();
+
+                std::chrono::sys_seconds secRegDate = TimeFormatHelper::stringTochronoSysSec(strRegDate, DataInfo::Date);
+                std::chrono::sys_seconds secJointDate = TimeFormatHelper::stringTochronoSysSec(strJointDate, DataInfo::Date);
+
+                response->set_uid(cmd.Field("UID").asString().GetMultiByteChars());
+                response->set_server_uid(cmd.Field("SERVER_UID"));
+                response->set_company_type(cmd.Field("COMPANY_TYPE"));
+                response->set_name(cmd.Field("NAME").asString().GetMultiByteChars());
+                response->set_address(address.GetMultiByteChars());
+                response->set_reg_date(secRegDate.time_since_epoch().count());
+                response->set_joint_date(secJointDate.time_since_epoch().count());
+                response->set_license(license.GetMultiByteChars());
+                response->set_logo(cmd.Field("LOGO").asString().GetMultiByteChars());
+            }
+        } catch(SAException & x) {
+            LOG(ERROR) << x.ErrText().GetMultiByteChars();
+            LOG(INFO) << cmd.sql();
+            try {
+                con.rollback();
+            }
+            catch(SAException &)
+            {
+            }
+            return Status::CANCELLED;
+        } catch(const SQLAppletException & e) {
+            LOG(ERROR) << e.what();
+            return Status::CANCELLED;
+        } catch(...) {
+            LOG(ERROR) << "Unknown error!";
+            return Status::CANCELLED;
+        }
+
+        return Status::OK;
+    }
+
+
 };
 
 void RunCompanyServer(uint16_t port) {

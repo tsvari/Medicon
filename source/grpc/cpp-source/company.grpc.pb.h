@@ -65,6 +65,13 @@ class CompanyEditor final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::CompanyList>> PrepareAsyncQueryCompanies(::grpc::ClientContext* context, const ::CompanyEdit::XmlParameters& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::CompanyList>>(PrepareAsyncQueryCompaniesRaw(context, request, cq));
     }
+    virtual ::grpc::Status QueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::CompanyEdit::Company* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::Company>> AsyncQueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::Company>>(AsyncQueryCompanyByUidRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::Company>> PrepareAsyncQueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::Company>>(PrepareAsyncQueryCompanyByUidRaw(context, request, cq));
+    }
     class async_interface {
      public:
       virtual ~async_interface() {}
@@ -76,6 +83,8 @@ class CompanyEditor final {
       virtual void DeleteCompany(::grpc::ClientContext* context, const ::CompanyEdit::Company* request, ::CompanyEdit::CompanyResult* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       virtual void QueryCompanies(::grpc::ClientContext* context, const ::CompanyEdit::XmlParameters* request, ::CompanyEdit::CompanyList* response, std::function<void(::grpc::Status)>) = 0;
       virtual void QueryCompanies(::grpc::ClientContext* context, const ::CompanyEdit::XmlParameters* request, ::CompanyEdit::CompanyList* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      virtual void QueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid* request, ::CompanyEdit::Company* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void QueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid* request, ::CompanyEdit::Company* response, ::grpc::ClientUnaryReactor* reactor) = 0;
     };
     typedef class async_interface experimental_async_interface;
     virtual class async_interface* async() { return nullptr; }
@@ -89,6 +98,8 @@ class CompanyEditor final {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::CompanyResult>* PrepareAsyncDeleteCompanyRaw(::grpc::ClientContext* context, const ::CompanyEdit::Company& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::CompanyList>* AsyncQueryCompaniesRaw(::grpc::ClientContext* context, const ::CompanyEdit::XmlParameters& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::CompanyList>* PrepareAsyncQueryCompaniesRaw(::grpc::ClientContext* context, const ::CompanyEdit::XmlParameters& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::Company>* AsyncQueryCompanyByUidRaw(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::Company>* PrepareAsyncQueryCompanyByUidRaw(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
@@ -121,6 +132,13 @@ class CompanyEditor final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::CompanyEdit::CompanyList>> PrepareAsyncQueryCompanies(::grpc::ClientContext* context, const ::CompanyEdit::XmlParameters& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::CompanyEdit::CompanyList>>(PrepareAsyncQueryCompaniesRaw(context, request, cq));
     }
+    ::grpc::Status QueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::CompanyEdit::Company* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::CompanyEdit::Company>> AsyncQueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::CompanyEdit::Company>>(AsyncQueryCompanyByUidRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::CompanyEdit::Company>> PrepareAsyncQueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::CompanyEdit::Company>>(PrepareAsyncQueryCompanyByUidRaw(context, request, cq));
+    }
     class async final :
       public StubInterface::async_interface {
      public:
@@ -132,6 +150,8 @@ class CompanyEditor final {
       void DeleteCompany(::grpc::ClientContext* context, const ::CompanyEdit::Company* request, ::CompanyEdit::CompanyResult* response, ::grpc::ClientUnaryReactor* reactor) override;
       void QueryCompanies(::grpc::ClientContext* context, const ::CompanyEdit::XmlParameters* request, ::CompanyEdit::CompanyList* response, std::function<void(::grpc::Status)>) override;
       void QueryCompanies(::grpc::ClientContext* context, const ::CompanyEdit::XmlParameters* request, ::CompanyEdit::CompanyList* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void QueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid* request, ::CompanyEdit::Company* response, std::function<void(::grpc::Status)>) override;
+      void QueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid* request, ::CompanyEdit::Company* response, ::grpc::ClientUnaryReactor* reactor) override;
      private:
       friend class Stub;
       explicit async(Stub* stub): stub_(stub) { }
@@ -151,10 +171,13 @@ class CompanyEditor final {
     ::grpc::ClientAsyncResponseReader< ::CompanyEdit::CompanyResult>* PrepareAsyncDeleteCompanyRaw(::grpc::ClientContext* context, const ::CompanyEdit::Company& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::CompanyEdit::CompanyList>* AsyncQueryCompaniesRaw(::grpc::ClientContext* context, const ::CompanyEdit::XmlParameters& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::CompanyEdit::CompanyList>* PrepareAsyncQueryCompaniesRaw(::grpc::ClientContext* context, const ::CompanyEdit::XmlParameters& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::CompanyEdit::Company>* AsyncQueryCompanyByUidRaw(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::CompanyEdit::Company>* PrepareAsyncQueryCompanyByUidRaw(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_AddCompany_;
     const ::grpc::internal::RpcMethod rpcmethod_EditCompany_;
     const ::grpc::internal::RpcMethod rpcmethod_DeleteCompany_;
     const ::grpc::internal::RpcMethod rpcmethod_QueryCompanies_;
+    const ::grpc::internal::RpcMethod rpcmethod_QueryCompanyByUid_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -166,6 +189,7 @@ class CompanyEditor final {
     virtual ::grpc::Status EditCompany(::grpc::ServerContext* context, const ::CompanyEdit::Company* request, ::CompanyEdit::CompanyResult* response);
     virtual ::grpc::Status DeleteCompany(::grpc::ServerContext* context, const ::CompanyEdit::Company* request, ::CompanyEdit::CompanyResult* response);
     virtual ::grpc::Status QueryCompanies(::grpc::ServerContext* context, const ::CompanyEdit::XmlParameters* request, ::CompanyEdit::CompanyList* response);
+    virtual ::grpc::Status QueryCompanyByUid(::grpc::ServerContext* context, const ::CompanyEdit::CompanyUid* request, ::CompanyEdit::Company* response);
   };
   template <class BaseClass>
   class WithAsyncMethod_AddCompany : public BaseClass {
@@ -247,7 +271,27 @@ class CompanyEditor final {
       ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_AddCompany<WithAsyncMethod_EditCompany<WithAsyncMethod_DeleteCompany<WithAsyncMethod_QueryCompanies<Service > > > > AsyncService;
+  template <class BaseClass>
+  class WithAsyncMethod_QueryCompanyByUid : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithAsyncMethod_QueryCompanyByUid() {
+      ::grpc::Service::MarkMethodAsync(4);
+    }
+    ~WithAsyncMethod_QueryCompanyByUid() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status QueryCompanyByUid(::grpc::ServerContext* /*context*/, const ::CompanyEdit::CompanyUid* /*request*/, ::CompanyEdit::Company* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestQueryCompanyByUid(::grpc::ServerContext* context, ::CompanyEdit::CompanyUid* request, ::grpc::ServerAsyncResponseWriter< ::CompanyEdit::Company>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  typedef WithAsyncMethod_AddCompany<WithAsyncMethod_EditCompany<WithAsyncMethod_DeleteCompany<WithAsyncMethod_QueryCompanies<WithAsyncMethod_QueryCompanyByUid<Service > > > > > AsyncService;
   template <class BaseClass>
   class WithCallbackMethod_AddCompany : public BaseClass {
    private:
@@ -356,7 +400,34 @@ class CompanyEditor final {
     virtual ::grpc::ServerUnaryReactor* QueryCompanies(
       ::grpc::CallbackServerContext* /*context*/, const ::CompanyEdit::XmlParameters* /*request*/, ::CompanyEdit::CompanyList* /*response*/)  { return nullptr; }
   };
-  typedef WithCallbackMethod_AddCompany<WithCallbackMethod_EditCompany<WithCallbackMethod_DeleteCompany<WithCallbackMethod_QueryCompanies<Service > > > > CallbackService;
+  template <class BaseClass>
+  class WithCallbackMethod_QueryCompanyByUid : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithCallbackMethod_QueryCompanyByUid() {
+      ::grpc::Service::MarkMethodCallback(4,
+          new ::grpc::internal::CallbackUnaryHandler< ::CompanyEdit::CompanyUid, ::CompanyEdit::Company>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::CompanyEdit::CompanyUid* request, ::CompanyEdit::Company* response) { return this->QueryCompanyByUid(context, request, response); }));}
+    void SetMessageAllocatorFor_QueryCompanyByUid(
+        ::grpc::MessageAllocator< ::CompanyEdit::CompanyUid, ::CompanyEdit::Company>* allocator) {
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(4);
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::CompanyEdit::CompanyUid, ::CompanyEdit::Company>*>(handler)
+              ->SetMessageAllocator(allocator);
+    }
+    ~WithCallbackMethod_QueryCompanyByUid() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status QueryCompanyByUid(::grpc::ServerContext* /*context*/, const ::CompanyEdit::CompanyUid* /*request*/, ::CompanyEdit::Company* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* QueryCompanyByUid(
+      ::grpc::CallbackServerContext* /*context*/, const ::CompanyEdit::CompanyUid* /*request*/, ::CompanyEdit::Company* /*response*/)  { return nullptr; }
+  };
+  typedef WithCallbackMethod_AddCompany<WithCallbackMethod_EditCompany<WithCallbackMethod_DeleteCompany<WithCallbackMethod_QueryCompanies<WithCallbackMethod_QueryCompanyByUid<Service > > > > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_AddCompany : public BaseClass {
@@ -422,6 +493,23 @@ class CompanyEditor final {
     }
     // disable synchronous version of this method
     ::grpc::Status QueryCompanies(::grpc::ServerContext* /*context*/, const ::CompanyEdit::XmlParameters* /*request*/, ::CompanyEdit::CompanyList* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
+  class WithGenericMethod_QueryCompanyByUid : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithGenericMethod_QueryCompanyByUid() {
+      ::grpc::Service::MarkMethodGeneric(4);
+    }
+    ~WithGenericMethod_QueryCompanyByUid() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status QueryCompanyByUid(::grpc::ServerContext* /*context*/, const ::CompanyEdit::CompanyUid* /*request*/, ::CompanyEdit::Company* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -504,6 +592,26 @@ class CompanyEditor final {
     }
     void RequestQueryCompanies(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
+  class WithRawMethod_QueryCompanyByUid : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawMethod_QueryCompanyByUid() {
+      ::grpc::Service::MarkMethodRaw(4);
+    }
+    ~WithRawMethod_QueryCompanyByUid() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status QueryCompanyByUid(::grpc::ServerContext* /*context*/, const ::CompanyEdit::CompanyUid* /*request*/, ::CompanyEdit::Company* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestQueryCompanyByUid(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -592,6 +700,28 @@ class CompanyEditor final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     virtual ::grpc::ServerUnaryReactor* QueryCompanies(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
+  };
+  template <class BaseClass>
+  class WithRawCallbackMethod_QueryCompanyByUid : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawCallbackMethod_QueryCompanyByUid() {
+      ::grpc::Service::MarkMethodRawCallback(4,
+          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->QueryCompanyByUid(context, request, response); }));
+    }
+    ~WithRawCallbackMethod_QueryCompanyByUid() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status QueryCompanyByUid(::grpc::ServerContext* /*context*/, const ::CompanyEdit::CompanyUid* /*request*/, ::CompanyEdit::Company* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* QueryCompanyByUid(
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
@@ -702,9 +832,36 @@ class CompanyEditor final {
     // replace default version of method with streamed unary
     virtual ::grpc::Status StreamedQueryCompanies(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::CompanyEdit::XmlParameters,::CompanyEdit::CompanyList>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_AddCompany<WithStreamedUnaryMethod_EditCompany<WithStreamedUnaryMethod_DeleteCompany<WithStreamedUnaryMethod_QueryCompanies<Service > > > > StreamedUnaryService;
+  template <class BaseClass>
+  class WithStreamedUnaryMethod_QueryCompanyByUid : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithStreamedUnaryMethod_QueryCompanyByUid() {
+      ::grpc::Service::MarkMethodStreamed(4,
+        new ::grpc::internal::StreamedUnaryHandler<
+          ::CompanyEdit::CompanyUid, ::CompanyEdit::Company>(
+            [this](::grpc::ServerContext* context,
+                   ::grpc::ServerUnaryStreamer<
+                     ::CompanyEdit::CompanyUid, ::CompanyEdit::Company>* streamer) {
+                       return this->StreamedQueryCompanyByUid(context,
+                         streamer);
+                  }));
+    }
+    ~WithStreamedUnaryMethod_QueryCompanyByUid() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status QueryCompanyByUid(::grpc::ServerContext* /*context*/, const ::CompanyEdit::CompanyUid* /*request*/, ::CompanyEdit::Company* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with streamed unary
+    virtual ::grpc::Status StreamedQueryCompanyByUid(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::CompanyEdit::CompanyUid,::CompanyEdit::Company>* server_unary_streamer) = 0;
+  };
+  typedef WithStreamedUnaryMethod_AddCompany<WithStreamedUnaryMethod_EditCompany<WithStreamedUnaryMethod_DeleteCompany<WithStreamedUnaryMethod_QueryCompanies<WithStreamedUnaryMethod_QueryCompanyByUid<Service > > > > > StreamedUnaryService;
   typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_AddCompany<WithStreamedUnaryMethod_EditCompany<WithStreamedUnaryMethod_DeleteCompany<WithStreamedUnaryMethod_QueryCompanies<Service > > > > StreamedService;
+  typedef WithStreamedUnaryMethod_AddCompany<WithStreamedUnaryMethod_EditCompany<WithStreamedUnaryMethod_DeleteCompany<WithStreamedUnaryMethod_QueryCompanies<WithStreamedUnaryMethod_QueryCompanyByUid<Service > > > > > StreamedService;
 };
 
 }  // namespace CompanyEdit

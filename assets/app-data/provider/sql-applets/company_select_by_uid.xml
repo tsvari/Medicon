@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<APPLET>
+	<!-- 
+	list of comments
+	-->
+        <Description>select Query by uid for company table</Description>
+	<Param>
+		<!-- SERVER_UID -->
+                <Name>UID</Name>
+		<Type>STRING</Type>
+		<MaxLen>128</MaxLen>
+		<DefVal>123456789</DefVal>
+	</Param>
+        <Code>
+      <![CDATA[
+select "UID", "SERVER_UID", "COMPANY_TYPE", "NAME", "ADDRESS", "REG_DATE",
+ "JOINT_DATE", "LICENSE", "LOGO" from company where "UID" = :UID:;
+      ]]></Code>
+</APPLET>

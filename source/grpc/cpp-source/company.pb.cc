@@ -53,6 +53,33 @@ struct XmlParametersDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 XmlParametersDefaultTypeInternal _XmlParameters_default_instance_;
 
+inline constexpr CompanyUid::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : uid_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR CompanyUid::CompanyUid(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct CompanyUidDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR CompanyUidDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~CompanyUidDefaultTypeInternal() {}
+  union {
+    CompanyUid _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 CompanyUidDefaultTypeInternal _CompanyUid_default_instance_;
+
 inline constexpr CompanyResult::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : error_(
@@ -205,6 +232,15 @@ const ::uint32_t
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::CompanyEdit::XmlParameters, _impl_.xmlparams_),
+        ~0u,  // no _has_bits_
+        PROTOBUF_FIELD_OFFSET(::CompanyEdit::CompanyUid, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::CompanyEdit::CompanyUid, _impl_.uid_),
 };
 
 static const ::_pbi::MigrationSchema
@@ -213,12 +249,14 @@ static const ::_pbi::MigrationSchema
         {17, -1, -1, sizeof(::CompanyEdit::CompanyResult)},
         {28, -1, -1, sizeof(::CompanyEdit::CompanyList)},
         {37, -1, -1, sizeof(::CompanyEdit::XmlParameters)},
+        {46, -1, -1, sizeof(::CompanyEdit::CompanyUid)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
     &::CompanyEdit::_Company_default_instance_._instance,
     &::CompanyEdit::_CompanyResult_default_instance_._instance,
     &::CompanyEdit::_CompanyList_default_instance_._instance,
     &::CompanyEdit::_XmlParameters_default_instance_._instance,
+    &::CompanyEdit::_CompanyUid_default_instance_._instance,
 };
 const char descriptor_table_protodef_company_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
@@ -230,27 +268,29 @@ const char descriptor_table_protodef_company_2eproto[] ABSL_ATTRIBUTE_SECTION_VA
     "ompanyResult\022\017\n\007success\030\001 \001(\010\022\r\n\005error\030\002"
     " \001(\t\022\013\n\003uid\030\003 \001(\t\"6\n\013CompanyList\022\'\n\tcomp"
     "anies\030\001 \003(\0132\024.CompanyEdit.Company\"\"\n\rXml"
-    "Parameters\022\021\n\txmlParams\030\001 \001(\t2\243\002\n\rCompan"
-    "yEditor\022@\n\nAddCompany\022\024.CompanyEdit.Comp"
-    "any\032\032.CompanyEdit.CompanyResult\"\000\022A\n\013Edi"
-    "tCompany\022\024.CompanyEdit.Company\032\032.Company"
-    "Edit.CompanyResult\"\000\022C\n\rDeleteCompany\022\024."
-    "CompanyEdit.Company\032\032.CompanyEdit.Compan"
-    "yResult\"\000\022H\n\016QueryCompanies\022\032.CompanyEdi"
-    "t.XmlParameters\032\030.CompanyEdit.CompanyLis"
-    "t\"\000b\006proto3"
+    "Parameters\022\021\n\txmlParams\030\001 \001(\t\"\031\n\nCompany"
+    "Uid\022\013\n\003uid\030\001 \001(\t2\351\002\n\rCompanyEditor\022@\n\nAd"
+    "dCompany\022\024.CompanyEdit.Company\032\032.Company"
+    "Edit.CompanyResult\"\000\022A\n\013EditCompany\022\024.Co"
+    "mpanyEdit.Company\032\032.CompanyEdit.CompanyR"
+    "esult\"\000\022C\n\rDeleteCompany\022\024.CompanyEdit.C"
+    "ompany\032\032.CompanyEdit.CompanyResult\"\000\022H\n\016"
+    "QueryCompanies\022\032.CompanyEdit.XmlParamete"
+    "rs\032\030.CompanyEdit.CompanyList\"\000\022D\n\021QueryC"
+    "ompanyByUid\022\027.CompanyEdit.CompanyUid\032\024.C"
+    "ompanyEdit.Company\"\000b\006proto3"
 };
 static ::absl::once_flag descriptor_table_company_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_company_2eproto = {
     false,
     false,
-    651,
+    748,
     descriptor_table_protodef_company_2eproto,
     "company.proto",
     &descriptor_table_company_2eproto_once,
     nullptr,
     0,
-    4,
+    5,
     schemas,
     file_default_instances,
     TableStruct_company_2eproto::offsets,
@@ -1458,6 +1498,237 @@ void XmlParameters::InternalSwap(XmlParameters* PROTOBUF_RESTRICT other) {
 }
 
 ::google::protobuf::Metadata XmlParameters::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class CompanyUid::_Internal {
+ public:
+};
+
+CompanyUid::CompanyUid(::google::protobuf::Arena* arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:CompanyEdit.CompanyUid)
+}
+inline PROTOBUF_NDEBUG_INLINE CompanyUid::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
+    const Impl_& from, const ::CompanyEdit::CompanyUid& from_msg)
+      : uid_(arena, from.uid_),
+        _cached_size_{0} {}
+
+CompanyUid::CompanyUid(
+    ::google::protobuf::Arena* arena,
+    const CompanyUid& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  CompanyUid* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+
+  // @@protoc_insertion_point(copy_constructor:CompanyEdit.CompanyUid)
+}
+inline PROTOBUF_NDEBUG_INLINE CompanyUid::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : uid_(arena),
+        _cached_size_{0} {}
+
+inline void CompanyUid::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+}
+CompanyUid::~CompanyUid() {
+  // @@protoc_insertion_point(destructor:CompanyEdit.CompanyUid)
+  SharedDtor(*this);
+}
+inline void CompanyUid::SharedDtor(MessageLite& self) {
+  CompanyUid& this_ = static_cast<CompanyUid&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.uid_.Destroy();
+  this_._impl_.~Impl_();
+}
+
+inline void* CompanyUid::PlacementNew_(const void*, void* mem,
+                                        ::google::protobuf::Arena* arena) {
+  return ::new (mem) CompanyUid(arena);
+}
+constexpr auto CompanyUid::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(CompanyUid),
+                                            alignof(CompanyUid));
+}
+PROTOBUF_CONSTINIT
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::google::protobuf::internal::ClassDataFull CompanyUid::_class_data_ = {
+    ::google::protobuf::internal::ClassData{
+        &_CompanyUid_default_instance_._instance,
+        &_table_.header,
+        nullptr,  // OnDemandRegisterArenaDtor
+        nullptr,  // IsInitialized
+        &CompanyUid::MergeImpl,
+        ::google::protobuf::Message::GetNewImpl<CompanyUid>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        &CompanyUid::SharedDtor,
+        ::google::protobuf::Message::GetClearImpl<CompanyUid>(), &CompanyUid::ByteSizeLong,
+            &CompanyUid::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+        PROTOBUF_FIELD_OFFSET(CompanyUid, _impl_._cached_size_),
+        false,
+    },
+    &CompanyUid::kDescriptorMethods,
+    &descriptor_table_company_2eproto,
+    nullptr,  // tracker
+};
+const ::google::protobuf::internal::ClassData* CompanyUid::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
+  return _class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 1, 0, 34, 2> CompanyUid::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    1, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967294,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    1,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    _class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::CompanyEdit::CompanyUid>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // string uid = 1;
+    {::_pbi::TcParser::FastUS1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(CompanyUid, _impl_.uid_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // string uid = 1;
+    {PROTOBUF_FIELD_OFFSET(CompanyUid, _impl_.uid_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
+  }},
+  // no aux_entries
+  {{
+    "\26\3\0\0\0\0\0\0"
+    "CompanyEdit.CompanyUid"
+    "uid"
+  }},
+};
+
+PROTOBUF_NOINLINE void CompanyUid::Clear() {
+// @@protoc_insertion_point(message_clear_start:CompanyEdit.CompanyUid)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.uid_.ClearToEmpty();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::uint8_t* CompanyUid::_InternalSerialize(
+            const MessageLite& base, ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) {
+          const CompanyUid& this_ = static_cast<const CompanyUid&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::uint8_t* CompanyUid::_InternalSerialize(
+            ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+          const CompanyUid& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(serialize_to_array_start:CompanyEdit.CompanyUid)
+          ::uint32_t cached_has_bits = 0;
+          (void)cached_has_bits;
+
+          // string uid = 1;
+          if (!this_._internal_uid().empty()) {
+            const std::string& _s = this_._internal_uid();
+            ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+                _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "CompanyEdit.CompanyUid.uid");
+            target = stream->WriteStringMaybeAliased(1, _s, target);
+          }
+
+          if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+            target =
+                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+          }
+          // @@protoc_insertion_point(serialize_to_array_end:CompanyEdit.CompanyUid)
+          return target;
+        }
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::size_t CompanyUid::ByteSizeLong(const MessageLite& base) {
+          const CompanyUid& this_ = static_cast<const CompanyUid&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::size_t CompanyUid::ByteSizeLong() const {
+          const CompanyUid& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(message_byte_size_start:CompanyEdit.CompanyUid)
+          ::size_t total_size = 0;
+
+          ::uint32_t cached_has_bits = 0;
+          // Prevent compiler warnings about cached_has_bits being unused
+          (void)cached_has_bits;
+
+           {
+            // string uid = 1;
+            if (!this_._internal_uid().empty()) {
+              total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                              this_._internal_uid());
+            }
+          }
+          return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                                     &this_._impl_._cached_size_);
+        }
+
+void CompanyUid::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<CompanyUid*>(&to_msg);
+  auto& from = static_cast<const CompanyUid&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CompanyEdit.CompanyUid)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (!from._internal_uid().empty()) {
+    _this->_internal_set_uid(from._internal_uid());
+  }
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void CompanyUid::CopyFrom(const CompanyUid& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CompanyEdit.CompanyUid)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void CompanyUid::InternalSwap(CompanyUid* PROTOBUF_RESTRICT other) {
+  using std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.uid_, &other->_impl_.uid_, arena);
+}
+
+::google::protobuf::Metadata CompanyUid::GetMetadata() const {
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // @@protoc_insertion_point(namespace_scope)
