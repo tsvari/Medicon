@@ -12,6 +12,8 @@ service CompanyEditor {
   rpc DeleteCompany(Company) returns (CompanyResult) {}
 
   rpc QueryCompanies(XmlParameters) returns (CompanyList) {}
+
+  rpc QueryCompanyByUid(CompanyUid) returns (Company) {}
 }
 // Add/Edit/Delete Logo 
 message Company {
@@ -38,4 +40,8 @@ message CompanyList {
 
 message XmlParameters {
   string xmlParams = 1;
+}
+
+message CompanyUid {
+  string uid = 1;
 }

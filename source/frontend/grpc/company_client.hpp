@@ -20,6 +20,7 @@ using CompanyEdit::Company;
 using CompanyEdit::CompanyResult;
 using CompanyEdit::CompanyList;
 using CompanyEdit::XmlParameters;
+using CompanyEdit::CompanyUid;
 
 ABSL_FLAG(std::string, target, "0.0.0.0:12345", "Server address");
 
@@ -35,7 +36,6 @@ public:
     {}
 
     void  AddCompany(const Company & company, CompanyResult & result) {
-        std::cout<< "Start AddCompany" << std::endl;
         ClientContext context;
         Status status = stub_->AddCompany(&context, company, &result);
         std::cout<< to_string(status.error_code()) + std::string(": ") + status.error_message() << std::endl;
@@ -89,6 +89,11 @@ public:
             result.set_error(to_string(status.error_code()) + std::string(": ") + status.error_message());
             result.set_success(false);
         }
+    }
+
+    Status QueryCompanyByUid(const CompanyUid & uid, Company & result) {
+        ClientContext context;
+        return stub_->QueryCompanyByUid(&context, uid, &result);
     }
 
 private:

@@ -26,6 +26,7 @@ static const char* CompanyEditor_method_names[] = {
   "/CompanyEdit.CompanyEditor/EditCompany",
   "/CompanyEdit.CompanyEditor/DeleteCompany",
   "/CompanyEdit.CompanyEditor/QueryCompanies",
+  "/CompanyEdit.CompanyEditor/QueryCompanyByUid",
 };
 
 std::unique_ptr< CompanyEditor::Stub> CompanyEditor::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -39,6 +40,7 @@ CompanyEditor::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& chan
   , rpcmethod_EditCompany_(CompanyEditor_method_names[1], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_DeleteCompany_(CompanyEditor_method_names[2], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_QueryCompanies_(CompanyEditor_method_names[3], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_QueryCompanyByUid_(CompanyEditor_method_names[4], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::Status CompanyEditor::Stub::AddCompany(::grpc::ClientContext* context, const ::CompanyEdit::Company& request, ::CompanyEdit::CompanyResult* response) {
@@ -133,6 +135,29 @@ void CompanyEditor::Stub::async::QueryCompanies(::grpc::ClientContext* context, 
   return result;
 }
 
+::grpc::Status CompanyEditor::Stub::QueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::CompanyEdit::Company* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::CompanyEdit::CompanyUid, ::CompanyEdit::Company, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_QueryCompanyByUid_, context, request, response);
+}
+
+void CompanyEditor::Stub::async::QueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid* request, ::CompanyEdit::Company* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::CompanyEdit::CompanyUid, ::CompanyEdit::Company, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_QueryCompanyByUid_, context, request, response, std::move(f));
+}
+
+void CompanyEditor::Stub::async::QueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid* request, ::CompanyEdit::Company* response, ::grpc::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_QueryCompanyByUid_, context, request, response, reactor);
+}
+
+::grpc::ClientAsyncResponseReader< ::CompanyEdit::Company>* CompanyEditor::Stub::PrepareAsyncQueryCompanyByUidRaw(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::CompanyEdit::Company, ::CompanyEdit::CompanyUid, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_QueryCompanyByUid_, context, request);
+}
+
+::grpc::ClientAsyncResponseReader< ::CompanyEdit::Company>* CompanyEditor::Stub::AsyncQueryCompanyByUidRaw(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::grpc::CompletionQueue* cq) {
+  auto* result =
+    this->PrepareAsyncQueryCompanyByUidRaw(context, request, cq);
+  result->StartCall();
+  return result;
+}
+
 CompanyEditor::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       CompanyEditor_method_names[0],
@@ -174,6 +199,16 @@ CompanyEditor::Service::Service() {
              ::CompanyEdit::CompanyList* resp) {
                return service->QueryCompanies(ctx, req, resp);
              }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      CompanyEditor_method_names[4],
+      ::grpc::internal::RpcMethod::NORMAL_RPC,
+      new ::grpc::internal::RpcMethodHandler< CompanyEditor::Service, ::CompanyEdit::CompanyUid, ::CompanyEdit::Company, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](CompanyEditor::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::CompanyEdit::CompanyUid* req,
+             ::CompanyEdit::Company* resp) {
+               return service->QueryCompanyByUid(ctx, req, resp);
+             }, this)));
 }
 
 CompanyEditor::Service::~Service() {
@@ -201,6 +236,13 @@ CompanyEditor::Service::~Service() {
 }
 
 ::grpc::Status CompanyEditor::Service::QueryCompanies(::grpc::ServerContext* context, const ::CompanyEdit::XmlParameters* request, ::CompanyEdit::CompanyList* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status CompanyEditor::Service::QueryCompanyByUid(::grpc::ServerContext* context, const ::CompanyEdit::CompanyUid* request, ::CompanyEdit::Company* response) {
   (void) context;
   (void) request;
   (void) response;
