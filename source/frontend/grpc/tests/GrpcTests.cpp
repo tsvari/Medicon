@@ -1,8 +1,11 @@
 #include "gtest/gtest.h"
 #include "../company_client.hpp"
 #include "TypeToStringFormatter.h"
+#include "include_frontend_util.h"
 
 #include <QDateTime>
+
+using FrontConverter::to_str;
 
 TEST(ConfigFileIntegrationTests, LoadAndCheckData)
 {

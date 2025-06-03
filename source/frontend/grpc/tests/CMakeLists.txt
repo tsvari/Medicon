@@ -38,6 +38,8 @@ set(HEADER_FILES
 
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.pb.h
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.h
+
+    ${FRONTEND_INCLUDE_DIR}/include_frontend_util.h
 )
 
 set(SOURCE_FILES
@@ -48,6 +50,8 @@ set(SOURCE_FILES
 
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.pb.cc
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.cc
+
+    ${FRONTEND_INCLUDE_DIR}/include_frontend_util.cpp
 
     ${FRONTEND_GRPC_DIR}/company_client.hpp
 
