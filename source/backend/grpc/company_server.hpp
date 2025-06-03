@@ -24,6 +24,7 @@ using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
 using grpc::Status;
+using grpc::StatusCode;
 
 // Service
 using CompanyEdit::CompanyEditor;
@@ -87,10 +88,10 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
             result->set_success(false);
             result->set_error(e.what());
             result->set_uid("");
-            return Status::CANCELLED;
+            return Status(StatusCode::INTERNAL, e.what());
         } catch(...) {
             LOG(ERROR) << "Unknown error!";
-            return Status::CANCELLED;
+            return Status(StatusCode::ABORTED, "Unknown error!");
         }
 
         return Status::OK;
@@ -146,10 +147,10 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
             result->set_success(false);
             result->set_error(e.what());
             result->set_uid("");
-            return Status::CANCELLED;
+            return Status(StatusCode::INTERNAL, e.what());
         } catch(...) {
             LOG(ERROR) << "Unknown error!";
-            return Status::CANCELLED;
+            return Status(StatusCode::ABORTED, "Unknown error!");
         }
 
         return Status::OK;
@@ -208,6 +209,7 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
         SqlQuery cmd(con, "company_select_by_uid.xml");
         try {
             con.connect();
+            string uid = request->uid();
             cmd.addDataInfo("UID", request->uid().c_str());
             if(cmd.query()) {
                 SAString address = cmd.Field("ADDRESS").asString();
@@ -243,10 +245,10 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
             return Status::CANCELLED;
         } catch(const SQLAppletException & e) {
             LOG(ERROR) << e.what();
-            return Status::CANCELLED;
+            return Status(StatusCode::INTERNAL, e.what());
         } catch(...) {
             LOG(ERROR) << "Unknown error!";
-            return Status::CANCELLED;
+            return Status(StatusCode::ABORTED, "Unknown error!");
         }
 
         return Status::OK;
