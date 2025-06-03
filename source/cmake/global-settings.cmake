@@ -59,7 +59,7 @@ include_directories(${FRONTEND_INCLUDE_DIR})
 include_directories(${FRONTEND_THIRD_PARTY_DIR})
 include_directories(${FRONTEND_GRPC_DIR})
 
-set(ALL_FRONTEND_PROJECT_PATH ${ALL_PROJECT_PATH}/source/backend/)
+set(ALL_FRONTEND_PROJECT_PATH ${ALL_PROJECT_PATH}/source/frontend/)
 set(ALL_FRONTEND_TEST_APPDATA_PATH ${FRONTEND_INCLUDE_DIR}/tests/app-data/)
 
 add_definitions("-DALL_FRONTEND_PROJECT_PATH=\"${ALL_FRONTEND_PROJECT_PATH}\"")
