@@ -100,9 +100,57 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
                       CompanyResult * result) override {
         std::cout<<"EditCompany: runned"<<std::endl;
 
-        result->set_success(true);
-        result->set_error("No error");
-        result->set_uid(company->uid());
+        SqlConnection con;
+        SqlCommand command(con, "company_update.xml");
+        try {
+            con.connect();
+            con.setAutoCommit(true);
+
+            command.addDataInfo("UID", company->uid().c_str());
+            command.addDataInfo("SERVER_UID", (int)company->server_uid());
+            command.addDataInfo("COMPANY_TYPE", (int)company->company_type());
+            command.addDataInfo("NAME", company->name().c_str());
+            command.addDataInfo("ADDRESS", company->address().c_str());
+            command.addDataInfo("REG_DATE", std::chrono::sys_seconds(std::chrono::seconds(company->reg_date())), DataInfo::Date);
+            command.addDataInfo("JOINT_DATE", std::chrono::sys_seconds(std::chrono::seconds(company->joint_date())), DataInfo::Date);
+            command.addDataInfo("LICENSE", company->license().c_str());
+
+            command.execute();
+
+            if(command.isResultSet()) {
+                command.FetchNext();
+
+                result->set_uid(command.Field("UID").asString().GetMultiByteChars());
+                result->set_success(true);
+                result->set_error("No error");
+            } else {
+                result->set_success(false);
+                result->set_error("No result set");
+                result->set_uid("");
+            }
+        } catch(SAException & x) {
+            LOG(ERROR) << x.ErrText().GetMultiByteChars();
+            LOG(INFO) << command.sql();
+            try {
+                con.rollback();
+            }
+            catch(SAException &)
+            {
+            }
+            result->set_success(false);
+            result->set_error(x.ErrText().GetMultiByteChars());
+            result->set_uid("");
+            return Status::CANCELLED;
+        } catch(const SQLAppletException & e) {
+            LOG(ERROR) << e.what();
+            result->set_success(false);
+            result->set_error(e.what());
+            result->set_uid("");
+            return Status::CANCELLED;
+        } catch(...) {
+            LOG(ERROR) << "Unknown error!";
+            return Status::CANCELLED;
+        }
 
         return Status::OK;
     }
