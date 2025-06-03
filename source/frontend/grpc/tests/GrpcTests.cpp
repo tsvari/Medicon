@@ -8,6 +8,10 @@
 // SELECT COUNT(*) FROM my_table;
 // SELECT * FROM my_table ORDER BY some_column OFFSET 45 LIMIT 10;
 
+namespace {
+const std::string channelAddress = "127.0.0.1:12345";
+const int server_uid = 1001;
+}
 using FrontConverter::to_str;
 
 TEST(ConfigFileIntegrationTests, LoadAndCheckData)
@@ -24,10 +28,11 @@ TEST(ConfigFileIntegrationTests, LoadAndCheckData)
         EXPECT_EQ(left.logo(), right.logo());
     };
 
-    QDateTime current = QDateTime::currentDateTime();
+    CompanyEditorClient client(grpc::CreateChannel(channelAddress, grpc::InsecureChannelCredentials()));
 
+    QDateTime current = QDateTime::currentDateTime();
     Company companyToSend;
-    companyToSend.set_server_uid(1);
+    companyToSend.set_server_uid(1001);
     companyToSend.set_company_type(0);
     companyToSend.set_name("Givi - გივი");
     companyToSend.set_address("134 George St, New Brunswick, NJ 08901");
@@ -36,8 +41,6 @@ TEST(ConfigFileIntegrationTests, LoadAndCheckData)
     companyToSend.set_license("0123456789");
 
     CompanyResult result;
-    CompanyEditorClient client(grpc::CreateChannel("127.0.0.1:12345", grpc::InsecureChannelCredentials()));
-
     CompanyUid companyUid;
     Status status;
 
@@ -65,7 +68,7 @@ TEST(ConfigFileIntegrationTests, LoadAndCheckData)
 
     compareObjects(companyToSend, companyInserted);
 
-    // Update Inserted company/row
+    //// Update Inserted company/row
     companyToSend.set_name("Givi Tsvariani");
     status = client.EditCompany(companyToSend, result);
     EXPECT_TRUE(status.ok());
@@ -77,14 +80,61 @@ TEST(ConfigFileIntegrationTests, LoadAndCheckData)
 
     compareObjects(companyToSend, companyEdited);
 
-    // Delete Inserted and Updated company/row
+    //// Delete Inserted and Updated company/row
     status = client.DeleteCompany(companyToSend, result);
     EXPECT_TRUE(status.ok());
 
     companyUid.set_uid(result.uid());
     status = client.QueryCompanyByUid(companyUid, companyEdited);
-    // Should be no row
+    //// Should be no row
     EXPECT_TRUE(status.error_code() == StatusCode::NOT_FOUND);
+}
+
+TEST(ConfigFileIntegrationTests, SelectCompanieTests)
+{
+    CompanyEditorClient client(grpc::CreateChannel(channelAddress, grpc::InsecureChannelCredentials()));
+    QDateTime current = QDateTime::currentDateTime();
+
+    Company companyToSend;
+    companyToSend.set_server_uid(server_uid);
+    companyToSend.set_company_type(0);
+    companyToSend.set_address("134 George St, New Brunswick, NJ 08901");
+    companyToSend.set_reg_date(current.toSecsSinceEpoch());
+    companyToSend.set_joint_date(current.toSecsSinceEpoch());
+    companyToSend.set_license("0123456789");
+
+
+    Status status;
+    CompanyResult result;
+    CompanyUid companyUid;
+
+    const int rows = 20;
+    std::vector<std::string> uidList;
+
+    // INsert new rows
+    for (int i = 0; i < rows; i++) {
+
+        companyToSend.set_name(QString("Givi - %1").arg(i).toStdString());
+        status = client.AddCompany(companyToSend, result);
+        EXPECT_TRUE(status.ok());
+
+        companyUid.set_uid(result.uid());
+        uidList.push_back(result.uid());
+    }
+    // Check count
+    ServerUid serverUid;
+    serverUid.set_uid(server_uid);
+    TotalCount totalCount;
+    status = client.QueryCompanyTotalCount(serverUid, totalCount);
+    EXPECT_TRUE(status.ok());
+    EXPECT_EQ(totalCount.count(), rows);
+
+    // Delete all of them
+    for (int i = 0; i < rows; i++) {
+        companyToSend.set_uid(uidList[i]);
+        status = client.DeleteCompany(companyToSend, result);
+        EXPECT_TRUE(status.ok());
+    }
 }
 
 

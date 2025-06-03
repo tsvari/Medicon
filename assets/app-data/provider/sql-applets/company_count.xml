@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<APPLET>
+	<!-- 
+	list of comments
+	-->
+        <Description>select count Query for company table</Description>
+        <Param>
+                <!-- SERVER_UID -->
+                <Name>SERVER_UID</Name>
+                <Type>NUMERIC</Type>
+                <MaxLen>12</MaxLen>
+                <DefVal>0</DefVal>
+        </Param>
+        <Code>
+      <![CDATA[
+select count(*) as "ROW_COUNT" from company WHERE "SERVER_UID" = :SERVER_UID:;
+      ]]></Code>
+</APPLET>
