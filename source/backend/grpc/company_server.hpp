@@ -159,11 +159,50 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
     Status DeleteCompany(ServerContext * context, const Company * company,
                       CompanyResult * result) override {
 
-        std::cout<<"DeleteCompany: runned"<<std::endl;
+        SqlConnection con;
+        SqlCommand command(con, "company_delete.xml");
+        try {
+            con.connect();
+            con.setAutoCommit(true);
 
-        result->set_success(true);
-        result->set_error("No error");
-        result->set_uid(company->uid());
+            command.addDataInfo("UID", company->uid().c_str());
+
+            command.execute();
+
+            if(command.isResultSet()) {
+                command.FetchNext();
+
+                result->set_uid(command.Field("UID").asString().GetMultiByteChars());
+                result->set_success(true);
+                result->set_error("No error");
+            } else {
+                result->set_success(false);
+                result->set_error("No result set");
+                result->set_uid("");
+            }
+        } catch(SAException & x) {
+            LOG(ERROR) << x.ErrText().GetMultiByteChars();
+            LOG(INFO) << command.sql();
+            try {
+                con.rollback();
+            }
+            catch(SAException &)
+            {
+            }
+            result->set_success(false);
+            result->set_error(x.ErrText().GetMultiByteChars());
+            result->set_uid("");
+            return Status::CANCELLED;
+        } catch(const SQLAppletException & e) {
+            LOG(ERROR) << e.what();
+            result->set_success(false);
+            result->set_error(e.what());
+            result->set_uid("");
+            return Status(StatusCode::INTERNAL, e.what());
+        } catch(...) {
+            LOG(ERROR) << "Unknown error!";
+            return Status(StatusCode::ABORTED, "Unknown error!");
+        }
 
         return Status::OK;
     }
@@ -232,6 +271,8 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
                 response->set_joint_date(secJointDate.time_since_epoch().count());
                 response->set_license(license.GetMultiByteChars());
                 response->set_logo(cmd.Field("LOGO").asString().GetMultiByteChars());
+            } else {
+                return Status(StatusCode::NOT_FOUND, "No record found");
             }
         } catch(SAException & x) {
             LOG(ERROR) << x.ErrText().GetMultiByteChars();
