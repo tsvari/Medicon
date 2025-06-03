@@ -12,6 +12,7 @@
 using grpc::Channel;
 using grpc::ClientContext;
 using grpc::Status;
+using grpc::StatusCode;
 
 // Service
 using CompanyEdit::CompanyEditor;
@@ -35,47 +36,22 @@ public:
         : stub_(CompanyEditor::NewStub(channel))
     {}
 
-    void  AddCompany(const Company & company, CompanyResult & result) {
+    Status  AddCompany(const Company & company, CompanyResult & result) {
         ClientContext context;
-        Status status = stub_->AddCompany(&context, company, &result);
-        std::cout<< to_string(status.error_code()) + std::string(": ") + status.error_message() << std::endl;
-        if(!status.ok()) {
-            result.set_error(to_string(status.error_code()) + std::string(": ") + status.error_message());
-            result.set_success(false);
-            result.set_uid("-1");
-        } else {
-            result.set_success(true);
-            result.set_uid(result.uid());
-        }
+        return stub_->AddCompany(&context, company, &result);
     }
 
-    void EditCompany(const Company & company, CompanyResult & result) {
+    Status EditCompany(const Company & company, CompanyResult & result) {
         ClientContext context;
-        Status status = stub_->EditCompany(&context, company, &result);
-        if(!status.ok()) {
-            result.set_error(to_string(status.error_code()) + std::string(": ") + status.error_message());
-            result.set_success(false);
-            result.set_uid("-1");
-        } else {
-            result.set_success(true);
-            result.set_uid(company.uid());
-        }
+        return stub_->EditCompany(&context, company, &result);
     }
 
-    void DeleteCompany(const Company & company, CompanyResult & result) {
+    Status DeleteCompany(const Company & company, CompanyResult & result) {
         ClientContext context;
-        Status status = stub_->DeleteCompany(&context, company, &result);
-        if(!status.ok()) {
-            result.set_error(to_string(status.error_code()) + std::string(": ") + status.error_message());
-            result.set_success(false);
-            result.set_uid("-1");
-        } else {
-            result.set_success(true);
-            result.set_uid(company.uid());
-        }
+        return stub_->DeleteCompany(&context, company, &result);
     }
 
-    void QueryCompanies(const XmlParameters & parameters, std::vector<Company> object_list, CompanyResult & result) {
+    Status QueryCompanies(const XmlParameters & parameters, std::vector<Company> object_list, CompanyResult & result) {
         ClientContext context;
         CompanyList list;
 
@@ -84,11 +60,8 @@ public:
             for (const auto & object : list.companies()) {
                 object_list.push_back(object);
             }
-            result.set_success(true);
-        } else {
-            result.set_error(to_string(status.error_code()) + std::string(": ") + status.error_message());
-            result.set_success(false);
         }
+        return status;
     }
 
     Status QueryCompanyByUid(const CompanyUid & uid, Company & result) {

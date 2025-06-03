@@ -37,24 +37,37 @@ TEST(ConfigFileIntegrationTests, LoadAndCheckData)
 
     CompanyResult result;
     CompanyEditorClient client(grpc::CreateChannel("127.0.0.1:12345", grpc::InsecureChannelCredentials()));
-    client.AddCompany(companyToSend, result);
+
+    CompanyUid companyUid;
+    Status status;
+
+    // Check empty result set
+    companyUid.set_uid("00000");
+    Company emptyCompany;
+    status = client.QueryCompanyByUid(companyUid, emptyCompany);
+    EXPECT_TRUE(status.error_code() == StatusCode::CANCELLED);
+
+    // Check insert operation
+    status = client.AddCompany(companyToSend, result);
+    EXPECT_TRUE(status.ok());
+
     companyToSend.set_uid(result.uid());
 
     EXPECT_TRUE(result.uid().size() > 0);
     EXPECT_TRUE(result.success());
 
-
-    CompanyUid companyUid;
     companyUid.set_uid(result.uid());
 
     Company companyInserted;
-    Status status = client.QueryCompanyByUid(companyUid, companyInserted);
+    status = client.QueryCompanyByUid(companyUid, companyInserted);
 
     EXPECT_TRUE(status.ok());
     compareObjects(companyToSend, companyInserted);
 
+    // Update Inserted company/row
     companyToSend.set_name("Givi Tsvariani");
-    client.EditCompany(companyToSend, result);
+    status = client.EditCompany(companyToSend, result);
+    EXPECT_TRUE(status.ok());
 
     Company companyEdited;
     companyUid.set_uid(result.uid());
@@ -63,6 +76,7 @@ TEST(ConfigFileIntegrationTests, LoadAndCheckData)
     EXPECT_TRUE(status.ok());
     compareObjects(companyToSend, companyEdited);
 
+    // Delete Inserted and Updated company/row
 }
 
 
