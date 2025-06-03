@@ -34,6 +34,8 @@ using CompanyEdit::CompanyResult;
 using CompanyEdit::CompanyList;
 using CompanyEdit::XmlParameters;
 using CompanyEdit::CompanyUid;
+using CompanyEdit::TotalCount;
+using CompanyEdit::ServerUid;
 
 //ABSL_FLAG(uint16_t, port, 50051, "Server port for the service");
 
@@ -248,7 +250,6 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
         SqlQuery cmd(con, "company_select_by_uid.xml");
         try {
             con.connect();
-            string uid = request->uid();
             cmd.addDataInfo("UID", request->uid().c_str());
             if(cmd.query()) {
                 SAString address = cmd.Field("ADDRESS").asString();
@@ -295,7 +296,38 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
         return Status::OK;
     }
 
+    Status QueryCompanyTotalCount(ServerContext * context, const ServerUid * request, TotalCount * response) override {
+        SqlConnection con;
+        SqlQuery cmd(con, "company_count.xml");
+        try {
+            con.connect();
+            //int uid = request->uid();
+            cmd.addDataInfo("SERVER_UID", (int)request->uid());
+            if(cmd.query()) {
+                response->set_count(cmd.Field("ROW_COUNT").asInt64());
+            } else {
+                return Status(StatusCode::NOT_FOUND, "No record found");
+            }
+        } catch(SAException & x) {
+            LOG(ERROR) << x.ErrText().GetMultiByteChars();
+            LOG(INFO) << cmd.sql();
+            try {
+                con.rollback();
+            }
+            catch(SAException &)
+            {
+            }
+            return Status::CANCELLED;
+        } catch(const SQLAppletException & e) {
+            LOG(ERROR) << e.what();
+            return Status(StatusCode::INTERNAL, e.what());
+        } catch(...) {
+            LOG(ERROR) << "Unknown error!";
+            return Status(StatusCode::ABORTED, "Unknown error!");
+        }
 
+        return Status::OK;
+    }
 };
 
 void RunCompanyServer(uint16_t port) {

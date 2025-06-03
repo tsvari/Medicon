@@ -14,6 +14,8 @@ service CompanyEditor {
   rpc QueryCompanies(XmlParameters) returns (CompanyList) {}
 
   rpc QueryCompanyByUid(CompanyUid) returns (Company) {}
+
+  rpc QueryCompanyTotalCount(ServerUid) returns (TotalCount) {}
 }
 // Add/Edit/Delete Logo 
 message Company {
@@ -44,4 +46,12 @@ message XmlParameters {
 
 message CompanyUid {
   string uid = 1;
+}
+
+message TotalCount {
+  uint64 count = 1;
+}
+
+message ServerUid {
+  uint32 uid = 1;
 }

@@ -53,6 +53,56 @@ struct XmlParametersDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 XmlParametersDefaultTypeInternal _XmlParameters_default_instance_;
 
+inline constexpr TotalCount::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : count_{::uint64_t{0u}},
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR TotalCount::TotalCount(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct TotalCountDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR TotalCountDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~TotalCountDefaultTypeInternal() {}
+  union {
+    TotalCount _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 TotalCountDefaultTypeInternal _TotalCount_default_instance_;
+
+inline constexpr ServerUid::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : uid_{0u},
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR ServerUid::ServerUid(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct ServerUidDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR ServerUidDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~ServerUidDefaultTypeInternal() {}
+  union {
+    ServerUid _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ServerUidDefaultTypeInternal _ServerUid_default_instance_;
+
 inline constexpr CompanyUid::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : uid_(
@@ -241,6 +291,24 @@ const ::uint32_t
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::CompanyEdit::CompanyUid, _impl_.uid_),
+        ~0u,  // no _has_bits_
+        PROTOBUF_FIELD_OFFSET(::CompanyEdit::TotalCount, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::CompanyEdit::TotalCount, _impl_.count_),
+        ~0u,  // no _has_bits_
+        PROTOBUF_FIELD_OFFSET(::CompanyEdit::ServerUid, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::CompanyEdit::ServerUid, _impl_.uid_),
 };
 
 static const ::_pbi::MigrationSchema
@@ -250,6 +318,8 @@ static const ::_pbi::MigrationSchema
         {28, -1, -1, sizeof(::CompanyEdit::CompanyList)},
         {37, -1, -1, sizeof(::CompanyEdit::XmlParameters)},
         {46, -1, -1, sizeof(::CompanyEdit::CompanyUid)},
+        {55, -1, -1, sizeof(::CompanyEdit::TotalCount)},
+        {64, -1, -1, sizeof(::CompanyEdit::ServerUid)},
 };
 static const ::_pb::Message* const file_default_instances[] = {
     &::CompanyEdit::_Company_default_instance_._instance,
@@ -257,6 +327,8 @@ static const ::_pb::Message* const file_default_instances[] = {
     &::CompanyEdit::_CompanyList_default_instance_._instance,
     &::CompanyEdit::_XmlParameters_default_instance_._instance,
     &::CompanyEdit::_CompanyUid_default_instance_._instance,
+    &::CompanyEdit::_TotalCount_default_instance_._instance,
+    &::CompanyEdit::_ServerUid_default_instance_._instance,
 };
 const char descriptor_table_protodef_company_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
@@ -269,28 +341,31 @@ const char descriptor_table_protodef_company_2eproto[] ABSL_ATTRIBUTE_SECTION_VA
     " \001(\t\022\013\n\003uid\030\003 \001(\t\"6\n\013CompanyList\022\'\n\tcomp"
     "anies\030\001 \003(\0132\024.CompanyEdit.Company\"\"\n\rXml"
     "Parameters\022\021\n\txmlParams\030\001 \001(\t\"\031\n\nCompany"
-    "Uid\022\013\n\003uid\030\001 \001(\t2\351\002\n\rCompanyEditor\022@\n\nAd"
-    "dCompany\022\024.CompanyEdit.Company\032\032.Company"
-    "Edit.CompanyResult\"\000\022A\n\013EditCompany\022\024.Co"
-    "mpanyEdit.Company\032\032.CompanyEdit.CompanyR"
-    "esult\"\000\022C\n\rDeleteCompany\022\024.CompanyEdit.C"
-    "ompany\032\032.CompanyEdit.CompanyResult\"\000\022H\n\016"
-    "QueryCompanies\022\032.CompanyEdit.XmlParamete"
-    "rs\032\030.CompanyEdit.CompanyList\"\000\022D\n\021QueryC"
-    "ompanyByUid\022\027.CompanyEdit.CompanyUid\032\024.C"
-    "ompanyEdit.Company\"\000b\006proto3"
+    "Uid\022\013\n\003uid\030\001 \001(\t\"\033\n\nTotalCount\022\r\n\005count\030"
+    "\001 \001(\004\"\030\n\tServerUid\022\013\n\003uid\030\001 \001(\r2\266\003\n\rComp"
+    "anyEditor\022@\n\nAddCompany\022\024.CompanyEdit.Co"
+    "mpany\032\032.CompanyEdit.CompanyResult\"\000\022A\n\013E"
+    "ditCompany\022\024.CompanyEdit.Company\032\032.Compa"
+    "nyEdit.CompanyResult\"\000\022C\n\rDeleteCompany\022"
+    "\024.CompanyEdit.Company\032\032.CompanyEdit.Comp"
+    "anyResult\"\000\022H\n\016QueryCompanies\022\032.CompanyE"
+    "dit.XmlParameters\032\030.CompanyEdit.CompanyL"
+    "ist\"\000\022D\n\021QueryCompanyByUid\022\027.CompanyEdit"
+    ".CompanyUid\032\024.CompanyEdit.Company\"\000\022K\n\026Q"
+    "ueryCompanyTotalCount\022\026.CompanyEdit.Serv"
+    "erUid\032\027.CompanyEdit.TotalCount\"\000b\006proto3"
 };
 static ::absl::once_flag descriptor_table_company_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_company_2eproto = {
     false,
     false,
-    748,
+    880,
     descriptor_table_protodef_company_2eproto,
     "company.proto",
     &descriptor_table_company_2eproto_once,
     nullptr,
     0,
-    5,
+    7,
     schemas,
     file_default_instances,
     TableStruct_company_2eproto::offsets,
@@ -1729,6 +1804,420 @@ void CompanyUid::InternalSwap(CompanyUid* PROTOBUF_RESTRICT other) {
 }
 
 ::google::protobuf::Metadata CompanyUid::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class TotalCount::_Internal {
+ public:
+};
+
+TotalCount::TotalCount(::google::protobuf::Arena* arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:CompanyEdit.TotalCount)
+}
+TotalCount::TotalCount(
+    ::google::protobuf::Arena* arena, const TotalCount& from)
+    : TotalCount(arena) {
+  MergeFrom(from);
+}
+inline PROTOBUF_NDEBUG_INLINE TotalCount::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : _cached_size_{0} {}
+
+inline void TotalCount::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.count_ = {};
+}
+TotalCount::~TotalCount() {
+  // @@protoc_insertion_point(destructor:CompanyEdit.TotalCount)
+  SharedDtor(*this);
+}
+inline void TotalCount::SharedDtor(MessageLite& self) {
+  TotalCount& this_ = static_cast<TotalCount&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
+}
+
+inline void* TotalCount::PlacementNew_(const void*, void* mem,
+                                        ::google::protobuf::Arena* arena) {
+  return ::new (mem) TotalCount(arena);
+}
+constexpr auto TotalCount::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(TotalCount),
+                                            alignof(TotalCount));
+}
+PROTOBUF_CONSTINIT
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::google::protobuf::internal::ClassDataFull TotalCount::_class_data_ = {
+    ::google::protobuf::internal::ClassData{
+        &_TotalCount_default_instance_._instance,
+        &_table_.header,
+        nullptr,  // OnDemandRegisterArenaDtor
+        nullptr,  // IsInitialized
+        &TotalCount::MergeImpl,
+        ::google::protobuf::Message::GetNewImpl<TotalCount>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        &TotalCount::SharedDtor,
+        ::google::protobuf::Message::GetClearImpl<TotalCount>(), &TotalCount::ByteSizeLong,
+            &TotalCount::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+        PROTOBUF_FIELD_OFFSET(TotalCount, _impl_._cached_size_),
+        false,
+    },
+    &TotalCount::kDescriptorMethods,
+    &descriptor_table_company_2eproto,
+    nullptr,  // tracker
+};
+const ::google::protobuf::internal::ClassData* TotalCount::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
+  return _class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 1, 0, 0, 2> TotalCount::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    1, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967294,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    1,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    _class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::CompanyEdit::TotalCount>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // uint64 count = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(TotalCount, _impl_.count_), 63>(),
+     {8, 63, 0, PROTOBUF_FIELD_OFFSET(TotalCount, _impl_.count_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // uint64 count = 1;
+    {PROTOBUF_FIELD_OFFSET(TotalCount, _impl_.count_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUInt64)},
+  }},
+  // no aux_entries
+  {{
+  }},
+};
+
+PROTOBUF_NOINLINE void TotalCount::Clear() {
+// @@protoc_insertion_point(message_clear_start:CompanyEdit.TotalCount)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.count_ = ::uint64_t{0u};
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::uint8_t* TotalCount::_InternalSerialize(
+            const MessageLite& base, ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) {
+          const TotalCount& this_ = static_cast<const TotalCount&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::uint8_t* TotalCount::_InternalSerialize(
+            ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+          const TotalCount& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(serialize_to_array_start:CompanyEdit.TotalCount)
+          ::uint32_t cached_has_bits = 0;
+          (void)cached_has_bits;
+
+          // uint64 count = 1;
+          if (this_._internal_count() != 0) {
+            target = stream->EnsureSpace(target);
+            target = ::_pbi::WireFormatLite::WriteUInt64ToArray(
+                1, this_._internal_count(), target);
+          }
+
+          if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+            target =
+                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+          }
+          // @@protoc_insertion_point(serialize_to_array_end:CompanyEdit.TotalCount)
+          return target;
+        }
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::size_t TotalCount::ByteSizeLong(const MessageLite& base) {
+          const TotalCount& this_ = static_cast<const TotalCount&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::size_t TotalCount::ByteSizeLong() const {
+          const TotalCount& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(message_byte_size_start:CompanyEdit.TotalCount)
+          ::size_t total_size = 0;
+
+          ::uint32_t cached_has_bits = 0;
+          // Prevent compiler warnings about cached_has_bits being unused
+          (void)cached_has_bits;
+
+           {
+            // uint64 count = 1;
+            if (this_._internal_count() != 0) {
+              total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(
+                  this_._internal_count());
+            }
+          }
+          return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                                     &this_._impl_._cached_size_);
+        }
+
+void TotalCount::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<TotalCount*>(&to_msg);
+  auto& from = static_cast<const TotalCount&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CompanyEdit.TotalCount)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_count() != 0) {
+    _this->_impl_.count_ = from._impl_.count_;
+  }
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void TotalCount::CopyFrom(const TotalCount& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CompanyEdit.TotalCount)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void TotalCount::InternalSwap(TotalCount* PROTOBUF_RESTRICT other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+        swap(_impl_.count_, other->_impl_.count_);
+}
+
+::google::protobuf::Metadata TotalCount::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class ServerUid::_Internal {
+ public:
+};
+
+ServerUid::ServerUid(::google::protobuf::Arena* arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, _class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:CompanyEdit.ServerUid)
+}
+ServerUid::ServerUid(
+    ::google::protobuf::Arena* arena, const ServerUid& from)
+    : ServerUid(arena) {
+  MergeFrom(from);
+}
+inline PROTOBUF_NDEBUG_INLINE ServerUid::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* arena)
+      : _cached_size_{0} {}
+
+inline void ServerUid::SharedCtor(::_pb::Arena* arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.uid_ = {};
+}
+ServerUid::~ServerUid() {
+  // @@protoc_insertion_point(destructor:CompanyEdit.ServerUid)
+  SharedDtor(*this);
+}
+inline void ServerUid::SharedDtor(MessageLite& self) {
+  ServerUid& this_ = static_cast<ServerUid&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
+}
+
+inline void* ServerUid::PlacementNew_(const void*, void* mem,
+                                        ::google::protobuf::Arena* arena) {
+  return ::new (mem) ServerUid(arena);
+}
+constexpr auto ServerUid::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(ServerUid),
+                                            alignof(ServerUid));
+}
+PROTOBUF_CONSTINIT
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::google::protobuf::internal::ClassDataFull ServerUid::_class_data_ = {
+    ::google::protobuf::internal::ClassData{
+        &_ServerUid_default_instance_._instance,
+        &_table_.header,
+        nullptr,  // OnDemandRegisterArenaDtor
+        nullptr,  // IsInitialized
+        &ServerUid::MergeImpl,
+        ::google::protobuf::Message::GetNewImpl<ServerUid>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        &ServerUid::SharedDtor,
+        ::google::protobuf::Message::GetClearImpl<ServerUid>(), &ServerUid::ByteSizeLong,
+            &ServerUid::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+        PROTOBUF_FIELD_OFFSET(ServerUid, _impl_._cached_size_),
+        false,
+    },
+    &ServerUid::kDescriptorMethods,
+    &descriptor_table_company_2eproto,
+    nullptr,  // tracker
+};
+const ::google::protobuf::internal::ClassData* ServerUid::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
+  return _class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 1, 0, 0, 2> ServerUid::_table_ = {
+  {
+    0,  // no _has_bits_
+    0, // no _extensions_
+    1, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967294,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    1,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    _class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::CompanyEdit::ServerUid>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // uint32 uid = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ServerUid, _impl_.uid_), 63>(),
+     {8, 63, 0, PROTOBUF_FIELD_OFFSET(ServerUid, _impl_.uid_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // uint32 uid = 1;
+    {PROTOBUF_FIELD_OFFSET(ServerUid, _impl_.uid_), 0, 0,
+    (0 | ::_fl::kFcSingular | ::_fl::kUInt32)},
+  }},
+  // no aux_entries
+  {{
+  }},
+};
+
+PROTOBUF_NOINLINE void ServerUid::Clear() {
+// @@protoc_insertion_point(message_clear_start:CompanyEdit.ServerUid)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.uid_ = 0u;
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::uint8_t* ServerUid::_InternalSerialize(
+            const MessageLite& base, ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) {
+          const ServerUid& this_ = static_cast<const ServerUid&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::uint8_t* ServerUid::_InternalSerialize(
+            ::uint8_t* target,
+            ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+          const ServerUid& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(serialize_to_array_start:CompanyEdit.ServerUid)
+          ::uint32_t cached_has_bits = 0;
+          (void)cached_has_bits;
+
+          // uint32 uid = 1;
+          if (this_._internal_uid() != 0) {
+            target = stream->EnsureSpace(target);
+            target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+                1, this_._internal_uid(), target);
+          }
+
+          if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+            target =
+                ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+                    this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+          }
+          // @@protoc_insertion_point(serialize_to_array_end:CompanyEdit.ServerUid)
+          return target;
+        }
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+        ::size_t ServerUid::ByteSizeLong(const MessageLite& base) {
+          const ServerUid& this_ = static_cast<const ServerUid&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+        ::size_t ServerUid::ByteSizeLong() const {
+          const ServerUid& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          // @@protoc_insertion_point(message_byte_size_start:CompanyEdit.ServerUid)
+          ::size_t total_size = 0;
+
+          ::uint32_t cached_has_bits = 0;
+          // Prevent compiler warnings about cached_has_bits being unused
+          (void)cached_has_bits;
+
+           {
+            // uint32 uid = 1;
+            if (this_._internal_uid() != 0) {
+              total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+                  this_._internal_uid());
+            }
+          }
+          return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                                     &this_._impl_._cached_size_);
+        }
+
+void ServerUid::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<ServerUid*>(&to_msg);
+  auto& from = static_cast<const ServerUid&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CompanyEdit.ServerUid)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from._internal_uid() != 0) {
+    _this->_impl_.uid_ = from._impl_.uid_;
+  }
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void ServerUid::CopyFrom(const ServerUid& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CompanyEdit.ServerUid)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void ServerUid::InternalSwap(ServerUid* PROTOBUF_RESTRICT other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+        swap(_impl_.uid_, other->_impl_.uid_);
+}
+
+::google::protobuf::Metadata ServerUid::GetMetadata() const {
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // @@protoc_insertion_point(namespace_scope)

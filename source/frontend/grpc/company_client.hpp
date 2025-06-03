@@ -22,6 +22,8 @@ using CompanyEdit::CompanyResult;
 using CompanyEdit::CompanyList;
 using CompanyEdit::XmlParameters;
 using CompanyEdit::CompanyUid;
+using CompanyEdit::TotalCount;
+using CompanyEdit::ServerUid;
 
 ABSL_FLAG(std::string, target, "0.0.0.0:12345", "Server address");
 
@@ -67,6 +69,10 @@ public:
     Status QueryCompanyByUid(const CompanyUid & uid, Company & result) {
         ClientContext context;
         return stub_->QueryCompanyByUid(&context, uid, &result);
+    }
+    Status QueryCompanyTotalCount(const ServerUid & uid, TotalCount & result) {
+        ClientContext context;
+        return stub_->QueryCompanyTotalCount(&context, uid, &result);
     }
 
 private:
