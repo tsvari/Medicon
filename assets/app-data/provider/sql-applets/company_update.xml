@@ -1,0 +1,68 @@
+<?xml version="1.0" ?>
+<APPLET>
+	<!-- 
+	list of comments
+	-->
+	<Description>UPDATE Query for company table</Description>
+	<Param>
+		<!-- UID -->
+		<Name>UID</Name>
+		<Type>STRING</Type>
+		<MaxLen>128</MaxLen>
+		<DefVal>uuid</DefVal>
+	</Param>
+        <Param>
+                <!-- SERVER_UID -->
+                <Name>SERVER_UID</Name>
+                <Type>STRING</Type>
+                <MaxLen>128</MaxLen>
+                <DefVal>123456789</DefVal>
+        </Param>
+        <Param>
+                <!-- COMPANY_TYPE -->
+                <Name>COMPANY_TYPE</Name>
+                <Type>NUMERIC</Type>
+                <MaxLen>2</MaxLen>
+                <DefVal>0</DefVal>
+        </Param>
+        <Param>
+                <!-- NAME -->
+                <Name>NAME</Name>
+                <Type>STRING</Type>
+                <MaxLen>63</MaxLen>
+                <DefVal>givi</DefVal>
+        </Param>
+        <Param>
+                <!-- ADDRESS -->
+                <Name>ADDRESS</Name>
+                <Type>STRING</Type>
+                <MaxLen>200</MaxLen>
+                <DefVal>address</DefVal>
+        </Param>
+        <Param>
+                <!-- REG_DATE -->
+                <Name>REG_DATE</Name>
+                <Type>DATETIME</Type>
+                <MaxLen>24</MaxLen>
+                <DefVal>2007-01-20</DefVal>
+        </Param>
+        <Param>
+                <!-- JOINT_DATE -->
+                <Name>JOINT_DATE</Name>
+                <Type>DATETIME</Type>
+                <MaxLen>24</MaxLen>
+                <DefVal>2007-01-20</DefVal>
+        </Param>
+        <Param>
+                <!-- LICENSE -->
+                <Name>LICENSE</Name>
+                <Type>STRING</Type>
+                <MaxLen>200</MaxLen>
+                <DefVal>license</DefVal>
+        </Param>
+	<Code>
+      <![CDATA[
+UPDATE company SET "SERVER_UID"=:SERVER_UID:, "COMPANY_TYPE"=:COMPANY_TYPE:, "NAME"=:NAME:, "ADDRESS"=:ADDRESS:,
+ "REG_DATE"=:REG_DATE:, "JOINT_DATE"=:JOINT_DATE:, "LICENSE"=:LICENSE: WHERE "UID"=:UID: RETURNING "UID";
+      ]]></Code>
+</APPLET>

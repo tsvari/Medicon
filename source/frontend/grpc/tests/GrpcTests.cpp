@@ -5,6 +5,9 @@
 
 #include <QDateTime>
 
+// SELECT COUNT(*) FROM my_table;
+// SELECT * FROM my_table ORDER BY some_column OFFSET 45 LIMIT 10;
+
 using FrontConverter::to_str;
 
 TEST(ConfigFileIntegrationTests, LoadAndCheckData)
@@ -49,6 +52,16 @@ TEST(ConfigFileIntegrationTests, LoadAndCheckData)
 
     EXPECT_TRUE(status.ok());
     compareObjects(companyToSend, companyInserted);
+
+    companyToSend.set_name("Givi Tsvariani");
+    client.EditCompany(companyToSend, result);
+
+    Company companyEdited;
+    companyUid.set_uid(result.uid());
+    status = client.QueryCompanyByUid(companyUid, companyEdited);
+
+    EXPECT_TRUE(status.ok());
+    compareObjects(companyToSend, companyEdited);
 
 }
 
