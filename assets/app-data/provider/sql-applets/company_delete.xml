@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<APPLET>
+	<!-- 
+	list of comments
+	-->
+        <Description>DELETE Query for company table</Description>
+        <Param>
+            <!-- UID -->
+            <Name>UID</Name>
+            <Type>STRING</Type>
+            <MaxLen>128</MaxLen>
+            <DefVal>uuid</DefVal>
+        </Param>
+        <Code>
+      <![CDATA[
+DELETE FROM company WHERE "UID" = :UID: RETURNING "UID";
+      ]]></Code>
+</APPLET>

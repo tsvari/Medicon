@@ -45,6 +45,7 @@ TEST(ConfigFileIntegrationTests, LoadAndCheckData)
     companyUid.set_uid("00000");
     Company emptyCompany;
     status = client.QueryCompanyByUid(companyUid, emptyCompany);
+    // '00000' isn't uuid so should be issued error
     EXPECT_TRUE(status.error_code() == StatusCode::CANCELLED);
 
     // Check insert operation
@@ -60,8 +61,8 @@ TEST(ConfigFileIntegrationTests, LoadAndCheckData)
 
     Company companyInserted;
     status = client.QueryCompanyByUid(companyUid, companyInserted);
-
     EXPECT_TRUE(status.ok());
+
     compareObjects(companyToSend, companyInserted);
 
     // Update Inserted company/row
@@ -72,11 +73,18 @@ TEST(ConfigFileIntegrationTests, LoadAndCheckData)
     Company companyEdited;
     companyUid.set_uid(result.uid());
     status = client.QueryCompanyByUid(companyUid, companyEdited);
-
     EXPECT_TRUE(status.ok());
+
     compareObjects(companyToSend, companyEdited);
 
     // Delete Inserted and Updated company/row
+    status = client.DeleteCompany(companyToSend, result);
+    EXPECT_TRUE(status.ok());
+
+    companyUid.set_uid(result.uid());
+    status = client.QueryCompanyByUid(companyUid, companyEdited);
+    // Should be no row
+    EXPECT_TRUE(status.error_code() == StatusCode::NOT_FOUND);
 }
 
 
