@@ -7,9 +7,9 @@
 	<Param>
 		<!-- SERVER_UID -->
 		<Name>SERVER_UID</Name>
-		<Type>STRING</Type>
-		<MaxLen>128</MaxLen>
-		<DefVal>123456789</DefVal>
+                <Type>NUMERIC</Type>
+                <MaxLen>12</MaxLen>
+                <DefVal>0</DefVal>
 	</Param>
 	<Param>
 		<!-- COMPANY_TYPE -->
