@@ -20,7 +20,7 @@ using CompanyEdit::CompanyEditor;
 using CompanyEdit::Company;
 using CompanyEdit::CompanyResult;
 using CompanyEdit::CompanyList;
-using CompanyEdit::XmlParameters;
+using CompanyEdit::JsonParameters;
 using CompanyEdit::CompanyUid;
 using CompanyEdit::TotalCount;
 using CompanyEdit::ServerUid;
@@ -53,7 +53,7 @@ public:
         return stub_->DeleteCompany(&context, company, &result);
     }
 
-    Status QueryCompanies(const XmlParameters & parameters, std::vector<Company> object_list, CompanyResult & result) {
+    Status QueryCompanies(const JsonParameters & parameters, std::vector<Company> object_list, CompanyResult & result) {
         ClientContext context;
         CompanyList list;
 

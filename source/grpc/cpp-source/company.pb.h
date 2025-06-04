@@ -64,15 +64,15 @@ extern CompanyResultDefaultTypeInternal _CompanyResult_default_instance_;
 class CompanyUid;
 struct CompanyUidDefaultTypeInternal;
 extern CompanyUidDefaultTypeInternal _CompanyUid_default_instance_;
+class JsonParameters;
+struct JsonParametersDefaultTypeInternal;
+extern JsonParametersDefaultTypeInternal _JsonParameters_default_instance_;
 class ServerUid;
 struct ServerUidDefaultTypeInternal;
 extern ServerUidDefaultTypeInternal _ServerUid_default_instance_;
 class TotalCount;
 struct TotalCountDefaultTypeInternal;
 extern TotalCountDefaultTypeInternal _TotalCount_default_instance_;
-class XmlParameters;
-struct XmlParametersDefaultTypeInternal;
-extern XmlParametersDefaultTypeInternal _XmlParameters_default_instance_;
 }  // namespace CompanyEdit
 namespace google {
 namespace protobuf {
@@ -84,203 +84,6 @@ namespace CompanyEdit {
 // ===================================================================
 
 
-// -------------------------------------------------------------------
-
-class XmlParameters final
-    : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:CompanyEdit.XmlParameters) */ {
- public:
-  inline XmlParameters() : XmlParameters(nullptr) {}
-  ~XmlParameters() PROTOBUF_FINAL;
-
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(XmlParameters* msg, std::destroying_delete_t) {
-    SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(XmlParameters));
-  }
-#endif
-
-  template <typename = void>
-  explicit PROTOBUF_CONSTEXPR XmlParameters(
-      ::google::protobuf::internal::ConstantInitialized);
-
-  inline XmlParameters(const XmlParameters& from) : XmlParameters(nullptr, from) {}
-  inline XmlParameters(XmlParameters&& from) noexcept
-      : XmlParameters(nullptr, std::move(from)) {}
-  inline XmlParameters& operator=(const XmlParameters& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline XmlParameters& operator=(XmlParameters&& from) noexcept {
-    if (this == &from) return *this;
-    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
-      InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
-  }
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
-      ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::google::protobuf::Descriptor* GetDescriptor() {
-    return default_instance().GetMetadata().descriptor;
-  }
-  static const ::google::protobuf::Reflection* GetReflection() {
-    return default_instance().GetMetadata().reflection;
-  }
-  static const XmlParameters& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const XmlParameters* internal_default_instance() {
-    return reinterpret_cast<const XmlParameters*>(
-        &_XmlParameters_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages = 3;
-  friend void swap(XmlParameters& a, XmlParameters& b) { a.Swap(&b); }
-  inline void Swap(XmlParameters* other) {
-    if (other == this) return;
-    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
-      InternalSwap(other);
-    } else {
-      ::google::protobuf::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(XmlParameters* other) {
-    if (other == this) return;
-    ABSL_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  XmlParameters* New(::google::protobuf::Arena* arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<XmlParameters>(arena);
-  }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const XmlParameters& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const XmlParameters& from) { XmlParameters::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(
-      ::google::protobuf::MessageLite& to_msg,
-      const ::google::protobuf::MessageLite& from_msg);
-
-  public:
-  bool IsInitialized() const {
-    return true;
-  }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* _InternalSerialize(
-      const MessageLite& msg, ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* _InternalSerialize(
-      ::uint8_t* target,
-      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(XmlParameters* other);
- private:
-  template <typename T>
-  friend ::absl::string_view(
-      ::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "CompanyEdit.XmlParameters"; }
-
- protected:
-  explicit XmlParameters(::google::protobuf::Arena* arena);
-  XmlParameters(::google::protobuf::Arena* arena, const XmlParameters& from);
-  XmlParameters(::google::protobuf::Arena* arena, XmlParameters&& from) noexcept
-      : XmlParameters(arena) {
-    *this = ::std::move(from);
-  }
-  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
-  static void* PlacementNew_(const void*, void* mem,
-                             ::google::protobuf::Arena* arena);
-  static constexpr auto InternalNewImpl_();
-  static const ::google::protobuf::internal::ClassDataFull _class_data_;
-
- public:
-  ::google::protobuf::Metadata GetMetadata() const;
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-  enum : int {
-    kXmlParamsFieldNumber = 1,
-  };
-  // string xmlParams = 1;
-  void clear_xmlparams() ;
-  const std::string& xmlparams() const;
-  template <typename Arg_ = const std::string&, typename... Args_>
-  void set_xmlparams(Arg_&& arg, Args_... args);
-  std::string* mutable_xmlparams();
-  PROTOBUF_NODISCARD std::string* release_xmlparams();
-  void set_allocated_xmlparams(std::string* value);
-
-  private:
-  const std::string& _internal_xmlparams() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_xmlparams(
-      const std::string& value);
-  std::string* _internal_mutable_xmlparams();
-
-  public:
-  // @@protoc_insertion_point(class_scope:CompanyEdit.XmlParameters)
- private:
-  class _Internal;
-  friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 0,
-      43, 2>
-      _table_;
-
-  friend class ::google::protobuf::MessageLite;
-  friend class ::google::protobuf::Arena;
-  template <typename T>
-  friend class ::google::protobuf::Arena::InternalHelper;
-  using InternalArenaConstructable_ = void;
-  using DestructorSkippable_ = void;
-  struct Impl_ {
-    inline explicit constexpr Impl_(
-        ::google::protobuf::internal::ConstantInitialized) noexcept;
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena);
-    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
-                          ::google::protobuf::Arena* arena, const Impl_& from,
-                          const XmlParameters& from_msg);
-    ::google::protobuf::internal::ArenaStringPtr xmlparams_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    PROTOBUF_TSAN_DECLARE_MEMBER
-  };
-  union { Impl_ _impl_; };
-  friend struct ::TableStruct_company_2eproto;
-};
 // -------------------------------------------------------------------
 
 class TotalCount final
@@ -657,6 +460,203 @@ class ServerUid final
                           ::google::protobuf::Arena* arena, const Impl_& from,
                           const ServerUid& from_msg);
     ::uint32_t uid_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_company_2eproto;
+};
+// -------------------------------------------------------------------
+
+class JsonParameters final
+    : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:CompanyEdit.JsonParameters) */ {
+ public:
+  inline JsonParameters() : JsonParameters(nullptr) {}
+  ~JsonParameters() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(JsonParameters* msg, std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(JsonParameters));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR JsonParameters(
+      ::google::protobuf::internal::ConstantInitialized);
+
+  inline JsonParameters(const JsonParameters& from) : JsonParameters(nullptr, from) {}
+  inline JsonParameters(JsonParameters&& from) noexcept
+      : JsonParameters(nullptr, std::move(from)) {}
+  inline JsonParameters& operator=(const JsonParameters& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline JsonParameters& operator=(JsonParameters&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const JsonParameters& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const JsonParameters* internal_default_instance() {
+    return reinterpret_cast<const JsonParameters*>(
+        &_JsonParameters_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 3;
+  friend void swap(JsonParameters& a, JsonParameters& b) { a.Swap(&b); }
+  inline void Swap(JsonParameters* other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(JsonParameters* other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  JsonParameters* New(::google::protobuf::Arena* arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<JsonParameters>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const JsonParameters& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const JsonParameters& from) { JsonParameters::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(
+      ::google::protobuf::MessageLite& to_msg,
+      const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* _InternalSerialize(
+      const MessageLite& msg, ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* _InternalSerialize(
+      ::uint8_t* target,
+      ::google::protobuf::io::EpsCopyOutputStream* stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(JsonParameters* other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(
+      ::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "CompanyEdit.JsonParameters"; }
+
+ protected:
+  explicit JsonParameters(::google::protobuf::Arena* arena);
+  JsonParameters(::google::protobuf::Arena* arena, const JsonParameters& from);
+  JsonParameters(::google::protobuf::Arena* arena, JsonParameters&& from) noexcept
+      : JsonParameters(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* GetClassData() const PROTOBUF_FINAL;
+  static void* PlacementNew_(const void*, void* mem,
+                             ::google::protobuf::Arena* arena);
+  static constexpr auto InternalNewImpl_();
+  static const ::google::protobuf::internal::ClassDataFull _class_data_;
+
+ public:
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kJsonParamsFieldNumber = 1,
+  };
+  // string jsonParams = 1;
+  void clear_jsonparams() ;
+  const std::string& jsonparams() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_jsonparams(Arg_&& arg, Args_... args);
+  std::string* mutable_jsonparams();
+  PROTOBUF_NODISCARD std::string* release_jsonparams();
+  void set_allocated_jsonparams(std::string* value);
+
+  private:
+  const std::string& _internal_jsonparams() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_jsonparams(
+      const std::string& value);
+  std::string* _internal_mutable_jsonparams();
+
+  public:
+  // @@protoc_insertion_point(class_scope:CompanyEdit.JsonParameters)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<
+      0, 1, 0,
+      45, 2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(
+        ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena);
+    inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                          ::google::protobuf::Arena* arena, const Impl_& from,
+                          const JsonParameters& from_msg);
+    ::google::protobuf::internal::ArenaStringPtr jsonparams_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -2124,54 +2124,54 @@ CompanyList::_internal_mutable_companies() {
 
 // -------------------------------------------------------------------
 
-// XmlParameters
+// JsonParameters
 
-// string xmlParams = 1;
-inline void XmlParameters::clear_xmlparams() {
+// string jsonParams = 1;
+inline void JsonParameters::clear_jsonparams() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.xmlparams_.ClearToEmpty();
+  _impl_.jsonparams_.ClearToEmpty();
 }
-inline const std::string& XmlParameters::xmlparams() const
+inline const std::string& JsonParameters::jsonparams() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:CompanyEdit.XmlParameters.xmlParams)
-  return _internal_xmlparams();
+  // @@protoc_insertion_point(field_get:CompanyEdit.JsonParameters.jsonParams)
+  return _internal_jsonparams();
 }
 template <typename Arg_, typename... Args_>
-inline PROTOBUF_ALWAYS_INLINE void XmlParameters::set_xmlparams(Arg_&& arg,
+inline PROTOBUF_ALWAYS_INLINE void JsonParameters::set_jsonparams(Arg_&& arg,
                                                      Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.xmlparams_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:CompanyEdit.XmlParameters.xmlParams)
+  _impl_.jsonparams_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:CompanyEdit.JsonParameters.jsonParams)
 }
-inline std::string* XmlParameters::mutable_xmlparams() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  std::string* _s = _internal_mutable_xmlparams();
-  // @@protoc_insertion_point(field_mutable:CompanyEdit.XmlParameters.xmlParams)
+inline std::string* JsonParameters::mutable_jsonparams() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_jsonparams();
+  // @@protoc_insertion_point(field_mutable:CompanyEdit.JsonParameters.jsonParams)
   return _s;
 }
-inline const std::string& XmlParameters::_internal_xmlparams() const {
+inline const std::string& JsonParameters::_internal_jsonparams() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.xmlparams_.Get();
+  return _impl_.jsonparams_.Get();
 }
-inline void XmlParameters::_internal_set_xmlparams(const std::string& value) {
+inline void JsonParameters::_internal_set_jsonparams(const std::string& value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.xmlparams_.Set(value, GetArena());
+  _impl_.jsonparams_.Set(value, GetArena());
 }
-inline std::string* XmlParameters::_internal_mutable_xmlparams() {
+inline std::string* JsonParameters::_internal_mutable_jsonparams() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  return _impl_.xmlparams_.Mutable( GetArena());
+  return _impl_.jsonparams_.Mutable( GetArena());
 }
-inline std::string* XmlParameters::release_xmlparams() {
+inline std::string* JsonParameters::release_jsonparams() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:CompanyEdit.XmlParameters.xmlParams)
-  return _impl_.xmlparams_.Release();
+  // @@protoc_insertion_point(field_release:CompanyEdit.JsonParameters.jsonParams)
+  return _impl_.jsonparams_.Release();
 }
-inline void XmlParameters::set_allocated_xmlparams(std::string* value) {
+inline void JsonParameters::set_allocated_jsonparams(std::string* value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.xmlparams_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.xmlparams_.IsDefault()) {
-    _impl_.xmlparams_.Set("", GetArena());
+  _impl_.jsonparams_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.jsonparams_.IsDefault()) {
+    _impl_.jsonparams_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:CompanyEdit.XmlParameters.xmlParams)
+  // @@protoc_insertion_point(field_set_allocated:CompanyEdit.JsonParameters.jsonParams)
 }
 
 // -------------------------------------------------------------------
