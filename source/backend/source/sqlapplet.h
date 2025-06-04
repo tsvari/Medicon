@@ -36,6 +36,7 @@ class SQLApplet
 {
 public:
     SQLApplet(const char * appletName, map<string, string> formattedParamValueList = {});
+    SQLApplet(const char * appletName, const string & parametersXml);
     ~SQLApplet(void){}
 
     void AddDataInfo(const char * paramName, const char * paramValue);
@@ -44,7 +45,7 @@ public:
     void AddDataInfo(const char * paramName, double paramValue);
     void AddDataInfo(const char * paramName, bool paramValue);
     void AddDataInfo(const char * paramName, const std::chrono::sys_seconds paramValue, DataInfo::Type nType);
-    void AddDataInfo(const char * paramName,  const char * paramValue, DataInfo::Type nType);
+    void AddDataInfo(const char * paramName, const char * paramValue, DataInfo::Type nType);
 
 public:
     static void InitPathToApplets(const char * appletPath, bool useDefaultValue = false);

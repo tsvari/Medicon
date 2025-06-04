@@ -125,6 +125,7 @@ TEST(TypeToStringFormatterTests, TypeToStringFormatterTests)
 TEST(TypeToStringFormatterTests, TypeToStringFormatterStringsTests)
 {
     const char * currentTimeStr("2007-01-20 11:22:33");
+    std::vector paramNameList = {"Int", "Double", "Strig", "Bool"};
 
     TypeToStringFormatter formatter;
     formatter.AddDataInfo("DateTime", currentTimeStr, DataInfo::DateTime);
@@ -132,10 +133,28 @@ TEST(TypeToStringFormatterTests, TypeToStringFormatterStringsTests)
     formatter.AddDataInfo("Date", currentTimeStr, DataInfo::Date);
     formatter.AddDataInfo("Time", currentTimeStr, DataInfo::Time);
 
+    FormatterDataType dataType;
+
+    dataType = 10;
+    formatter.AddDataInfo(paramNameList[0], dataType);
+
+    dataType = 11.11;
+    formatter.AddDataInfo(paramNameList[1], dataType);
+
+    dataType = "RandomString";
+    formatter.AddDataInfo(paramNameList[2], dataType);
+
+    dataType = true;
+    formatter.AddDataInfo(paramNameList[3], dataType);
+
     std::map<string, string> expected = {{"DateTime", "2007-01-20 11:22:33"},
                                          {"DateTimeNoSec", "2007-01-20 11:22"},
                                          {"Date", "2007-01-20"},
-                                         {"Time", "11:22:33"}};
+                                         {"Time", "11:22:33"},
+                                         {"Int", "10"},
+                                         {"Double", "11.110000"},// six digits by default
+                                         {"Strig", "RandomString"},
+                                         {"Bool", "1"}};
     std::map<string, string> actual = formatter.formattedParamValueList();
 
     // Assert if wrong
@@ -182,6 +201,27 @@ TEST(TypeToStringFormatterTests, TypeToStringFormatterToTimeTests)
     EXPECT_NO_THROW(formatter.toTime("Time"));
 }
 
+TEST(TypeToStringFormatterTests, XmlParsingTests)
+{
+    const char * currentTimeStr("2007-01-20 11:22:33");
+
+    TypeToStringFormatter formatter;
+    formatter.AddDataInfo("DateTime", currentTimeStr, DataInfo::DateTime);
+    formatter.AddDataInfo("DateTimeNoSec", currentTimeStr, DataInfo::DateTimeNoSec);
+    formatter.AddDataInfo("Date", currentTimeStr, DataInfo::Date);
+    formatter.AddDataInfo("Time", currentTimeStr, DataInfo::Time);
+
+    std::map<string, string> expected = {{"DateTime", "2007-01-20 11:22:33"},
+                                         {"DateTimeNoSec", "2007-01-20 11:22"},
+                                         {"Date", "2007-01-20"},
+                                         {"Time", "11:22:33"}};
+
+    string xml = formatter.toXmlString();
+
+    std::map<string, string> actual = TypeToStringFormatter::fromXmlString(xml);
+    // Assert if wrong
+    ASSERT_EQ(expected, actual);
+}
 
 
 
