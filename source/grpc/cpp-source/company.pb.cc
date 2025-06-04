@@ -26,33 +26,6 @@ namespace _pbi = ::google::protobuf::internal;
 namespace _fl = ::google::protobuf::internal::field_layout;
 namespace CompanyEdit {
 
-inline constexpr XmlParameters::Impl_::Impl_(
-    ::_pbi::ConstantInitialized) noexcept
-      : xmlparams_(
-            &::google::protobuf::internal::fixed_address_empty_string,
-            ::_pbi::ConstantInitialized()),
-        _cached_size_{0} {}
-
-template <typename>
-PROTOBUF_CONSTEXPR XmlParameters::XmlParameters(::_pbi::ConstantInitialized)
-#if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(_class_data_.base()),
-#else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::Message(),
-#endif  // PROTOBUF_CUSTOM_VTABLE
-      _impl_(::_pbi::ConstantInitialized()) {
-}
-struct XmlParametersDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR XmlParametersDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~XmlParametersDefaultTypeInternal() {}
-  union {
-    XmlParameters _instance;
-  };
-};
-
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 XmlParametersDefaultTypeInternal _XmlParameters_default_instance_;
-
 inline constexpr TotalCount::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : count_{::uint64_t{0u}},
@@ -102,6 +75,33 @@ struct ServerUidDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 ServerUidDefaultTypeInternal _ServerUid_default_instance_;
+
+inline constexpr JsonParameters::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : jsonparams_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        _cached_size_{0} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR JsonParameters::JsonParameters(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct JsonParametersDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR JsonParametersDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~JsonParametersDefaultTypeInternal() {}
+  union {
+    JsonParameters _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 JsonParametersDefaultTypeInternal _JsonParameters_default_instance_;
 
 inline constexpr CompanyUid::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
@@ -274,14 +274,14 @@ const ::uint32_t
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::CompanyEdit::CompanyList, _impl_.companies_),
         ~0u,  // no _has_bits_
-        PROTOBUF_FIELD_OFFSET(::CompanyEdit::XmlParameters, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::CompanyEdit::JsonParameters, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::CompanyEdit::XmlParameters, _impl_.xmlparams_),
+        PROTOBUF_FIELD_OFFSET(::CompanyEdit::JsonParameters, _impl_.jsonparams_),
         ~0u,  // no _has_bits_
         PROTOBUF_FIELD_OFFSET(::CompanyEdit::CompanyUid, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -316,7 +316,7 @@ static const ::_pbi::MigrationSchema
         {0, -1, -1, sizeof(::CompanyEdit::Company)},
         {17, -1, -1, sizeof(::CompanyEdit::CompanyResult)},
         {28, -1, -1, sizeof(::CompanyEdit::CompanyList)},
-        {37, -1, -1, sizeof(::CompanyEdit::XmlParameters)},
+        {37, -1, -1, sizeof(::CompanyEdit::JsonParameters)},
         {46, -1, -1, sizeof(::CompanyEdit::CompanyUid)},
         {55, -1, -1, sizeof(::CompanyEdit::TotalCount)},
         {64, -1, -1, sizeof(::CompanyEdit::ServerUid)},
@@ -325,7 +325,7 @@ static const ::_pb::Message* const file_default_instances[] = {
     &::CompanyEdit::_Company_default_instance_._instance,
     &::CompanyEdit::_CompanyResult_default_instance_._instance,
     &::CompanyEdit::_CompanyList_default_instance_._instance,
-    &::CompanyEdit::_XmlParameters_default_instance_._instance,
+    &::CompanyEdit::_JsonParameters_default_instance_._instance,
     &::CompanyEdit::_CompanyUid_default_instance_._instance,
     &::CompanyEdit::_TotalCount_default_instance_._instance,
     &::CompanyEdit::_ServerUid_default_instance_._instance,
@@ -339,27 +339,28 @@ const char descriptor_table_protodef_company_2eproto[] ABSL_ATTRIBUTE_SECTION_VA
     " \001(\003\022\017\n\007LICENSE\030\010 \001(\t\022\014\n\004LOGO\030\023 \001(\014\"<\n\rC"
     "ompanyResult\022\017\n\007success\030\001 \001(\010\022\r\n\005error\030\002"
     " \001(\t\022\013\n\003uid\030\003 \001(\t\"6\n\013CompanyList\022\'\n\tcomp"
-    "anies\030\001 \003(\0132\024.CompanyEdit.Company\"\"\n\rXml"
-    "Parameters\022\021\n\txmlParams\030\001 \001(\t\"\031\n\nCompany"
-    "Uid\022\013\n\003uid\030\001 \001(\t\"\033\n\nTotalCount\022\r\n\005count\030"
-    "\001 \001(\004\"\030\n\tServerUid\022\013\n\003uid\030\001 \001(\r2\266\003\n\rComp"
-    "anyEditor\022@\n\nAddCompany\022\024.CompanyEdit.Co"
-    "mpany\032\032.CompanyEdit.CompanyResult\"\000\022A\n\013E"
-    "ditCompany\022\024.CompanyEdit.Company\032\032.Compa"
-    "nyEdit.CompanyResult\"\000\022C\n\rDeleteCompany\022"
-    "\024.CompanyEdit.Company\032\032.CompanyEdit.Comp"
-    "anyResult\"\000\022H\n\016QueryCompanies\022\032.CompanyE"
-    "dit.XmlParameters\032\030.CompanyEdit.CompanyL"
-    "ist\"\000\022D\n\021QueryCompanyByUid\022\027.CompanyEdit"
-    ".CompanyUid\032\024.CompanyEdit.Company\"\000\022K\n\026Q"
-    "ueryCompanyTotalCount\022\026.CompanyEdit.Serv"
-    "erUid\032\027.CompanyEdit.TotalCount\"\000b\006proto3"
+    "anies\030\001 \003(\0132\024.CompanyEdit.Company\"$\n\016Jso"
+    "nParameters\022\022\n\njsonParams\030\001 \001(\t\"\031\n\nCompa"
+    "nyUid\022\013\n\003uid\030\001 \001(\t\"\033\n\nTotalCount\022\r\n\005coun"
+    "t\030\001 \001(\004\"\030\n\tServerUid\022\013\n\003uid\030\001 \001(\r2\267\003\n\rCo"
+    "mpanyEditor\022@\n\nAddCompany\022\024.CompanyEdit."
+    "Company\032\032.CompanyEdit.CompanyResult\"\000\022A\n"
+    "\013EditCompany\022\024.CompanyEdit.Company\032\032.Com"
+    "panyEdit.CompanyResult\"\000\022C\n\rDeleteCompan"
+    "y\022\024.CompanyEdit.Company\032\032.CompanyEdit.Co"
+    "mpanyResult\"\000\022I\n\016QueryCompanies\022\033.Compan"
+    "yEdit.JsonParameters\032\030.CompanyEdit.Compa"
+    "nyList\"\000\022D\n\021QueryCompanyByUid\022\027.CompanyE"
+    "dit.CompanyUid\032\024.CompanyEdit.Company\"\000\022K"
+    "\n\026QueryCompanyTotalCount\022\026.CompanyEdit.S"
+    "erverUid\032\027.CompanyEdit.TotalCount\"\000b\006pro"
+    "to3"
 };
 static ::absl::once_flag descriptor_table_company_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_company_2eproto = {
     false,
     false,
-    880,
+    883,
     descriptor_table_protodef_company_2eproto,
     "company.proto",
     &descriptor_table_company_2eproto_once,
@@ -1346,99 +1347,99 @@ void CompanyList::InternalSwap(CompanyList* PROTOBUF_RESTRICT other) {
 }
 // ===================================================================
 
-class XmlParameters::_Internal {
+class JsonParameters::_Internal {
  public:
 };
 
-XmlParameters::XmlParameters(::google::protobuf::Arena* arena)
+JsonParameters::JsonParameters(::google::protobuf::Arena* arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, _class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:CompanyEdit.XmlParameters)
+  // @@protoc_insertion_point(arena_constructor:CompanyEdit.JsonParameters)
 }
-inline PROTOBUF_NDEBUG_INLINE XmlParameters::Impl_::Impl_(
+inline PROTOBUF_NDEBUG_INLINE JsonParameters::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility, ::google::protobuf::Arena* arena,
-    const Impl_& from, const ::CompanyEdit::XmlParameters& from_msg)
-      : xmlparams_(arena, from.xmlparams_),
+    const Impl_& from, const ::CompanyEdit::JsonParameters& from_msg)
+      : jsonparams_(arena, from.jsonparams_),
         _cached_size_{0} {}
 
-XmlParameters::XmlParameters(
+JsonParameters::JsonParameters(
     ::google::protobuf::Arena* arena,
-    const XmlParameters& from)
+    const JsonParameters& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
     : ::google::protobuf::Message(arena, _class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  XmlParameters* const _this = this;
+  JsonParameters* const _this = this;
   (void)_this;
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
 
-  // @@protoc_insertion_point(copy_constructor:CompanyEdit.XmlParameters)
+  // @@protoc_insertion_point(copy_constructor:CompanyEdit.JsonParameters)
 }
-inline PROTOBUF_NDEBUG_INLINE XmlParameters::Impl_::Impl_(
+inline PROTOBUF_NDEBUG_INLINE JsonParameters::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* arena)
-      : xmlparams_(arena),
+      : jsonparams_(arena),
         _cached_size_{0} {}
 
-inline void XmlParameters::SharedCtor(::_pb::Arena* arena) {
+inline void JsonParameters::SharedCtor(::_pb::Arena* arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
 }
-XmlParameters::~XmlParameters() {
-  // @@protoc_insertion_point(destructor:CompanyEdit.XmlParameters)
+JsonParameters::~JsonParameters() {
+  // @@protoc_insertion_point(destructor:CompanyEdit.JsonParameters)
   SharedDtor(*this);
 }
-inline void XmlParameters::SharedDtor(MessageLite& self) {
-  XmlParameters& this_ = static_cast<XmlParameters&>(self);
+inline void JsonParameters::SharedDtor(MessageLite& self) {
+  JsonParameters& this_ = static_cast<JsonParameters&>(self);
   this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
-  this_._impl_.xmlparams_.Destroy();
+  this_._impl_.jsonparams_.Destroy();
   this_._impl_.~Impl_();
 }
 
-inline void* XmlParameters::PlacementNew_(const void*, void* mem,
+inline void* JsonParameters::PlacementNew_(const void*, void* mem,
                                         ::google::protobuf::Arena* arena) {
-  return ::new (mem) XmlParameters(arena);
+  return ::new (mem) JsonParameters(arena);
 }
-constexpr auto XmlParameters::InternalNewImpl_() {
-  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(XmlParameters),
-                                            alignof(XmlParameters));
+constexpr auto JsonParameters::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(JsonParameters),
+                                            alignof(JsonParameters));
 }
 PROTOBUF_CONSTINIT
 PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::google::protobuf::internal::ClassDataFull XmlParameters::_class_data_ = {
+const ::google::protobuf::internal::ClassDataFull JsonParameters::_class_data_ = {
     ::google::protobuf::internal::ClassData{
-        &_XmlParameters_default_instance_._instance,
+        &_JsonParameters_default_instance_._instance,
         &_table_.header,
         nullptr,  // OnDemandRegisterArenaDtor
         nullptr,  // IsInitialized
-        &XmlParameters::MergeImpl,
-        ::google::protobuf::Message::GetNewImpl<XmlParameters>(),
+        &JsonParameters::MergeImpl,
+        ::google::protobuf::Message::GetNewImpl<JsonParameters>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        &XmlParameters::SharedDtor,
-        ::google::protobuf::Message::GetClearImpl<XmlParameters>(), &XmlParameters::ByteSizeLong,
-            &XmlParameters::_InternalSerialize,
+        &JsonParameters::SharedDtor,
+        ::google::protobuf::Message::GetClearImpl<JsonParameters>(), &JsonParameters::ByteSizeLong,
+            &JsonParameters::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
-        PROTOBUF_FIELD_OFFSET(XmlParameters, _impl_._cached_size_),
+        PROTOBUF_FIELD_OFFSET(JsonParameters, _impl_._cached_size_),
         false,
     },
-    &XmlParameters::kDescriptorMethods,
+    &JsonParameters::kDescriptorMethods,
     &descriptor_table_company_2eproto,
     nullptr,  // tracker
 };
-const ::google::protobuf::internal::ClassData* XmlParameters::GetClassData() const {
+const ::google::protobuf::internal::ClassData* JsonParameters::GetClassData() const {
   ::google::protobuf::internal::PrefetchToLocalCache(&_class_data_);
   ::google::protobuf::internal::PrefetchToLocalCache(_class_data_.tc_table);
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 43, 2> XmlParameters::_table_ = {
+const ::_pbi::TcParseTable<0, 1, 0, 45, 2> JsonParameters::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
@@ -1453,58 +1454,58 @@ const ::_pbi::TcParseTable<0, 1, 0, 43, 2> XmlParameters::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::CompanyEdit::XmlParameters>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::CompanyEdit::JsonParameters>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // string xmlParams = 1;
+    // string jsonParams = 1;
     {::_pbi::TcParser::FastUS1,
-     {10, 63, 0, PROTOBUF_FIELD_OFFSET(XmlParameters, _impl_.xmlparams_)}},
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(JsonParameters, _impl_.jsonparams_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // string xmlParams = 1;
-    {PROTOBUF_FIELD_OFFSET(XmlParameters, _impl_.xmlparams_), 0, 0,
+    // string jsonParams = 1;
+    {PROTOBUF_FIELD_OFFSET(JsonParameters, _impl_.jsonparams_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
   }},
   // no aux_entries
   {{
-    "\31\11\0\0\0\0\0\0"
-    "CompanyEdit.XmlParameters"
-    "xmlParams"
+    "\32\12\0\0\0\0\0\0"
+    "CompanyEdit.JsonParameters"
+    "jsonParams"
   }},
 };
 
-PROTOBUF_NOINLINE void XmlParameters::Clear() {
-// @@protoc_insertion_point(message_clear_start:CompanyEdit.XmlParameters)
+PROTOBUF_NOINLINE void JsonParameters::Clear() {
+// @@protoc_insertion_point(message_clear_start:CompanyEdit.JsonParameters)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.xmlparams_.ClearToEmpty();
+  _impl_.jsonparams_.ClearToEmpty();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::uint8_t* XmlParameters::_InternalSerialize(
+        ::uint8_t* JsonParameters::_InternalSerialize(
             const MessageLite& base, ::uint8_t* target,
             ::google::protobuf::io::EpsCopyOutputStream* stream) {
-          const XmlParameters& this_ = static_cast<const XmlParameters&>(base);
+          const JsonParameters& this_ = static_cast<const JsonParameters&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::uint8_t* XmlParameters::_InternalSerialize(
+        ::uint8_t* JsonParameters::_InternalSerialize(
             ::uint8_t* target,
             ::google::protobuf::io::EpsCopyOutputStream* stream) const {
-          const XmlParameters& this_ = *this;
+          const JsonParameters& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(serialize_to_array_start:CompanyEdit.XmlParameters)
+          // @@protoc_insertion_point(serialize_to_array_start:CompanyEdit.JsonParameters)
           ::uint32_t cached_has_bits = 0;
           (void)cached_has_bits;
 
-          // string xmlParams = 1;
-          if (!this_._internal_xmlparams().empty()) {
-            const std::string& _s = this_._internal_xmlparams();
+          // string jsonParams = 1;
+          if (!this_._internal_jsonparams().empty()) {
+            const std::string& _s = this_._internal_jsonparams();
             ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-                _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "CompanyEdit.XmlParameters.xmlParams");
+                _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "CompanyEdit.JsonParameters.jsonParams");
             target = stream->WriteStringMaybeAliased(1, _s, target);
           }
 
@@ -1513,18 +1514,18 @@ PROTOBUF_NOINLINE void XmlParameters::Clear() {
                 ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
                     this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
           }
-          // @@protoc_insertion_point(serialize_to_array_end:CompanyEdit.XmlParameters)
+          // @@protoc_insertion_point(serialize_to_array_end:CompanyEdit.JsonParameters)
           return target;
         }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-        ::size_t XmlParameters::ByteSizeLong(const MessageLite& base) {
-          const XmlParameters& this_ = static_cast<const XmlParameters&>(base);
+        ::size_t JsonParameters::ByteSizeLong(const MessageLite& base) {
+          const JsonParameters& this_ = static_cast<const JsonParameters&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-        ::size_t XmlParameters::ByteSizeLong() const {
-          const XmlParameters& this_ = *this;
+        ::size_t JsonParameters::ByteSizeLong() const {
+          const JsonParameters& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          // @@protoc_insertion_point(message_byte_size_start:CompanyEdit.XmlParameters)
+          // @@protoc_insertion_point(message_byte_size_start:CompanyEdit.JsonParameters)
           ::size_t total_size = 0;
 
           ::uint32_t cached_has_bits = 0;
@@ -1532,47 +1533,47 @@ PROTOBUF_NOINLINE void XmlParameters::Clear() {
           (void)cached_has_bits;
 
            {
-            // string xmlParams = 1;
-            if (!this_._internal_xmlparams().empty()) {
+            // string jsonParams = 1;
+            if (!this_._internal_jsonparams().empty()) {
               total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
-                                              this_._internal_xmlparams());
+                                              this_._internal_jsonparams());
             }
           }
           return this_.MaybeComputeUnknownFieldsSize(total_size,
                                                      &this_._impl_._cached_size_);
         }
 
-void XmlParameters::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
-  auto* const _this = static_cast<XmlParameters*>(&to_msg);
-  auto& from = static_cast<const XmlParameters&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:CompanyEdit.XmlParameters)
+void JsonParameters::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<JsonParameters*>(&to_msg);
+  auto& from = static_cast<const JsonParameters&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:CompanyEdit.JsonParameters)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (!from._internal_xmlparams().empty()) {
-    _this->_internal_set_xmlparams(from._internal_xmlparams());
+  if (!from._internal_jsonparams().empty()) {
+    _this->_internal_set_jsonparams(from._internal_jsonparams());
   }
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
-void XmlParameters::CopyFrom(const XmlParameters& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:CompanyEdit.XmlParameters)
+void JsonParameters::CopyFrom(const JsonParameters& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:CompanyEdit.JsonParameters)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 
-void XmlParameters::InternalSwap(XmlParameters* PROTOBUF_RESTRICT other) {
+void JsonParameters::InternalSwap(JsonParameters* PROTOBUF_RESTRICT other) {
   using std::swap;
   auto* arena = GetArena();
   ABSL_DCHECK_EQ(arena, other->GetArena());
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.xmlparams_, &other->_impl_.xmlparams_, arena);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.jsonparams_, &other->_impl_.jsonparams_, arena);
 }
 
-::google::protobuf::Metadata XmlParameters::GetMetadata() const {
+::google::protobuf::Metadata JsonParameters::GetMetadata() const {
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // ===================================================================

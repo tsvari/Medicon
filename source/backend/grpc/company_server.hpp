@@ -32,7 +32,7 @@ using CompanyEdit::CompanyEditor;
 using CompanyEdit::Company;
 using CompanyEdit::CompanyResult;
 using CompanyEdit::CompanyList;
-using CompanyEdit::XmlParameters;
+using CompanyEdit::JsonParameters;
 using CompanyEdit::CompanyUid;
 using CompanyEdit::TotalCount;
 using CompanyEdit::ServerUid;
@@ -209,7 +209,7 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
         return Status::OK;
     }
 
-    Status QueryCompanies(ServerContext * context, const XmlParameters * params, CompanyList * list) override {
+    Status QueryCompanies(ServerContext * context, const JsonParameters * params, CompanyList * list) override {
         std::cout<<"QueryCompanies: runned"<<std::endl;
         SqlConnection con;
         try

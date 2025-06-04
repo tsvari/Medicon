@@ -114,23 +114,23 @@ void CompanyEditor::Stub::async::DeleteCompany(::grpc::ClientContext* context, c
   return result;
 }
 
-::grpc::Status CompanyEditor::Stub::QueryCompanies(::grpc::ClientContext* context, const ::CompanyEdit::XmlParameters& request, ::CompanyEdit::CompanyList* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::CompanyEdit::XmlParameters, ::CompanyEdit::CompanyList, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_QueryCompanies_, context, request, response);
+::grpc::Status CompanyEditor::Stub::QueryCompanies(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters& request, ::CompanyEdit::CompanyList* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::CompanyEdit::JsonParameters, ::CompanyEdit::CompanyList, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_QueryCompanies_, context, request, response);
 }
 
-void CompanyEditor::Stub::async::QueryCompanies(::grpc::ClientContext* context, const ::CompanyEdit::XmlParameters* request, ::CompanyEdit::CompanyList* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::CompanyEdit::XmlParameters, ::CompanyEdit::CompanyList, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_QueryCompanies_, context, request, response, std::move(f));
+void CompanyEditor::Stub::async::QueryCompanies(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters* request, ::CompanyEdit::CompanyList* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::CompanyEdit::JsonParameters, ::CompanyEdit::CompanyList, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_QueryCompanies_, context, request, response, std::move(f));
 }
 
-void CompanyEditor::Stub::async::QueryCompanies(::grpc::ClientContext* context, const ::CompanyEdit::XmlParameters* request, ::CompanyEdit::CompanyList* response, ::grpc::ClientUnaryReactor* reactor) {
+void CompanyEditor::Stub::async::QueryCompanies(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters* request, ::CompanyEdit::CompanyList* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_QueryCompanies_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::CompanyEdit::CompanyList>* CompanyEditor::Stub::PrepareAsyncQueryCompaniesRaw(::grpc::ClientContext* context, const ::CompanyEdit::XmlParameters& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::CompanyEdit::CompanyList, ::CompanyEdit::XmlParameters, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_QueryCompanies_, context, request);
+::grpc::ClientAsyncResponseReader< ::CompanyEdit::CompanyList>* CompanyEditor::Stub::PrepareAsyncQueryCompaniesRaw(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::CompanyEdit::CompanyList, ::CompanyEdit::JsonParameters, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_QueryCompanies_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::CompanyEdit::CompanyList>* CompanyEditor::Stub::AsyncQueryCompaniesRaw(::grpc::ClientContext* context, const ::CompanyEdit::XmlParameters& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::CompanyEdit::CompanyList>* CompanyEditor::Stub::AsyncQueryCompaniesRaw(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncQueryCompaniesRaw(context, request, cq);
   result->StartCall();
@@ -217,10 +217,10 @@ CompanyEditor::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       CompanyEditor_method_names[3],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< CompanyEditor::Service, ::CompanyEdit::XmlParameters, ::CompanyEdit::CompanyList, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< CompanyEditor::Service, ::CompanyEdit::JsonParameters, ::CompanyEdit::CompanyList, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](CompanyEditor::Service* service,
              ::grpc::ServerContext* ctx,
-             const ::CompanyEdit::XmlParameters* req,
+             const ::CompanyEdit::JsonParameters* req,
              ::CompanyEdit::CompanyList* resp) {
                return service->QueryCompanies(ctx, req, resp);
              }, this)));
@@ -270,7 +270,7 @@ CompanyEditor::Service::~Service() {
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status CompanyEditor::Service::QueryCompanies(::grpc::ServerContext* context, const ::CompanyEdit::XmlParameters* request, ::CompanyEdit::CompanyList* response) {
+::grpc::Status CompanyEditor::Service::QueryCompanies(::grpc::ServerContext* context, const ::CompanyEdit::JsonParameters* request, ::CompanyEdit::CompanyList* response) {
   (void) context;
   (void) request;
   (void) response;

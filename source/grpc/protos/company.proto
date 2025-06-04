@@ -11,7 +11,7 @@ service CompanyEditor {
 
   rpc DeleteCompany(Company) returns (CompanyResult) {}
 
-  rpc QueryCompanies(XmlParameters) returns (CompanyList) {}
+  rpc QueryCompanies(JsonParameters) returns (CompanyList) {}
 
   rpc QueryCompanyByUid(CompanyUid) returns (Company) {}
 
@@ -40,8 +40,8 @@ message CompanyList {
   repeated Company companies = 1;
 }
 
-message XmlParameters {
-  string xmlParams = 1;
+message JsonParameters {
+  string jsonParams = 1;
 }
 
 message CompanyUid {
