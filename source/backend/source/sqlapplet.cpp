@@ -23,6 +23,16 @@ SQLApplet::SQLApplet(const char * appletName, map<string, string> formattedParam
     m_appletPath = std::format("{}{}", AppletPath, appletName);
 }
 
+SQLApplet::SQLApplet(const char *appletName, const string & parametersXml)
+{
+    // Don't forget call SQLApplet::InitPathToApplets to initialize global path
+    if(AppletPath.size() == 0) {
+        throw SQLAppletException(APPLET_ERR_INIT);
+    }
+    m_appletPath = std::format("{}{}", AppletPath, appletName);
+    m_paramValueList = TypeToStringFormatter::fromXmlString(parametersXml);
+}
+
 void SQLApplet::InitPathToApplets(const char * appletPath, bool useDefaultValue)
 {
     AppletPath = appletPath;
