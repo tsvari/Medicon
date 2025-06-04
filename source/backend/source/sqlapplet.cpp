@@ -30,7 +30,7 @@ SQLApplet::SQLApplet(const char *appletName, const string & parametersXml)
         throw SQLAppletException(APPLET_ERR_INIT);
     }
     m_appletPath = std::format("{}{}", AppletPath, appletName);
-    m_paramValueList = TypeToStringFormatter::fromXmlString(parametersXml);
+    m_paramValueList = JsonParameterFormatter::fromJsonString(parametersXml);
 }
 
 void SQLApplet::InitPathToApplets(const char * appletPath, bool useDefaultValue)

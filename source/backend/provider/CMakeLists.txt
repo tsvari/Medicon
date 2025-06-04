@@ -55,6 +55,7 @@ set(HEADER_FILES
     ${INCLUDE_DIR}/include_util.h
     ${INCLUDE_DIR}/configfile.h
     ${INCLUDE_DIR}/TypeToStringFormatter.h
+    ${INCLUDE_DIR}/JsonParameterFormatter.h
 
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.pb.h
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.h
@@ -72,6 +73,7 @@ set(SOURCE_FILES
     ${INCLUDE_DIR}/include_util.cpp
     ${INCLUDE_DIR}/configfile.cpp
     ${INCLUDE_DIR}/TypeToStringFormatter.cpp
+    ${INCLUDE_DIR}/JsonParameterFormatter.cpp
 
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.pb.cc
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.cc

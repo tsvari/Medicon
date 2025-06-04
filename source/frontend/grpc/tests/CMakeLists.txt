@@ -8,14 +8,14 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(../../../cmake/global-settings.cmake)
+# Use project name in c++ code
+add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")
 
 # Markup should compile with STL
 add_compile_definitions(MARKUP_STL)
 
-# Use project name in c++ code
-add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")
-
 set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVER_MODE PRE_TEST)
+include(GoogleTest)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
@@ -23,7 +23,6 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 find_package(Threads REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
-include(GoogleTest)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -33,8 +32,7 @@ file(MAKE_DIRECTORY ${TEST_GENERATED_ROOT})
 set(HEADER_FILES
     ${INCLUDE_DIR}/include_util.h
     ${INCLUDE_DIR}/TypeToStringFormatter.h
-
-    ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.h
+    ${INCLUDE_DIR}/JsonParameterFormatter.h
 
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.pb.h
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.h
@@ -45,8 +43,7 @@ set(HEADER_FILES
 set(SOURCE_FILES
     ${INCLUDE_DIR}/include_util.cpp
     ${INCLUDE_DIR}/TypeToStringFormatter.cpp
-
-    ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.cpp
+    ${INCLUDE_DIR}/JsonParameterFormatter.cpp
 
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.pb.cc
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.cc

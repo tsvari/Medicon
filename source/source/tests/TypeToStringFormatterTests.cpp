@@ -1,4 +1,5 @@
-#include "../TypeToStringFormatter.h"
+#include "../JsonParameterFormatter.h"
+
 #include "gtest/gtest.h"
 
 #include <chrono>
@@ -201,11 +202,11 @@ TEST(TypeToStringFormatterTests, TypeToStringFormatterToTimeTests)
     EXPECT_NO_THROW(formatter.toTime("Time"));
 }
 
-TEST(TypeToStringFormatterTests, XmlParsingTests)
+TEST(TypeToStringFormatterTests, JsonParsingTests)
 {
     const char * currentTimeStr("2007-01-20 11:22:33");
 
-    TypeToStringFormatter formatter;
+    JsonParameterFormatter formatter;
     formatter.AddDataInfo("DateTime", currentTimeStr, DataInfo::DateTime);
     formatter.AddDataInfo("DateTimeNoSec", currentTimeStr, DataInfo::DateTimeNoSec);
     formatter.AddDataInfo("Date", currentTimeStr, DataInfo::Date);
@@ -216,10 +217,10 @@ TEST(TypeToStringFormatterTests, XmlParsingTests)
                                          {"Date", "2007-01-20"},
                                          {"Time", "11:22:33"}};
 
-    string xml = formatter.toXmlString();
+    string xml = formatter.toJsonString();
+    EXPECT_FALSE(xml.empty());
 
-    std::map<string, string> actual = TypeToStringFormatter::fromXmlString(xml);
-    // Assert if wrong
+    std::map<string, string> actual = JsonParameterFormatter::fromJsonString(xml);
     ASSERT_EQ(expected, actual);
 }
 

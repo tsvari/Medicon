@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 #include "include_util.h"
-#include "TypeToStringFormatter.h"
+#include "JsonParameterFormatter.h"
 
 namespace {
 const char * APPLET_ERR_INIT = "SQLApplet: Applet initilization error!";
@@ -56,7 +56,7 @@ public:
 
 private:
     map<string, string> m_paramValueList;
-    TypeToStringFormatter m_formatter;
+    JsonParameterFormatter m_formatter;
     string m_appletPath;
     string m_description;
     string m_sqlSource;
