@@ -1,5 +1,38 @@
 #include "include_util.h"
 
+#include <stdexcept>
+
+namespace BackendUtil {
+    uint32_t sqlRowOffset(uint32_t page, uint32_t limitCount, uint32_t totalCount,
+                      uint32_t & realCurrentPage, uint32_t & pageCount) {
+        if (limitCount == 0) {
+            throw std::runtime_error("Division by zero!");
+        }
+        if(limitCount >= totalCount) {
+            realCurrentPage = 0;
+            pageCount = 0;
+            return 0;
+        }
+        pageCount = totalCount / limitCount;
+        if(totalCount % limitCount > 0) {
+            pageCount++;
+        }
+        if(page > pageCount) {
+            realCurrentPage = 0;
+            return 0;
+        }
+
+        realCurrentPage = page;
+        return limitCount * (page - 1);
+    }
+
+    uint32_t sqlRowOffset(uint32_t page, uint32_t limitCount, uint32_t totalCount) {
+        uint32_t realCurrentPage = 0;
+        uint32_t pageCount = 0;
+        return sqlRowOffset(page, limitCount, totalCount, realCurrentPage, pageCount);
+    }
+};
+
 namespace Trimmer {
     const char * ws = " \t\n\r\f\v";
     // trim from end of string (right)
