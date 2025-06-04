@@ -40,6 +40,7 @@ set(SOURCE_FILES
 
     ConfigFIleTests.cpp
     TypeToStringFormatterTests.cpp
+    UtilFunctionsTests.cpp
 )
 
 add_executable(GlobalTestProject

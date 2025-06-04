@@ -5,7 +5,7 @@
 TEST(ConfigFileTests, WrongPath)
 {
     try {
-        ConfigFile * config = ConfigFile::InstanceCustom("", "");
+        ConfigFile::InstanceCustom("", "");
     } catch(const std::invalid_argument & err) {
         // and this tests that it has the correct message
         EXPECT_STREQ(CONFIG_ERR_ALL_PROJECT_PATH, err.what());
@@ -18,7 +18,7 @@ TEST(ConfigFileTests, WrongPath)
 TEST(ConfigFileTests, WrongPathToConfig)
 {
     try {
-        ConfigFile * config = ConfigFile::InstanceCustom(ALL_PROJECT_PATH, "");
+        ConfigFile::InstanceCustom(ALL_PROJECT_PATH, "");
     } catch(const std::invalid_argument & err) {
         // and this tests that it has the correct message
         EXPECT_STREQ(CONFIG_ERR_CONFIG_FILE, err.what());
@@ -30,7 +30,7 @@ TEST(ConfigFileTests, WrongPathToConfig)
 TEST(ConfigFileTests, RightPathToConfigAndWrongProjectName)
 {
     try {
-        ConfigFile * config = ConfigFile::InstanceCustom(ALL_PROJECT_TEST_APPDATA_PATH, "WrongProject");
+        ConfigFile::InstanceCustom(ALL_PROJECT_TEST_APPDATA_PATH, "WrongProject");
     } catch(const std::invalid_argument & err) {
         // and this tests that it has the correct message
         EXPECT_STREQ(CONFIG_ERR_CONFIG_FILE, err.what());
@@ -42,7 +42,7 @@ TEST(ConfigFileTests, RightPathToConfigAndWrongProjectName)
 TEST(ConfigFileTests, WrongLogFilePath)
 {
     try {
-        ConfigFile * config = ConfigFile::InstanceCustom(ALL_PROJECT_TEST_APPDATA_PATH, PROJECT_NAME);
+        ConfigFile::InstanceCustom(ALL_PROJECT_TEST_APPDATA_PATH, PROJECT_NAME);
     } catch(const std::invalid_argument & err) {
         // and this tests that it has the correct message
         EXPECT_STREQ(CONFIG_ERR_LOG_FILE, err.what());
