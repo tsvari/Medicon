@@ -38,7 +38,7 @@ public:
 
     vector<DataInfo> & dataInfoList(){return dataList;}
 
-private:
+protected:
     vector<DataInfo> dataList;
 
 };

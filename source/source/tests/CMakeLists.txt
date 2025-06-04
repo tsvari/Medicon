@@ -11,7 +11,6 @@ include(../../cmake/global-settings.cmake)
 # Use project name in c++ code
 add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")
 
-
 # Markup should compile with STL
 add_compile_definitions(MARKUP_STL)
 
@@ -29,6 +28,7 @@ set(HEADER_FILES
     ${INCLUDE_DIR}/include_util.h
     ${INCLUDE_DIR}/configfile.h
     ${INCLUDE_DIR}/TypeToStringFormatter.h
+    ${INCLUDE_DIR}/JsonParameterFormatter.h
 )
 
 set(SOURCE_FILES
@@ -37,6 +37,7 @@ set(SOURCE_FILES
     ${INCLUDE_DIR}/include_util.cpp
     ${INCLUDE_DIR}/configfile.cpp
     ${INCLUDE_DIR}/TypeToStringFormatter.cpp
+    ${INCLUDE_DIR}/JsonParameterFormatter.cpp
 
     ConfigFIleTests.cpp
     TypeToStringFormatterTests.cpp
