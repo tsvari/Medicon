@@ -24,3 +24,33 @@ map<string, string> JsonParameterFormatter::fromJsonString(const string & jsonSt
     return doc.get<map<string, string>>();
 }
 
+void JsonParameterFormatter::AddDataInfo(const char * paramName, const char * paramValue)
+{
+    FormatterDataType data(paramValue);
+    TypeToStringFormatter::AddDataInfo(paramName, data);
+}
+
+void JsonParameterFormatter::AddDataInfo(const char * paramName, int paramValue)
+{
+    FormatterDataType data(paramValue);
+    TypeToStringFormatter::AddDataInfo(paramName, data);
+}
+
+void JsonParameterFormatter::AddDataInfo(const char *paramName, int64_t paramValue)
+{
+    FormatterDataType data(paramValue);
+    TypeToStringFormatter::AddDataInfo(paramName, data);
+}
+
+void JsonParameterFormatter::AddDataInfo(const char * paramName, double paramValue)
+{
+    FormatterDataType data(paramValue);
+    TypeToStringFormatter::AddDataInfo(paramName, data);
+}
+
+void JsonParameterFormatter::AddDataInfo(const char * paramName, bool paramValue)
+{
+    FormatterDataType data(paramValue);
+    TypeToStringFormatter::AddDataInfo(paramName, data);
+}
+
