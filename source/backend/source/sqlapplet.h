@@ -56,7 +56,7 @@ public:
 
 private:
     map<string, string> m_paramValueList;
-    JsonParameterFormatter m_formatter;
+    TypeToStringFormatter m_formatter;
     string m_appletPath;
     string m_description;
     string m_sqlSource;
