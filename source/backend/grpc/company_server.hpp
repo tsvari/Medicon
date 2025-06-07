@@ -118,6 +118,9 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
             command.addDataInfo("JOINT_DATE", std::chrono::sys_seconds(std::chrono::seconds(company->joint_date())), DataInfo::Date);
             command.addDataInfo("LICENSE", company->license().c_str());
 
+            // Add false p arameter for testing purpses only
+            command.addDataInfo("ANY_PARAM", "ANY_VALUE");
+
             command.execute();
 
             if(command.isResultSet()) {
@@ -210,36 +213,53 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
     }
 
     Status QueryCompanies(ServerContext * context, const JsonParameters * params, CompanyList * list) override {
-        std::cout<<"QueryCompanies: runned"<<std::endl;
         SqlConnection con;
-        try
-        {
+        SqlQuery cmd(con, "company_select_by_uid.xml");
+        try {
             con.connect();
-            SACommand select(con.connectionSa(), _TSA(""));
-            std::cout<<"Connected well"<<std::endl;
-            //con.Disconnect();
+            //cmd.addDataInfo("UID", request->uid().c_str());
+            while(cmd.query()) {
+                Company * cp = list->add_companies();
+                SAString address = cmd.Field("ADDRESS").asString();
+                address.TrimRight();
+                SAString license = cmd.Field("LICENSE").asString();
+                license.TrimRight();
 
-        } catch(SAException & x) {
-            // SAConnection::Rollback()
-            // can also throw an exception
-            // (if a network error for example),
-            // we will be ready
-            std::cout<<"Error with connection!"<<std::endl;
-            try
-            {
-                // on error rollback changes
-                con.rollback();
-            } catch(SAException &) {
+                string strRegDate = cmd.Field("REG_DATE").asString().GetMultiByteChars();
+                string strJointDate = cmd.Field("JOINT_DATE").asString().GetMultiByteChars();
 
+                std::chrono::sys_seconds secRegDate = TimeFormatHelper::stringTochronoSysSec(strRegDate, DataInfo::Date);
+                std::chrono::sys_seconds secJointDate = TimeFormatHelper::stringTochronoSysSec(strJointDate, DataInfo::Date);
+
+                cp->set_uid(cmd.Field("UID").asString().GetMultiByteChars());
+                cp->set_server_uid(cmd.Field("SERVER_UID"));
+                cp->set_company_type(cmd.Field("COMPANY_TYPE"));
+                cp->set_name(cmd.Field("NAME").asString().GetMultiByteChars());
+                cp->set_address(address.GetMultiByteChars());
+                cp->set_reg_date(secRegDate.time_since_epoch().count());
+                cp->set_joint_date(secJointDate.time_since_epoch().count());
+                cp->set_license(license.GetMultiByteChars());
+                cp->set_logo(cmd.Field("LOGO").asString().GetMultiByteChars());
             }
-            // print error message
-            //LOG(ERROR) << "DBConnection: " << x.ErrText().GetMultiByteChars();
+        } catch(SAException & x) {
+            LOG(ERROR) << x.ErrText().GetMultiByteChars();
+            LOG(INFO) << cmd.sql();
+            try {
+                con.rollback();
+            }
+            catch(SAException &)
+            {
+            }
+            return Status::CANCELLED;
+        } catch(const SQLAppletException & e) {
+            LOG(ERROR) << e.what();
+            return Status(StatusCode::INTERNAL, e.what());
+        } catch(...) {
+            LOG(ERROR) << "Unknown error!";
+            return Status(StatusCode::ABORTED, "Unknown error!");
         }
 
-        for(int it = 0; it < 10; it ++) {
-            Company * cp = list->add_companies();
-            cp->set_uid(std::to_string(it));
-        }
+
 
         return Status::OK;
     }
