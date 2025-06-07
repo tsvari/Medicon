@@ -6,11 +6,12 @@
 namespace {
     static string AppletPath = "";
     static bool UseDefaultValue = false;
-    map<string, DataInfo::Type> const xmlTypeToDataInfo={{"NUMERIC", DataInfo::Int},
-                                      {"STRING", DataInfo::String},
-                                      {"DATETIME", DataInfo::DateTime},
-                                      {"DATE", DataInfo::Date},
-                                      {"TIME", DataInfo::Time}};
+    map<string, DataInfo::Type> const xmlTypeToDataInfo={{"FIELD", DataInfo::Zero},
+                                        {"NUMERIC", DataInfo::Int},
+                                        {"STRING", DataInfo::String},
+                                        {"DATETIME", DataInfo::DateTime},
+                                        {"DATE", DataInfo::Date},
+                                        {"TIME", DataInfo::Time}};
 }
 namespace fs = std::filesystem;
 SQLApplet::SQLApplet(const char * appletName, map<string, string> formattedParamValueList):
