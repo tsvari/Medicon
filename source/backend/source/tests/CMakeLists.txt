@@ -25,6 +25,8 @@ file(MAKE_DIRECTORY ${TEST_GENERATED_ROOT})
 
 # sqlapi static
 add_compile_definitions(SA_STATIC_PQSQL)
+# Easylogging should compile with STL
+add_compile_definitions(ELPP_STL_LOGGING)
 # Import SQLAPI the prebuilt static library
 add_library(sqlapi STATIC IMPORTED)
 IF (WIN32)
@@ -46,6 +48,7 @@ ENDIF()
 set(HEADER_FILES
     ${INCLUDE_DIR}/TypeToStringFormatter.h
     ${INCLUDE_DIR}/include_util.h
+    ${INCLUDE_DIR}/JsonParameterFormatter.h
 
     ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.h
 
@@ -58,6 +61,7 @@ set(HEADER_FILES
 set(SOURCE_FILES
     ${INCLUDE_DIR}/TypeToStringFormatter.cpp
     ${INCLUDE_DIR}/include_util.cpp
+    ${INCLUDE_DIR}/JsonParameterFormatter.cpp
 	
     ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.cpp
 
@@ -81,12 +85,17 @@ target_compile_definitions(BackendTestProject PRIVATE
     TEST_REFRERENCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/reference"
 )
 
+# easylogging++
+find_package(easyloggingpp REQUIRED)
+
 find_package(GTest REQUIRED)
+
 
 target_link_libraries(BackendTestProject
     PRIVATE
     sqlapi
     gtest::gtest
+    easyloggingpp::easyloggingpp
 )
 
 IF(WIN32)
