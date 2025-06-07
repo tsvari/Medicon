@@ -14,6 +14,7 @@ class GlobalTestProject(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
  
     requires = (
+    "easyloggingpp/9.97.1",
     "gtest/1.16.0"
     )
 
