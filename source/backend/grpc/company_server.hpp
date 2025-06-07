@@ -18,6 +18,7 @@
 #include "sqlcommand.h"
 #include "sqlconnection.h"
 #include "sqlquery.h"
+#include "JsonParameterFormatter.h"
 #include <easylogging++.h>
 
 using grpc::Server;
@@ -35,7 +36,6 @@ using CompanyEdit::CompanyList;
 using CompanyEdit::JsonParameters;
 using CompanyEdit::CompanyUid;
 using CompanyEdit::TotalCount;
-using CompanyEdit::ServerUid;
 
 //ABSL_FLAG(uint16_t, port, 50051, "Server port for the service");
 
@@ -316,13 +316,11 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
         return Status::OK;
     }
 
-    Status QueryCompanyTotalCount(ServerContext * context, const ServerUid * request, TotalCount * response) override {
+    Status QueryCompanyTotalCount(ServerContext * context, const JsonParameters * request, TotalCount * response) override {
         SqlConnection con;
-        SqlQuery cmd(con, "company_count.xml");
+        SqlQuery cmd(con, "company_count.xml", JsonParameterFormatter::fromJsonString(request->jsonparams()));
         try {
             con.connect();
-            //int uid = request->uid();
-            cmd.addDataInfo("SERVER_UID", (int)request->uid());
             if(cmd.query()) {
                 response->set_count(cmd.Field("ROW_COUNT").asInt64());
             } else {

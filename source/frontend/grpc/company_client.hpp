@@ -23,7 +23,6 @@ using CompanyEdit::CompanyList;
 using CompanyEdit::JsonParameters;
 using CompanyEdit::CompanyUid;
 using CompanyEdit::TotalCount;
-using CompanyEdit::ServerUid;
 
 ABSL_FLAG(std::string, target, "0.0.0.0:12345", "Server address");
 
@@ -70,9 +69,9 @@ public:
         ClientContext context;
         return stub_->QueryCompanyByUid(&context, uid, &result);
     }
-    Status QueryCompanyTotalCount(const ServerUid & uid, TotalCount & result) {
+    Status QueryCompanyTotalCount(const JsonParameters & params, TotalCount & result) {
         ClientContext context;
-        return stub_->QueryCompanyTotalCount(&context, uid, &result);
+        return stub_->QueryCompanyTotalCount(&context, params, &result);
     }
 
 private:

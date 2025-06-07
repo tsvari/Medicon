@@ -72,11 +72,11 @@ class CompanyEditor final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::Company>> PrepareAsyncQueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::Company>>(PrepareAsyncQueryCompanyByUidRaw(context, request, cq));
     }
-    virtual ::grpc::Status QueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::ServerUid& request, ::CompanyEdit::TotalCount* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::TotalCount>> AsyncQueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::ServerUid& request, ::grpc::CompletionQueue* cq) {
+    virtual ::grpc::Status QueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters& request, ::CompanyEdit::TotalCount* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::TotalCount>> AsyncQueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::TotalCount>>(AsyncQueryCompanyTotalCountRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::TotalCount>> PrepareAsyncQueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::ServerUid& request, ::grpc::CompletionQueue* cq) {
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::TotalCount>> PrepareAsyncQueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::TotalCount>>(PrepareAsyncQueryCompanyTotalCountRaw(context, request, cq));
     }
     class async_interface {
@@ -92,8 +92,8 @@ class CompanyEditor final {
       virtual void QueryCompanies(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters* request, ::CompanyEdit::CompanyList* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       virtual void QueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid* request, ::CompanyEdit::Company* response, std::function<void(::grpc::Status)>) = 0;
       virtual void QueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid* request, ::CompanyEdit::Company* response, ::grpc::ClientUnaryReactor* reactor) = 0;
-      virtual void QueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::ServerUid* request, ::CompanyEdit::TotalCount* response, std::function<void(::grpc::Status)>) = 0;
-      virtual void QueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::ServerUid* request, ::CompanyEdit::TotalCount* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      virtual void QueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters* request, ::CompanyEdit::TotalCount* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void QueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters* request, ::CompanyEdit::TotalCount* response, ::grpc::ClientUnaryReactor* reactor) = 0;
     };
     typedef class async_interface experimental_async_interface;
     virtual class async_interface* async() { return nullptr; }
@@ -109,8 +109,8 @@ class CompanyEditor final {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::CompanyList>* PrepareAsyncQueryCompaniesRaw(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::Company>* AsyncQueryCompanyByUidRaw(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::Company>* PrepareAsyncQueryCompanyByUidRaw(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::TotalCount>* AsyncQueryCompanyTotalCountRaw(::grpc::ClientContext* context, const ::CompanyEdit::ServerUid& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::TotalCount>* PrepareAsyncQueryCompanyTotalCountRaw(::grpc::ClientContext* context, const ::CompanyEdit::ServerUid& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::TotalCount>* AsyncQueryCompanyTotalCountRaw(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::CompanyEdit::TotalCount>* PrepareAsyncQueryCompanyTotalCountRaw(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
@@ -150,11 +150,11 @@ class CompanyEditor final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::CompanyEdit::Company>> PrepareAsyncQueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::CompanyEdit::Company>>(PrepareAsyncQueryCompanyByUidRaw(context, request, cq));
     }
-    ::grpc::Status QueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::ServerUid& request, ::CompanyEdit::TotalCount* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::CompanyEdit::TotalCount>> AsyncQueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::ServerUid& request, ::grpc::CompletionQueue* cq) {
+    ::grpc::Status QueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters& request, ::CompanyEdit::TotalCount* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::CompanyEdit::TotalCount>> AsyncQueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::CompanyEdit::TotalCount>>(AsyncQueryCompanyTotalCountRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::CompanyEdit::TotalCount>> PrepareAsyncQueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::ServerUid& request, ::grpc::CompletionQueue* cq) {
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::CompanyEdit::TotalCount>> PrepareAsyncQueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::CompanyEdit::TotalCount>>(PrepareAsyncQueryCompanyTotalCountRaw(context, request, cq));
     }
     class async final :
@@ -170,8 +170,8 @@ class CompanyEditor final {
       void QueryCompanies(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters* request, ::CompanyEdit::CompanyList* response, ::grpc::ClientUnaryReactor* reactor) override;
       void QueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid* request, ::CompanyEdit::Company* response, std::function<void(::grpc::Status)>) override;
       void QueryCompanyByUid(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid* request, ::CompanyEdit::Company* response, ::grpc::ClientUnaryReactor* reactor) override;
-      void QueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::ServerUid* request, ::CompanyEdit::TotalCount* response, std::function<void(::grpc::Status)>) override;
-      void QueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::ServerUid* request, ::CompanyEdit::TotalCount* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void QueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters* request, ::CompanyEdit::TotalCount* response, std::function<void(::grpc::Status)>) override;
+      void QueryCompanyTotalCount(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters* request, ::CompanyEdit::TotalCount* response, ::grpc::ClientUnaryReactor* reactor) override;
      private:
       friend class Stub;
       explicit async(Stub* stub): stub_(stub) { }
@@ -193,8 +193,8 @@ class CompanyEditor final {
     ::grpc::ClientAsyncResponseReader< ::CompanyEdit::CompanyList>* PrepareAsyncQueryCompaniesRaw(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::CompanyEdit::Company>* AsyncQueryCompanyByUidRaw(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::CompanyEdit::Company>* PrepareAsyncQueryCompanyByUidRaw(::grpc::ClientContext* context, const ::CompanyEdit::CompanyUid& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::CompanyEdit::TotalCount>* AsyncQueryCompanyTotalCountRaw(::grpc::ClientContext* context, const ::CompanyEdit::ServerUid& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::CompanyEdit::TotalCount>* PrepareAsyncQueryCompanyTotalCountRaw(::grpc::ClientContext* context, const ::CompanyEdit::ServerUid& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::CompanyEdit::TotalCount>* AsyncQueryCompanyTotalCountRaw(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::CompanyEdit::TotalCount>* PrepareAsyncQueryCompanyTotalCountRaw(::grpc::ClientContext* context, const ::CompanyEdit::JsonParameters& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_AddCompany_;
     const ::grpc::internal::RpcMethod rpcmethod_EditCompany_;
     const ::grpc::internal::RpcMethod rpcmethod_DeleteCompany_;
@@ -213,7 +213,7 @@ class CompanyEditor final {
     virtual ::grpc::Status DeleteCompany(::grpc::ServerContext* context, const ::CompanyEdit::Company* request, ::CompanyEdit::CompanyResult* response);
     virtual ::grpc::Status QueryCompanies(::grpc::ServerContext* context, const ::CompanyEdit::JsonParameters* request, ::CompanyEdit::CompanyList* response);
     virtual ::grpc::Status QueryCompanyByUid(::grpc::ServerContext* context, const ::CompanyEdit::CompanyUid* request, ::CompanyEdit::Company* response);
-    virtual ::grpc::Status QueryCompanyTotalCount(::grpc::ServerContext* context, const ::CompanyEdit::ServerUid* request, ::CompanyEdit::TotalCount* response);
+    virtual ::grpc::Status QueryCompanyTotalCount(::grpc::ServerContext* context, const ::CompanyEdit::JsonParameters* request, ::CompanyEdit::TotalCount* response);
   };
   template <class BaseClass>
   class WithAsyncMethod_AddCompany : public BaseClass {
@@ -327,11 +327,11 @@ class CompanyEditor final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status QueryCompanyTotalCount(::grpc::ServerContext* /*context*/, const ::CompanyEdit::ServerUid* /*request*/, ::CompanyEdit::TotalCount* /*response*/) override {
+    ::grpc::Status QueryCompanyTotalCount(::grpc::ServerContext* /*context*/, const ::CompanyEdit::JsonParameters* /*request*/, ::CompanyEdit::TotalCount* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestQueryCompanyTotalCount(::grpc::ServerContext* context, ::CompanyEdit::ServerUid* request, ::grpc::ServerAsyncResponseWriter< ::CompanyEdit::TotalCount>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+    void RequestQueryCompanyTotalCount(::grpc::ServerContext* context, ::CompanyEdit::JsonParameters* request, ::grpc::ServerAsyncResponseWriter< ::CompanyEdit::TotalCount>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(5, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
@@ -478,25 +478,25 @@ class CompanyEditor final {
    public:
     WithCallbackMethod_QueryCompanyTotalCount() {
       ::grpc::Service::MarkMethodCallback(5,
-          new ::grpc::internal::CallbackUnaryHandler< ::CompanyEdit::ServerUid, ::CompanyEdit::TotalCount>(
+          new ::grpc::internal::CallbackUnaryHandler< ::CompanyEdit::JsonParameters, ::CompanyEdit::TotalCount>(
             [this](
-                   ::grpc::CallbackServerContext* context, const ::CompanyEdit::ServerUid* request, ::CompanyEdit::TotalCount* response) { return this->QueryCompanyTotalCount(context, request, response); }));}
+                   ::grpc::CallbackServerContext* context, const ::CompanyEdit::JsonParameters* request, ::CompanyEdit::TotalCount* response) { return this->QueryCompanyTotalCount(context, request, response); }));}
     void SetMessageAllocatorFor_QueryCompanyTotalCount(
-        ::grpc::MessageAllocator< ::CompanyEdit::ServerUid, ::CompanyEdit::TotalCount>* allocator) {
+        ::grpc::MessageAllocator< ::CompanyEdit::JsonParameters, ::CompanyEdit::TotalCount>* allocator) {
       ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(5);
-      static_cast<::grpc::internal::CallbackUnaryHandler< ::CompanyEdit::ServerUid, ::CompanyEdit::TotalCount>*>(handler)
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::CompanyEdit::JsonParameters, ::CompanyEdit::TotalCount>*>(handler)
               ->SetMessageAllocator(allocator);
     }
     ~WithCallbackMethod_QueryCompanyTotalCount() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status QueryCompanyTotalCount(::grpc::ServerContext* /*context*/, const ::CompanyEdit::ServerUid* /*request*/, ::CompanyEdit::TotalCount* /*response*/) override {
+    ::grpc::Status QueryCompanyTotalCount(::grpc::ServerContext* /*context*/, const ::CompanyEdit::JsonParameters* /*request*/, ::CompanyEdit::TotalCount* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     virtual ::grpc::ServerUnaryReactor* QueryCompanyTotalCount(
-      ::grpc::CallbackServerContext* /*context*/, const ::CompanyEdit::ServerUid* /*request*/, ::CompanyEdit::TotalCount* /*response*/)  { return nullptr; }
+      ::grpc::CallbackServerContext* /*context*/, const ::CompanyEdit::JsonParameters* /*request*/, ::CompanyEdit::TotalCount* /*response*/)  { return nullptr; }
   };
   typedef WithCallbackMethod_AddCompany<WithCallbackMethod_EditCompany<WithCallbackMethod_DeleteCompany<WithCallbackMethod_QueryCompanies<WithCallbackMethod_QueryCompanyByUid<WithCallbackMethod_QueryCompanyTotalCount<Service > > > > > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
@@ -597,7 +597,7 @@ class CompanyEditor final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status QueryCompanyTotalCount(::grpc::ServerContext* /*context*/, const ::CompanyEdit::ServerUid* /*request*/, ::CompanyEdit::TotalCount* /*response*/) override {
+    ::grpc::Status QueryCompanyTotalCount(::grpc::ServerContext* /*context*/, const ::CompanyEdit::JsonParameters* /*request*/, ::CompanyEdit::TotalCount* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -714,7 +714,7 @@ class CompanyEditor final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status QueryCompanyTotalCount(::grpc::ServerContext* /*context*/, const ::CompanyEdit::ServerUid* /*request*/, ::CompanyEdit::TotalCount* /*response*/) override {
+    ::grpc::Status QueryCompanyTotalCount(::grpc::ServerContext* /*context*/, const ::CompanyEdit::JsonParameters* /*request*/, ::CompanyEdit::TotalCount* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -847,7 +847,7 @@ class CompanyEditor final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status QueryCompanyTotalCount(::grpc::ServerContext* /*context*/, const ::CompanyEdit::ServerUid* /*request*/, ::CompanyEdit::TotalCount* /*response*/) override {
+    ::grpc::Status QueryCompanyTotalCount(::grpc::ServerContext* /*context*/, const ::CompanyEdit::JsonParameters* /*request*/, ::CompanyEdit::TotalCount* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -997,10 +997,10 @@ class CompanyEditor final {
     WithStreamedUnaryMethod_QueryCompanyTotalCount() {
       ::grpc::Service::MarkMethodStreamed(5,
         new ::grpc::internal::StreamedUnaryHandler<
-          ::CompanyEdit::ServerUid, ::CompanyEdit::TotalCount>(
+          ::CompanyEdit::JsonParameters, ::CompanyEdit::TotalCount>(
             [this](::grpc::ServerContext* context,
                    ::grpc::ServerUnaryStreamer<
-                     ::CompanyEdit::ServerUid, ::CompanyEdit::TotalCount>* streamer) {
+                     ::CompanyEdit::JsonParameters, ::CompanyEdit::TotalCount>* streamer) {
                        return this->StreamedQueryCompanyTotalCount(context,
                          streamer);
                   }));
@@ -1009,12 +1009,12 @@ class CompanyEditor final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable regular version of this method
-    ::grpc::Status QueryCompanyTotalCount(::grpc::ServerContext* /*context*/, const ::CompanyEdit::ServerUid* /*request*/, ::CompanyEdit::TotalCount* /*response*/) override {
+    ::grpc::Status QueryCompanyTotalCount(::grpc::ServerContext* /*context*/, const ::CompanyEdit::JsonParameters* /*request*/, ::CompanyEdit::TotalCount* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedQueryCompanyTotalCount(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::CompanyEdit::ServerUid,::CompanyEdit::TotalCount>* server_unary_streamer) = 0;
+    virtual ::grpc::Status StreamedQueryCompanyTotalCount(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::CompanyEdit::JsonParameters,::CompanyEdit::TotalCount>* server_unary_streamer) = 0;
   };
   typedef WithStreamedUnaryMethod_AddCompany<WithStreamedUnaryMethod_EditCompany<WithStreamedUnaryMethod_DeleteCompany<WithStreamedUnaryMethod_QueryCompanies<WithStreamedUnaryMethod_QueryCompanyByUid<WithStreamedUnaryMethod_QueryCompanyTotalCount<Service > > > > > > StreamedUnaryService;
   typedef Service SplitStreamedService;

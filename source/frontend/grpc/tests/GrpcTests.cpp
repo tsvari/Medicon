@@ -2,6 +2,7 @@
 #include "../company_client.hpp"
 #include "TypeToStringFormatter.h"
 #include "include_frontend_util.h"
+#include "JsonParameterFormatter.h"
 
 #include <QDateTime>
 
@@ -122,10 +123,15 @@ TEST(ConfigFileIntegrationTests, SelectCompanieTests)
         uidList.push_back(result.uid());
     }
     // Check count
-    ServerUid serverUid;
-    serverUid.set_uid(server_uid);
+    JsonParameterFormatter jsonFormatter;
+    jsonFormatter.AddDataInfo("SERVER_UID", server_uid);
+    jsonFormatter.AddDataInfo("FILTER_FIELD", "NAME");
+    jsonFormatter.AddDataInfo("FILTER_VALUE", "");
+
     TotalCount totalCount;
-    status = client.QueryCompanyTotalCount(serverUid, totalCount);
+    JsonParameters parameters;
+    parameters.set_jsonparams(jsonFormatter.toJsonString());
+    status = client.QueryCompanyTotalCount(parameters, totalCount);
     EXPECT_TRUE(status.ok());
     EXPECT_EQ(totalCount.count(), rows);
 

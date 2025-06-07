@@ -15,7 +15,7 @@ service CompanyEditor {
 
   rpc QueryCompanyByUid(CompanyUid) returns (Company) {}
 
-  rpc QueryCompanyTotalCount(ServerUid) returns (TotalCount) {}
+  rpc QueryCompanyTotalCount(JsonParameters) returns (TotalCount) {}
 }
 // Add/Edit/Delete Logo 
 message Company {
@@ -52,6 +52,3 @@ message TotalCount {
   uint64 count = 1;
 }
 
-message ServerUid {
-  uint32 uid = 1;
-}
