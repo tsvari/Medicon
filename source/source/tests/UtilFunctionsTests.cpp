@@ -1,7 +1,7 @@
 #include "../include_util.h"
 #include "gtest/gtest.h"
 
-using BackendUtil::sqlRowOffset;
+using CommonUtil::sqlRowOffset;
 
 TEST(UtilFunctionsTests, BackendUtilTest)
 {

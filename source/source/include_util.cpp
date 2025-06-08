@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 
-namespace BackendUtil {
+namespace CommonUtil {
     uint32_t sqlRowOffset(uint32_t page, uint32_t limitCount, uint32_t totalCount,
                       uint32_t & realCurrentPage, uint32_t & pageCount) {
         if (limitCount == 0) {
