@@ -1,0 +1,10 @@
+# Client machine (192.168.1.35)
+# Server machine (192.168.1.9)
+# Open port 5432 on server
+# Check connection to postgres from client machine 
+netcat -zv 192.168.1.9 5432
+# Add record as last in Server PostgressInstalation/data/pg_hba.conf
+host    all         all         192.168.1.35/32 SHA??????same as upper encoding
+
+
+

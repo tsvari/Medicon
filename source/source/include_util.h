@@ -5,6 +5,7 @@
 #include <map>
 #include <variant>
 #include <set>
+#include <cstdint>
 
 using std::string;
 using std::vector;
