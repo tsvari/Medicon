@@ -1,21 +1,19 @@
 #include "gtest/gtest.h"
 #include "../company_client.hpp"
 #include "TypeToStringFormatter.h"
-#include "include_frontend_util.h"
 #include "JsonParameterFormatter.h"
+
+#include "front_common.h"
 
 #include <QDateTime>
 
 // SELECT COUNT(*) FROM my_table;
 // SELECT * FROM my_table ORDER BY some_column OFFSET 45 LIMIT 10;
 
-namespace {
-const std::string channelAddress = "127.0.0.1:12345";
-const int server_uid = 1001;
-}
+
 using FrontConverter::to_str;
 
-TEST(ConfigFileIntegrationTests, LoadAndCheckData)
+TEST(CompanyIntegrationTests, LoadAndCheckData)
 {
     auto compareObjects = [=] (Company & left, Company & right) {
         EXPECT_EQ(left.uid(), right.uid());
@@ -91,7 +89,7 @@ TEST(ConfigFileIntegrationTests, LoadAndCheckData)
     EXPECT_TRUE(status.error_code() == StatusCode::NOT_FOUND);
 }
 
-TEST(ConfigFileIntegrationTests, SelectCompanieTests)
+TEST(CompanyIntegrationTests, SelectCompanieTests)
 {
     CompanyEditorClient client(grpc::CreateChannel(channelAddress, grpc::InsecureChannelCredentials()));
     QDateTime current = QDateTime::currentDateTime();
