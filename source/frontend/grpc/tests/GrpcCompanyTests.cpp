@@ -12,6 +12,7 @@
 
 
 using FrontConverter::to_str;
+using CommonUtil::sqlRowOffset;
 
 TEST(CompanyIntegrationTests, LoadAndCheckData)
 {
@@ -107,7 +108,7 @@ TEST(CompanyIntegrationTests, SelectCompanieTests)
     CompanyResult result;
     CompanyUid companyUid;
 
-    const int rows = 20;
+    const int rows = 22;
     std::vector<std::string> uidList;
 
     // INsert new rows
@@ -133,14 +134,24 @@ TEST(CompanyIntegrationTests, SelectCompanieTests)
     EXPECT_TRUE(status.ok());
     EXPECT_EQ(totalCount.count(), rows);
 
+    int page = 2;
+    int limitationPerPage = 4;
+    int ofset = sqlRowOffset(page, limitationPerPage, totalCount.count());
+    EXPECT_EQ(ofset, 4);
+
     JsonParameters parametersSelect;
     std::vector<Company> object_list;
-    jsonFormatter.AddDataInfo("OFFSET", 0);
-    jsonFormatter.AddDataInfo("LIMIT", 10);
+    jsonFormatter.AddDataInfo("OFFSET", ofset);
+    jsonFormatter.AddDataInfo("LIMIT", limitationPerPage);
     parametersSelect.set_jsonparams(jsonFormatter.toJsonString());
     status = client.QueryCompanies(parametersSelect, object_list);
     EXPECT_TRUE(status.ok());
-    EXPECT_EQ(object_list.size(), 10);
+    EXPECT_EQ(object_list.size(), limitationPerPage);
+
+    Company first = object_list.at(0);
+    Company last = object_list.at(limitationPerPage - 1);
+    EXPECT_EQ(first.name(), QString("Givi - 4"));
+    EXPECT_EQ(last.name(), QString("Givi - 7"));
 
     // Delete all of them
     for (int i = 0; i < rows; i++) {
