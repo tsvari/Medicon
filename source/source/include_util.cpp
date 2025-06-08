@@ -1,6 +1,7 @@
 #include "include_util.h"
 
 #include <stdexcept>
+#include <algorithm>
 
 namespace CommonUtil {
     uint32_t sqlRowOffset(uint32_t page, uint32_t limitCount, uint32_t totalCount,
