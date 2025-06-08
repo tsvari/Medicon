@@ -54,3 +54,13 @@ void JsonParameterFormatter::AddDataInfo(const char * paramName, bool paramValue
     TypeToStringFormatter::AddDataInfo(paramName, data);
 }
 
+void JsonParameterFormatter::AddDataInfo(const char *paramName, std::chrono::sys_seconds paramValue, DataInfo::Type nType)
+{
+    TypeToStringFormatter::AddDataInfo(paramName, paramValue, nType);
+}
+
+void JsonParameterFormatter::AddDataInfo(const char *paramName, const char * paramValue, DataInfo::Type nType)
+{
+    TypeToStringFormatter::AddDataInfo(paramName, paramValue, nType);
+}
+
