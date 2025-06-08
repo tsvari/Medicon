@@ -214,10 +214,9 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
 
     Status QueryCompanies(ServerContext * context, const JsonParameters * params, CompanyList * list) override {
         SqlConnection con;
-        SqlQuery cmd(con, "company_select_by_uid.xml");
+        SqlQuery cmd(con, "company_select.xml", JsonParameterFormatter::fromJsonString(params->jsonparams()));
         try {
             con.connect();
-            //cmd.addDataInfo("UID", request->uid().c_str());
             while(cmd.query()) {
                 Company * cp = list->add_companies();
                 SAString address = cmd.Field("ADDRESS").asString();
