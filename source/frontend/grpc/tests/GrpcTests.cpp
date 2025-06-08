@@ -129,11 +129,20 @@ TEST(ConfigFileIntegrationTests, SelectCompanieTests)
     jsonFormatter.AddDataInfo("FILTER_VALUE", "");
 
     TotalCount totalCount;
-    JsonParameters parameters;
-    parameters.set_jsonparams(jsonFormatter.toJsonString());
-    status = client.QueryCompanyTotalCount(parameters, totalCount);
+    JsonParameters parametersCount;
+    parametersCount.set_jsonparams(jsonFormatter.toJsonString());
+    status = client.QueryCompanyTotalCount(parametersCount, totalCount);
     EXPECT_TRUE(status.ok());
     EXPECT_EQ(totalCount.count(), rows);
+
+    JsonParameters parametersSelect;
+    std::vector<Company> object_list;
+    jsonFormatter.AddDataInfo("OFFSET", 0);
+    jsonFormatter.AddDataInfo("LIMIT", 10);
+    parametersSelect.set_jsonparams(jsonFormatter.toJsonString());
+    status = client.QueryCompanies(parametersSelect, object_list);
+    EXPECT_TRUE(status.ok());
+    EXPECT_EQ(object_list.size(), 10);
 
     // Delete all of them
     for (int i = 0; i < rows; i++) {

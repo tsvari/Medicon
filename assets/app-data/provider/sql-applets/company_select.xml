@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<APPLET>
+	<!-- 
+	list of comments
+	-->
+        <Description>select Query for company table</Description>
+        <Param>
+			<!-- SERVER_UID -->
+			<Name>SERVER_UID</Name>
+			<Type>NUMERIC</Type>
+			<MaxLen>12</MaxLen>
+			<DefVal>0</DefVal>
+		</Param>
+        <Param>
+			<!-- FILTER_FIELD -->
+			<Name>FILTER_FIELD</Name>
+			<Type>FIELD</Type>
+			<MaxLen>64</MaxLen>
+			<DefVal>NAME</DefVal>
+		</Param>
+		<Param>
+			<!-- SERVER_UID -->
+			<Name>FILTER_VALUE</Name>
+			<Type>FIELD</Type>
+			<MaxLen>64</MaxLen>
+			<DefVal></DefVal>
+		</Param>
+		<Param>
+			<!-- OFFSET -->
+			<Name>OFFSET</Name>
+			<Type>NUMERIC</Type>
+			<MaxLen>64</MaxLen>
+			<DefVal>0</DefVal>
+		</Param>
+		<Param>
+			<!-- SERVER_UID -->
+			<Name>LIMIT</Name>
+			<Type>NUMERIC</Type>
+			<MaxLen>64</MaxLen>
+			<DefVal>100</DefVal>
+		</Param>
+        <Code>
+      <![CDATA[
+select "UID", "SERVER_UID", "COMPANY_TYPE", "NAME", "ADDRESS", "REG_DATE",
+ "JOINT_DATE", "LICENSE", "LOGO" from company WHERE "SERVER_UID" = :SERVER_UID: and 
+ ":FILTER_FIELD:" LIKE '%:FILTER_VALUE:%' OFFSET :OFFSET: LIMIT :LIMIT:;
+      ]]></Code>
+</APPLET>
