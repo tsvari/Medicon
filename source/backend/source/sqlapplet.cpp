@@ -116,7 +116,11 @@ void SQLApplet::parse()
         }
         if (parser.FindChildElem("Type")) {
             string sType = parser.GetChildData();
-            ob.type = xmlTypeToDataInfo.at(sType);
+            if(xmlTypeToDataInfo.find(sType) != xmlTypeToDataInfo.end()) {
+                ob.type = xmlTypeToDataInfo.at(sType);
+            } else {
+                throw SQLAppletException(APPLET_ERR_WRONG_TYPE_NAME);
+            }
         } else {
             throw SQLAppletException(APPLET_ERR_PARAM_NO_TYPE);
         }
