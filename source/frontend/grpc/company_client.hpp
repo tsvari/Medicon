@@ -52,7 +52,7 @@ public:
         return stub_->DeleteCompany(&context, company, &result);
     }
 
-    Status QueryCompanies(const JsonParameters & parameters, std::vector<Company> object_list, CompanyResult & result) {
+    Status QueryCompanies(const JsonParameters & parameters, std::vector<Company> & object_list) {
         ClientContext context;
         CompanyList list;
 
