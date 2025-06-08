@@ -52,12 +52,13 @@ set(SOURCE_FILES
 
     ${FRONTEND_GRPC_DIR}/company_client.hpp
 
-    GrpcTests.cpp
+    GrpcCompanyTests.cpp
 )
 
 add_executable(FrontendTestProject
     ${HEADER_FILES}
     ${SOURCE_FILES}
+    front_common.h
 )
 
 target_compile_definitions(FrontendTestProject PRIVATE
