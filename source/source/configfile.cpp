@@ -1,8 +1,10 @@
 #include "configfile.h"
-#include "Markup/Markup.h"
 #include <filesystem>
+#include <fstream>
+#include <nlohmann/json.hpp>
 
 namespace fs = std::filesystem;
+using json = nlohmann::json;
 
 ConfigFile::ConfigFile(const char * allProjectPath, const  char *  projectName)
 {
@@ -32,7 +34,7 @@ void ConfigFile::setProjectPath(const  char *  allProjectPath, const  char *  pr
         throw std::invalid_argument(CONFIG_ERR_ALL_PROJECT_PATH);
     }
 
-    m_configFilePath = m_allProjectPath + string(m_projectName) + string("/") + string(m_projectName) + string(".xml");
+    m_configFilePath = m_allProjectPath + string(m_projectName) + string("/") + string(m_projectName) + string(".json");
     m_logFilePath = m_allProjectPath + string(m_projectName) + string("/log/") + string(m_projectName) + string(".log");
 
     if(!fs::exists(m_configFilePath)) {
@@ -48,39 +50,39 @@ void ConfigFile::setProjectPath(const  char *  allProjectPath, const  char *  pr
 
 std::string & ConfigFile::operator[](const  char *  key)
 {
-    if(!m_xmlData.contains(key)) {
+    if(!m_jsonData.contains(key)) {
         throw std::out_of_range("Index out of bounds");
     }
-    return m_xmlData[key];
+    return m_jsonData[key];
 }
 
 string ConfigFile::value(const char *key)
 {
-    if(!m_xmlData.contains(key)) {
+    if(!m_jsonData.contains(key)) {
         throw std::out_of_range("Index out of bounds");
     }
-    return m_xmlData[key];
+    return m_jsonData[key];
 }
 
 //////////////////////////////////////////////////////////////////////////////
 /// \brief ConfigFile::load
 /// \return
 ///
-bool ConfigFile::load()
+void ConfigFile::load()
 {
-    CMarkup xmlFile;
-    if (!xmlFile.Load(m_configFilePath)) {
-        m_xmlReadError = "Config file: " + xmlFile.GetError();
-        return false;
+    std::ifstream file(m_configFilePath);
+    if (!file.is_open()) {
+        throw std::runtime_error("Wrong path to config file: " + m_configFilePath);
+    }
+    //JsonParameterFormatter::fromJsonString()
+    json doc;
+    try {
+        doc = json::parse(file);
+    } catch (json::parse_error & ex) {
+        throw std::runtime_error("Wrong json content in file: " + m_configFilePath);
     }
 
-    xmlFile.IntoElem();
-
-    while(xmlFile.FindChildElem()) {
-        m_xmlData[xmlFile.GetChildTagName()] = xmlFile.GetChildData();
-    }
-
-    return true;
+    m_jsonData = doc.get<map<string, string>>();
 }
 
 string ConfigFile::projectPath () const
