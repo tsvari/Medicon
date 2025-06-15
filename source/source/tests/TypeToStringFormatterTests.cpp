@@ -217,10 +217,10 @@ TEST(TypeToStringFormatterTests, JsonParsingTests)
                                          {"Date", "2007-01-20"},
                                          {"Time", "11:22:33"}};
 
-    string xml = formatter.toJsonString();
-    EXPECT_FALSE(xml.empty());
+    string jsonString = formatter.toJsonString();
+    EXPECT_FALSE(jsonString.empty());
 
-    std::map<string, string> actual = JsonParameterFormatter::fromJsonString(xml);
+    std::map<string, string> actual = JsonParameterFormatter::fromJsonString(jsonString);
     ASSERT_EQ(expected, actual);
 }
 
