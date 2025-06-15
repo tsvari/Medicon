@@ -15,7 +15,7 @@ string JsonParameterFormatter::toJsonString()
 
 map<string, string> JsonParameterFormatter::fromJsonString(const string & jsonString)
 {
-    json doc = json::parse(jsonString);
+    json doc;
     try {
         doc = json::parse(jsonString);
     } catch (json::parse_error & ex) {
