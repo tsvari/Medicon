@@ -17,12 +17,15 @@ add_compile_definitions(MARKUP_STL)
 set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVER_MODE PRE_TEST)
 include(GoogleTest)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core)
+
+qt_standard_project_setup()
 
 find_package(Threads REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
+
+find_package(GTest REQUIRED)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -52,13 +55,15 @@ set(SOURCE_FILES
 
     ${FRONTEND_GRPC_DIR}/company_client.hpp
 
+
+
     GrpcCompanyTests.cpp
 )
 
 add_executable(FrontendTestProject
     ${HEADER_FILES}
     ${SOURCE_FILES}
-    front_common.h
+    ../front_common.h
 )
 
 target_compile_definitions(FrontendTestProject PRIVATE
@@ -66,7 +71,6 @@ target_compile_definitions(FrontendTestProject PRIVATE
     TEST_REFRERENCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/reference"
 )
 
-find_package(GTest REQUIRED)
 
 target_link_libraries(FrontendTestProject
     PRIVATE
@@ -77,7 +81,8 @@ target_link_libraries(FrontendTestProject
     ${_GRPC_GRPCPP}
     ${_PROTOBUF_LIBPROTOBUF}
 
-    Qt${QT_VERSION_MAJOR}::Core
+    Qt6::Core
 
 )
+
 
