@@ -3,7 +3,7 @@
 #include "TypeToStringFormatter.h"
 #include "JsonParameterFormatter.h"
 
-#include "front_common.h"
+#include "../front_common.h"
 
 #include <QDateTime>
 
