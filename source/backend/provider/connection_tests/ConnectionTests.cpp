@@ -11,7 +11,7 @@ TEST(ConnectionIntegrationTests, LoadAndCheckData)
 {
     ConfigFile * config = nullptr;
     EXPECT_NO_THROW(config = ConfigFile::Instance());
-    EXPECT_TRUE(config->load());
+    EXPECT_NO_THROW(config->load());
 
     SQLApplet::InitPathToApplets(config->appletPath().c_str());
 

@@ -5,7 +5,7 @@ TEST(ConfigFileIntegrationTests, LoadAndCheckData)
 {
     ConfigFile * config = nullptr;
     EXPECT_NO_THROW(config = ConfigFile::Instance());
-    EXPECT_TRUE(config->load());
+    EXPECT_NO_THROW(config->load());
 
     string alProjectPath(ALL_PROJECT_APPDATA_PATH);
 

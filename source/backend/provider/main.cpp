@@ -9,12 +9,14 @@ INITIALIZE_EASYLOGGINGPP
 
 int main()
 {
-
     // Initialize and open config file
     ConfigFile * config = ConfigFile::Instance();
-    if(!config->load()) {
-        throw config->xmlReadError();
+    try {
+        config->load();
+    } catch(std::runtime_error & x) {
+        std::cout << x.what();
     }
+
 
     // Initialize logger with global settings
     el::Configurations qGlobalLog;

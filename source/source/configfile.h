@@ -67,12 +67,11 @@ public:
     // Use in tests
     static ConfigFile * InstanceCustom(const  char *  allProjectPath, const  char *  projectName);
 
-    bool load();
+    void load();
 
     string value(const  char *  key);
     string & operator[](const  char *  key);
 
-    string & xmlReadError() {return m_xmlReadError;}
     string appletPath() const {return m_appletePath;}
     string templatetPath() const {return m_templatePath;}
     string logFilePath() const {return m_logFilePath;}
@@ -83,7 +82,7 @@ protected:
     void setProjectPath(const  char *  m_allProjectPath, const  char *  projectName);
 
 private:
-    map<std::string, std::string> m_xmlData;
+    map<std::string, std::string> m_jsonData;
 
     string m_allProjectPath;
     string m_projectName;
@@ -92,7 +91,7 @@ private:
     string m_appletePath;
     string m_templatePath;
     string m_logFilePath;
-    string m_xmlReadError;
+    string m_readError;
 };
 
 
