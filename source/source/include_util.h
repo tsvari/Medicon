@@ -45,3 +45,12 @@ uint32_t sqlRowOffset(uint32_t page, uint32_t limitCount, uint32_t totalCount, u
 uint32_t sqlRowOffset(uint32_t page, uint32_t limitCount, uint32_t totalCoun);
 }
 
+namespace {
+const char * ERROR_BINARY_OPEN = "Failed to open file!";
+}
+
+namespace StdBinary {
+std::string toStdString(const char * pathToBinary);
+void toBinary(const char * pathToBinary, const std::string & data);
+}
+

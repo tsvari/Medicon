@@ -2,6 +2,8 @@
 
 #include <stdexcept>
 #include <algorithm>
+#include <fstream>
+#include <iostream>
 
 namespace CommonUtil {
     uint32_t sqlRowOffset(uint32_t page, uint32_t limitCount, uint32_t totalCount,
@@ -55,6 +57,27 @@ namespace Trimmer {
         str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
         return ltrim(rtrim(str, t), t);
     }
+};
+
+namespace StdBinary {
+std::string toStdString(const char * pathToBinary) {
+    std::ifstream file(pathToBinary, std::ios::in | std::ios::binary);
+    if (!file.is_open()) {
+        throw std::system_error(errno, std::generic_category(), ERROR_BINARY_OPEN);
+    }
+    std::string content((std::istreambuf_iterator<char>(file)),
+                        std::istreambuf_iterator<char>());
+    return content;
+}
+
+void toBinary(const char * pathToBinary, const std::string & data) {
+    std::ofstream file(pathToBinary, std::ios::binary | std::ios::out);
+    if (!file.is_open()) {
+        throw std::system_error(errno, std::generic_category(), ERROR_BINARY_OPEN);
+    }
+    file.write(data.c_str(), data.size());
+    file.close();
+}
 };
 
 
