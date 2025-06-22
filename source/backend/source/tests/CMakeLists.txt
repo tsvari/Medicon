@@ -73,6 +73,7 @@ set(SOURCE_FILES
     SqlAppletTests.cpp
     SqlConnectionTests.cpp
     SqlCommandTests.cpp
+    SaBinaryTests.cpp
 )
 
 add_executable(BackendTestProject
