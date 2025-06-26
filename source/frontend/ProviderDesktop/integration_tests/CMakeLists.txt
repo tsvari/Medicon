@@ -32,6 +32,11 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(TEST_GENERATED_ROOT ${CMAKE_CURRENT_BINARY_DIR}/generated)
 file(MAKE_DIRECTORY ${TEST_GENERATED_ROOT})
 
+set(TEST_DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/app-data/)
+include_directories(${TEST_DATA_DIR})
+add_definitions("-DTEST_DATA_DIR=\"${TEST_DATA_DIR}\"")
+
+
 set(HEADER_FILES
     ${INCLUDE_DIR}/include_util.h
     ${INCLUDE_DIR}/TypeToStringFormatter.h
@@ -41,6 +46,8 @@ set(HEADER_FILES
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.h
 
     ${FRONTEND_INCLUDE_DIR}/include_frontend_util.h
+
+    ${FRONTEND_GRPC_DIR}/front_common.h
 )
 
 set(SOURCE_FILES
@@ -55,15 +62,12 @@ set(SOURCE_FILES
 
     ${FRONTEND_GRPC_DIR}/company_client.hpp
 
-
-
     GrpcCompanyTests.cpp
 )
 
 add_executable(FrontendTestProject
     ${HEADER_FILES}
     ${SOURCE_FILES}
-    ../front_common.h
 )
 
 target_compile_definitions(FrontendTestProject PRIVATE

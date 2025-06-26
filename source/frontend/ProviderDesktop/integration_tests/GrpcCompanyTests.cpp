@@ -1,10 +1,10 @@
 #include "gtest/gtest.h"
-#include "../company_client.hpp"
+#include "company_client.hpp"
 #include "TypeToStringFormatter.h"
 #include "JsonParameterFormatter.h"
 #include "include_frontend_util.h"
 
-#include "../front_common.h"
+#include "front_common.h"
 
 #include <QDateTime>
 
@@ -16,10 +16,10 @@ using FrontConverter::to_str;
 using CommonUtil::sqlRowOffset;
 
 namespace {
-const string logoPath = string(FRONTEND_GRPC_DIR) + "/tests/app-data/logo.png";
-const string logoToWritePath = string(FRONTEND_GRPC_DIR) + "/tests/app-data/logo2.png";
-const string logoEditPath = string(FRONTEND_GRPC_DIR) + "/tests/app-data/logo-edit.jpg";
-const string logoEditToWritePath = string(FRONTEND_GRPC_DIR) + "/tests/app-data/logo-edit2.jpg";
+const string logoPath = string(TEST_DATA_DIR) + "logo.png";
+const string logoToWritePath = string(TEST_DATA_DIR) + "logo2.png";
+const string logoEditPath = string(TEST_DATA_DIR) + "logo-edit.jpg";
+const string logoEditToWritePath = string(TEST_DATA_DIR) + "logo-edit2.jpg";
 void compareObjects (Company & left, Company & right) {
     EXPECT_EQ(left.uid(), right.uid());
     EXPECT_EQ(left.server_uid(), right.server_uid());
