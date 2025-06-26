@@ -19,6 +19,7 @@
 #include "sqlconnection.h"
 #include "sqlquery.h"
 #include "JsonParameterFormatter.h"
+#include "include_backend_util.h"
 #include <easylogging++.h>
 
 using grpc::Server;
@@ -45,25 +46,30 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
                     CompanyResult * result) override {
 
         SqlConnection con;
-        SqlCommand command(con, "company_insert.xml");
+        std::string sqlStd;
         try {
+            SQLApplet applet("company_insert.xml");
+            applet.AddDataInfo("SERVER_UID", (int)company->server_uid());
+            applet.AddDataInfo("COMPANY_TYPE", (int)company->company_type());
+            applet.AddDataInfo("NAME", company->name().c_str());
+            applet.AddDataInfo("ADDRESS", company->address().c_str());
+            applet.AddDataInfo("REG_DATE", std::chrono::sys_seconds(std::chrono::seconds(company->reg_date())), DataInfo::Date);
+            applet.AddDataInfo("JOINT_DATE", std::chrono::sys_seconds(std::chrono::seconds(company->joint_date())), DataInfo::Date);
+            applet.AddDataInfo("LICENSE", company->license().c_str());
+            applet.parse();
+            // To log if eror
+            sqlStd = applet.sql();
+
+            SAString sql(sqlStd.c_str());
+            SACommand cmd(con.connectionSa(),  sql);
             con.connect();
             con.setAutoCommit(true);
+            cmd.Param(_TSA("logo")).setAsLongBinary() = SaBinary::toSaString(company->logo());
+            cmd.Execute();
 
-            command.addDataInfo("SERVER_UID", (int)company->server_uid());
-            command.addDataInfo("COMPANY_TYPE", (int)company->company_type());
-            command.addDataInfo("NAME", company->name().c_str());
-            command.addDataInfo("ADDRESS", company->address().c_str());
-            command.addDataInfo("REG_DATE", std::chrono::sys_seconds(std::chrono::seconds(company->reg_date())), DataInfo::Date);
-            command.addDataInfo("JOINT_DATE", std::chrono::sys_seconds(std::chrono::seconds(company->joint_date())), DataInfo::Date);
-            command.addDataInfo("LICENSE", company->license().c_str());
-
-            command.execute();
-
-            if(command.isResultSet()) {
-                command.FetchNext();
-
-                result->set_uid(command.Field("UID").asString().GetMultiByteChars());
+            if(cmd.isResultSet()) {
+                cmd.FetchNext();
+                result->set_uid(cmd.Field("UID").asString().GetMultiByteChars());
                 result->set_success(true);
                 result->set_error("No error");
             } else {
@@ -71,10 +77,9 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
                 result->set_error("No result set");
                 result->set_uid("");
             }
-
         } catch(SAException & x) {
             LOG(ERROR) << x.ErrText().GetMultiByteChars();
-            LOG(INFO) << command.sql();
+            LOG(INFO) << sqlStd;
             try {
                 con.rollback();
             }
@@ -104,29 +109,33 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
         std::cout<<"EditCompany: runned"<<std::endl;
 
         SqlConnection con;
-        SqlCommand command(con, "company_update.xml");
+        std::string sqlStd;
         try {
+            SQLApplet applet("company_update.xml");
+            applet.AddDataInfo("UID", company->uid().c_str());
+            applet.AddDataInfo("SERVER_UID", (int)company->server_uid());
+            applet.AddDataInfo("COMPANY_TYPE", (int)company->company_type());
+            applet.AddDataInfo("NAME", company->name().c_str());
+            applet.AddDataInfo("ADDRESS", company->address().c_str());
+            applet.AddDataInfo("REG_DATE", std::chrono::sys_seconds(std::chrono::seconds(company->reg_date())), DataInfo::Date);
+            applet.AddDataInfo("JOINT_DATE", std::chrono::sys_seconds(std::chrono::seconds(company->joint_date())), DataInfo::Date);
+            applet.AddDataInfo("LICENSE", company->license().c_str());
+            applet.parse();
+            // To log if eror
+            sqlStd = applet.sql();
+
+            SAString sql(sqlStd.c_str());
+            SACommand cmd(con.connectionSa(),  sql);
             con.connect();
             con.setAutoCommit(true);
+            std::string logo = company->logo();
+            cmd.Param(_TSA("logo")).setAsLongBinary() = SaBinary::toSaString(company->logo());
+            cmd.Execute();
 
-            command.addDataInfo("UID", company->uid().c_str());
-            command.addDataInfo("SERVER_UID", (int)company->server_uid());
-            command.addDataInfo("COMPANY_TYPE", (int)company->company_type());
-            command.addDataInfo("NAME", company->name().c_str());
-            command.addDataInfo("ADDRESS", company->address().c_str());
-            command.addDataInfo("REG_DATE", std::chrono::sys_seconds(std::chrono::seconds(company->reg_date())), DataInfo::Date);
-            command.addDataInfo("JOINT_DATE", std::chrono::sys_seconds(std::chrono::seconds(company->joint_date())), DataInfo::Date);
-            command.addDataInfo("LICENSE", company->license().c_str());
+            if(cmd.isResultSet()) {
+                cmd.FetchNext();
 
-            // Add false p arameter for testing purpses only
-            command.addDataInfo("ANY_PARAM", "ANY_VALUE");
-
-            command.execute();
-
-            if(command.isResultSet()) {
-                command.FetchNext();
-
-                result->set_uid(command.Field("UID").asString().GetMultiByteChars());
+                result->set_uid(cmd.Field("UID").asString().GetMultiByteChars());
                 result->set_success(true);
                 result->set_error("No error");
             } else {
@@ -136,7 +145,7 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
             }
         } catch(SAException & x) {
             LOG(ERROR) << x.ErrText().GetMultiByteChars();
-            LOG(INFO) << command.sql();
+            LOG(INFO) << sqlStd;
             try {
                 con.rollback();
             }
@@ -290,7 +299,9 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
                 response->set_reg_date(secRegDate.time_since_epoch().count());
                 response->set_joint_date(secJointDate.time_since_epoch().count());
                 response->set_license(license.GetMultiByteChars());
-                response->set_logo(cmd.Field("LOGO").asString().GetMultiByteChars());
+                SAString  blobString = cmd.Field("LOGO").asBLob();
+                response->set_logo(SaBinary::toStdString(blobString));
+
             } else {
                 return Status(StatusCode::NOT_FOUND, "No record found");
             }

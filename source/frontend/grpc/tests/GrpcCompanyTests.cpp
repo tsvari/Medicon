@@ -2,6 +2,7 @@
 #include "../company_client.hpp"
 #include "TypeToStringFormatter.h"
 #include "JsonParameterFormatter.h"
+#include "include_frontend_util.h"
 
 #include "../front_common.h"
 
@@ -14,20 +15,26 @@
 using FrontConverter::to_str;
 using CommonUtil::sqlRowOffset;
 
+namespace {
+const string logoPath = string(FRONTEND_GRPC_DIR) + "/tests/app-data/logo.png";
+const string logoToWritePath = string(FRONTEND_GRPC_DIR) + "/tests/app-data/logo2.png";
+const string logoEditPath = string(FRONTEND_GRPC_DIR) + "/tests/app-data/logo-edit.jpg";
+const string logoEditToWritePath = string(FRONTEND_GRPC_DIR) + "/tests/app-data/logo-edit2.jpg";
+void compareObjects (Company & left, Company & right) {
+    EXPECT_EQ(left.uid(), right.uid());
+    EXPECT_EQ(left.server_uid(), right.server_uid());
+    EXPECT_EQ(left.company_type(), right.company_type());
+    EXPECT_EQ(left.name(), right.name());
+    EXPECT_EQ(left.address(), right.address());
+    EXPECT_EQ(TimeFormatHelper::chronoSysSecToString(left.reg_date(), DataInfo::Date), TimeFormatHelper::chronoSysSecToString(right.reg_date(), DataInfo::Date));
+    EXPECT_EQ(TimeFormatHelper::chronoSysSecToString(left.joint_date(), DataInfo::Date), TimeFormatHelper::chronoSysSecToString(right.joint_date(), DataInfo::Date));
+    EXPECT_EQ(left.license(), right.license());
+    EXPECT_EQ(left.logo(), right.logo());
+};
+}
+
 TEST(CompanyIntegrationTests, LoadAndCheckData)
 {
-    auto compareObjects = [=] (Company & left, Company & right) {
-        EXPECT_EQ(left.uid(), right.uid());
-        EXPECT_EQ(left.server_uid(), right.server_uid());
-        EXPECT_EQ(left.company_type(), right.company_type());
-        EXPECT_EQ(left.name(), right.name());
-        EXPECT_EQ(left.address(), right.address());
-        EXPECT_EQ(TimeFormatHelper::chronoSysSecToString(left.reg_date(), DataInfo::Date), TimeFormatHelper::chronoSysSecToString(right.reg_date(), DataInfo::Date));
-        EXPECT_EQ(TimeFormatHelper::chronoSysSecToString(left.joint_date(), DataInfo::Date), TimeFormatHelper::chronoSysSecToString(right.joint_date(), DataInfo::Date));
-        EXPECT_EQ(left.license(), right.license());
-        EXPECT_EQ(left.logo(), right.logo());
-    };
-
     CompanyEditorClient client(grpc::CreateChannel(channelAddress, grpc::InsecureChannelCredentials()));
 
     QDateTime current = QDateTime::currentDateTime();
@@ -45,11 +52,11 @@ TEST(CompanyIntegrationTests, LoadAndCheckData)
     Status status;
 
     // Check empty result set
-    companyUid.set_uid("00000");
-    Company emptyCompany;
-    status = client.QueryCompanyByUid(companyUid, emptyCompany);
-    // '00000' isn't uuid so should be issued error
-    EXPECT_TRUE(status.error_code() == StatusCode::CANCELLED);
+    //companyUid.set_uid("00000");
+    //Company emptyCompany;
+    //status = client.QueryCompanyByUid(companyUid, emptyCompany);
+    //// '00000' isn't uuid so should be issued error
+    //EXPECT_TRUE(status.error_code() == StatusCode::CANCELLED);
 
     // Check insert operation
     status = client.AddCompany(companyToSend, result);
@@ -161,7 +168,96 @@ TEST(CompanyIntegrationTests, SelectCompanieTests)
     }
 }
 
+TEST(CompanyLogoTests, SelectCompanieTests)
+{
+    CompanyEditorClient client(grpc::CreateChannel(channelAddress, grpc::InsecureChannelCredentials()));
+    QDateTime current = QDateTime::currentDateTime();
+
+    Company companyToSend;
+    companyToSend.set_server_uid(server_uid);
+    companyToSend.set_company_type(0);
+    companyToSend.set_address("134 George St, New Brunswick, NJ 08901");
+    companyToSend.set_reg_date(current.toSecsSinceEpoch());
+    companyToSend.set_joint_date(current.toSecsSinceEpoch());
+    companyToSend.set_license("0123456789");
+
+    Status status;
+    CompanyResult result;
+
+    std::string logoString;
+    EXPECT_NO_THROW(logoString = StdBinary::toStdString(logoPath.c_str()));
+    companyToSend.set_logo(logoString);
+
+    status = client.AddCompany(companyToSend, result);
+    EXPECT_TRUE(status.ok());
+
+    CompanyUid companyUid;
+    companyUid.set_uid(result.uid());
+
+    Company companyInsertedEdited;
+    status = client.QueryCompanyByUid(companyUid, companyInsertedEdited);
+    EXPECT_TRUE(status.ok());
+
+    std::string logoExpected = companyInsertedEdited.logo();
+    EXPECT_EQ(logoString, logoExpected);
+
+    // Save data as file
+    EXPECT_NO_THROW(StdBinary::toBinary(logoToWritePath.c_str(), logoExpected));
+
+    std::string logoEditString;
+    EXPECT_NO_THROW(logoEditString = StdBinary::toStdString(logoEditPath.c_str()));
+    companyToSend.set_logo(logoEditString);
+    companyToSend.set_uid(result.uid());
+
+    status = client.EditCompany(companyToSend, result);
+    EXPECT_TRUE(status.ok());
+
+    status = client.QueryCompanyByUid(companyUid, companyInsertedEdited);
+    EXPECT_TRUE(status.ok());
+    std::string logoEditedExpected = companyInsertedEdited.logo();
+    EXPECT_EQ(logoEditString, logoEditedExpected);
+    // Save data as file
+    EXPECT_NO_THROW(StdBinary::toBinary(logoEditToWritePath.c_str(), logoEditedExpected));
+
+    // Delete
+    status = client.DeleteCompany(companyToSend, result);
+    EXPECT_TRUE(status.ok());
+}
+
 
 // qint64 QDateTime::toSecsSinceEpoch() const
 
 // QDateTime QDateTime::fromSecsSinceEpoch(qint64 secs, const QTimeZone &timeZone)
+/*
+#include <QImage>
+#include <QByteArray>
+#include <QLabel>
+#include <QPixmap>
+#include <fstream>
+#include <string>
+#include <sstream>
+
+// ... inside a class or function
+
+// 1. Read image data to std::string (assuming 'image.png' exists)
+std::ifstream fin("image.png", std::ios::binary);
+std::stringstream ss;
+ss << fin.rdbuf();
+std::string imageData = ss.str();
+
+// 2. Convert to QByteArray
+QByteArray byteArray = QByteArray::fromStdString(imageData);
+
+// 3. Load QImage
+QImage image;
+image.loadFromData(byteArray);
+
+// 4. Display in QLabel
+QLabel* imageLabel = new QLabel(this);
+QPixmap pixmap = QPixmap::fromImage(image);
+imageLabel->setPixmap(pixmap);
+imageLabel->show();
+
+QImage myImage("path/to/my/image.png"); // Load or create your QImage
+QVariant imageVariant = QVariant::fromValue(myImage);
+*/

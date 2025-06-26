@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(FrontendTestProject LANGUAGES CXX)
+project(FrontendIntegrationTests LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
