@@ -11,3 +11,4 @@ assets/app-data/provider/log
 /source/source/3party/grpc
 /source/source/3party
 /source/backend/source/3party/SQLAPI
+/assets/app-data/provider/provider.json
