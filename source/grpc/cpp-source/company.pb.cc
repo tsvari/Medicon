@@ -300,7 +300,7 @@ const char descriptor_table_protodef_company_2eproto[] ABSL_ATTRIBUTE_SECTION_VA
     "\022\013\n\003UID\030\001 \001(\t\022\022\n\nSERVER_UID\030\002 \001(\r\022\024\n\014COM"
     "PANY_TYPE\030\003 \001(\r\022\014\n\004NAME\030\004 \001(\t\022\017\n\007ADDRESS"
     "\030\005 \001(\t\022\020\n\010REG_DATE\030\006 \001(\003\022\022\n\nJOINT_DATE\030\007"
-    " \001(\003\022\017\n\007LICENSE\030\010 \001(\t\022\014\n\004LOGO\030\023 \001(\014\"<\n\rC"
+    " \001(\003\022\017\n\007LICENSE\030\010 \001(\t\022\014\n\004LOGO\030\t \001(\014\"<\n\rC"
     "ompanyResult\022\017\n\007success\030\001 \001(\010\022\r\n\005error\030\002"
     " \001(\t\022\013\n\003uid\030\003 \001(\t\"6\n\013CompanyList\022\'\n\tcomp"
     "anies\030\001 \003(\0132\024.CompanyEdit.Company\"$\n\016Jso"
@@ -456,13 +456,13 @@ const ::google::protobuf::internal::ClassData* Company::GetClassData() const {
   return _class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<3, 9, 0, 57, 2> Company::_table_ = {
+const ::_pbi::TcParseTable<4, 9, 0, 57, 2> Company::_table_ = {
   {
     0,  // no _has_bits_
     0, // no _extensions_
-    19, 56,  // max_field_number, fast_idx_mask
+    9, 120,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294704896,  // skipmap
+    4294966784,  // skipmap
     offsetof(decltype(_table_), field_entries),
     9,  // num_field_entries
     0,  // num_aux_entries
@@ -474,9 +474,7 @@ const ::_pbi::TcParseTable<3, 9, 0, 57, 2> Company::_table_ = {
     ::_pbi::TcParser::GetTable<::CompanyEdit::Company>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // string LICENSE = 8;
-    {::_pbi::TcParser::FastUS1,
-     {66, 63, 0, PROTOBUF_FIELD_OFFSET(Company, _impl_.license_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // string UID = 1;
     {::_pbi::TcParser::FastUS1,
      {10, 63, 0, PROTOBUF_FIELD_OFFSET(Company, _impl_.uid_)}},
@@ -498,6 +496,18 @@ const ::_pbi::TcParseTable<3, 9, 0, 57, 2> Company::_table_ = {
     // int64 JOINT_DATE = 7;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(Company, _impl_.joint_date_), 63>(),
      {56, 63, 0, PROTOBUF_FIELD_OFFSET(Company, _impl_.joint_date_)}},
+    // string LICENSE = 8;
+    {::_pbi::TcParser::FastUS1,
+     {66, 63, 0, PROTOBUF_FIELD_OFFSET(Company, _impl_.license_)}},
+    // bytes LOGO = 9;
+    {::_pbi::TcParser::FastBS1,
+     {74, 63, 0, PROTOBUF_FIELD_OFFSET(Company, _impl_.logo_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
   }}, {{
@@ -525,7 +535,7 @@ const ::_pbi::TcParseTable<3, 9, 0, 57, 2> Company::_table_ = {
     // string LICENSE = 8;
     {PROTOBUF_FIELD_OFFSET(Company, _impl_.license_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
-    // bytes LOGO = 19;
+    // bytes LOGO = 9;
     {PROTOBUF_FIELD_OFFSET(Company, _impl_.logo_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kBytes | ::_fl::kRepAString)},
   }},
@@ -633,10 +643,10 @@ PROTOBUF_NOINLINE void Company::Clear() {
             target = stream->WriteStringMaybeAliased(8, _s, target);
           }
 
-          // bytes LOGO = 19;
+          // bytes LOGO = 9;
           if (!this_._internal_logo().empty()) {
             const std::string& _s = this_._internal_logo();
-            target = stream->WriteBytesMaybeAliased(19, _s, target);
+            target = stream->WriteBytesMaybeAliased(9, _s, target);
           }
 
           if (PROTOBUF_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
@@ -684,9 +694,9 @@ PROTOBUF_NOINLINE void Company::Clear() {
               total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
                                               this_._internal_license());
             }
-            // bytes LOGO = 19;
+            // bytes LOGO = 9;
             if (!this_._internal_logo().empty()) {
-              total_size += 2 + ::google::protobuf::internal::WireFormatLite::BytesSize(
+              total_size += 1 + ::google::protobuf::internal::WireFormatLite::BytesSize(
                                               this_._internal_logo());
             }
             // uint32 SERVER_UID = 2;

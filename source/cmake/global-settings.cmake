@@ -62,9 +62,10 @@ include_directories(${FRONTEND_GRPC_DIR})
 set(ALL_FRONTEND_PROJECT_PATH ${ALL_PROJECT_PATH}/source/frontend/)
 set(ALL_FRONTEND_TEST_APPDATA_PATH ${FRONTEND_INCLUDE_DIR}/tests/app-data/)
 
+
 add_definitions("-DALL_FRONTEND_PROJECT_PATH=\"${ALL_FRONTEND_PROJECT_PATH}\"")
 add_definitions("-DALL_FRONTEND_TEST_APPDATA_PATH=\"${ALL_FRONTEND_TEST_APPDATA_PATH}\"")
-
+add_definitions("-DFRONTEND_GRPC_DIR=\"${FRONTEND_GRPC_DIR}\"")
 
 #list(APPEND CMAKE_PREFIX_PATH ${ALL_PROJECT_PATH}/source/source/3party/grpc/build/windows/lib/cmake)
 
@@ -108,3 +109,6 @@ if(CMAKE_CROSSCOMPILING)
 else()
   set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 endif()
+
+
+

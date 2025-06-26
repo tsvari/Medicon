@@ -27,7 +27,7 @@ message Company {
   int64 REG_DATE = 6;
   int64 JOINT_DATE = 7;
   string LICENSE = 8;
-  bytes LOGO = 19;
+  bytes LOGO = 9;
 }
 
 message CompanyResult {

@@ -1046,7 +1046,7 @@ class Company final
     kNAMEFieldNumber = 4,
     kADDRESSFieldNumber = 5,
     kLICENSEFieldNumber = 8,
-    kLOGOFieldNumber = 19,
+    kLOGOFieldNumber = 9,
     kSERVERUIDFieldNumber = 2,
     kCOMPANYTYPEFieldNumber = 3,
     kREGDATEFieldNumber = 6,
@@ -1116,7 +1116,7 @@ class Company final
   std::string* _internal_mutable_license();
 
   public:
-  // bytes LOGO = 19;
+  // bytes LOGO = 9;
   void clear_logo() ;
   const std::string& logo() const;
   template <typename Arg_ = const std::string&, typename... Args_>
@@ -1177,7 +1177,7 @@ class Company final
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      3, 9, 0,
+      4, 9, 0,
       57, 2>
       _table_;
 
@@ -1705,7 +1705,7 @@ inline void Company::set_allocated_license(std::string* value) {
   // @@protoc_insertion_point(field_set_allocated:CompanyEdit.Company.LICENSE)
 }
 
-// bytes LOGO = 19;
+// bytes LOGO = 9;
 inline void Company::clear_logo() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.logo_.ClearToEmpty();
