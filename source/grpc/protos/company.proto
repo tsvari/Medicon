@@ -20,8 +20,8 @@ service CompanyEditor {
 // Add/Edit/Delete Logo 
 message Company {
   string UID = 1;
-  uint32 SERVER_UID = 2;
-  uint32 COMPANY_TYPE = 3;
+  int32 SERVER_UID = 2;
+  int32 COMPANY_TYPE = 3;
   string NAME = 4;
   string ADDRESS = 5;
   int64 REG_DATE = 6;
