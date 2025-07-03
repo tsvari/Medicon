@@ -1132,24 +1132,24 @@ class Company final
   std::string* _internal_mutable_logo();
 
   public:
-  // uint32 SERVER_UID = 2;
+  // int32 SERVER_UID = 2;
   void clear_server_uid() ;
-  ::uint32_t server_uid() const;
-  void set_server_uid(::uint32_t value);
+  ::int32_t server_uid() const;
+  void set_server_uid(::int32_t value);
 
   private:
-  ::uint32_t _internal_server_uid() const;
-  void _internal_set_server_uid(::uint32_t value);
+  ::int32_t _internal_server_uid() const;
+  void _internal_set_server_uid(::int32_t value);
 
   public:
-  // uint32 COMPANY_TYPE = 3;
+  // int32 COMPANY_TYPE = 3;
   void clear_company_type() ;
-  ::uint32_t company_type() const;
-  void set_company_type(::uint32_t value);
+  ::int32_t company_type() const;
+  void set_company_type(::int32_t value);
 
   private:
-  ::uint32_t _internal_company_type() const;
-  void _internal_set_company_type(::uint32_t value);
+  ::int32_t _internal_company_type() const;
+  void _internal_set_company_type(::int32_t value);
 
   public:
   // int64 REG_DATE = 6;
@@ -1200,8 +1200,8 @@ class Company final
     ::google::protobuf::internal::ArenaStringPtr address_;
     ::google::protobuf::internal::ArenaStringPtr license_;
     ::google::protobuf::internal::ArenaStringPtr logo_;
-    ::uint32_t server_uid_;
-    ::uint32_t company_type_;
+    ::int32_t server_uid_;
+    ::int32_t company_type_;
     ::int64_t reg_date_;
     ::int64_t joint_date_;
     ::google::protobuf::internal::CachedSize _cached_size_;
@@ -1473,46 +1473,46 @@ inline void Company::set_allocated_uid(std::string* value) {
   // @@protoc_insertion_point(field_set_allocated:CompanyEdit.Company.UID)
 }
 
-// uint32 SERVER_UID = 2;
+// int32 SERVER_UID = 2;
 inline void Company::clear_server_uid() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.server_uid_ = 0u;
+  _impl_.server_uid_ = 0;
 }
-inline ::uint32_t Company::server_uid() const {
+inline ::int32_t Company::server_uid() const {
   // @@protoc_insertion_point(field_get:CompanyEdit.Company.SERVER_UID)
   return _internal_server_uid();
 }
-inline void Company::set_server_uid(::uint32_t value) {
+inline void Company::set_server_uid(::int32_t value) {
   _internal_set_server_uid(value);
   // @@protoc_insertion_point(field_set:CompanyEdit.Company.SERVER_UID)
 }
-inline ::uint32_t Company::_internal_server_uid() const {
+inline ::int32_t Company::_internal_server_uid() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.server_uid_;
 }
-inline void Company::_internal_set_server_uid(::uint32_t value) {
+inline void Company::_internal_set_server_uid(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.server_uid_ = value;
 }
 
-// uint32 COMPANY_TYPE = 3;
+// int32 COMPANY_TYPE = 3;
 inline void Company::clear_company_type() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.company_type_ = 0u;
+  _impl_.company_type_ = 0;
 }
-inline ::uint32_t Company::company_type() const {
+inline ::int32_t Company::company_type() const {
   // @@protoc_insertion_point(field_get:CompanyEdit.Company.COMPANY_TYPE)
   return _internal_company_type();
 }
-inline void Company::set_company_type(::uint32_t value) {
+inline void Company::set_company_type(::int32_t value) {
   _internal_set_company_type(value);
   // @@protoc_insertion_point(field_set:CompanyEdit.Company.COMPANY_TYPE)
 }
-inline ::uint32_t Company::_internal_company_type() const {
+inline ::int32_t Company::_internal_company_type() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.company_type_;
 }
-inline void Company::_internal_set_company_type(::uint32_t value) {
+inline void Company::_internal_set_company_type(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.company_type_ = value;
 }

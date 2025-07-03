@@ -153,8 +153,8 @@ inline constexpr Company::Impl_::Impl_(
         logo_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
-        server_uid_{0u},
-        company_type_{0u},
+        server_uid_{0},
+        company_type_{0},
         reg_date_{::int64_t{0}},
         joint_date_{::int64_t{0}},
         _cached_size_{0} {}
@@ -297,8 +297,8 @@ static const ::_pb::Message* const file_default_instances[] = {
 const char descriptor_table_protodef_company_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
     "\n\rcompany.proto\022\013CompanyEdit\"\244\001\n\007Company"
-    "\022\013\n\003UID\030\001 \001(\t\022\022\n\nSERVER_UID\030\002 \001(\r\022\024\n\014COM"
-    "PANY_TYPE\030\003 \001(\r\022\014\n\004NAME\030\004 \001(\t\022\017\n\007ADDRESS"
+    "\022\013\n\003UID\030\001 \001(\t\022\022\n\nSERVER_UID\030\002 \001(\005\022\024\n\014COM"
+    "PANY_TYPE\030\003 \001(\005\022\014\n\004NAME\030\004 \001(\t\022\017\n\007ADDRESS"
     "\030\005 \001(\t\022\020\n\010REG_DATE\030\006 \001(\003\022\022\n\nJOINT_DATE\030\007"
     " \001(\003\022\017\n\007LICENSE\030\010 \001(\t\022\014\n\004LOGO\030\t \001(\014\"<\n\rC"
     "ompanyResult\022\017\n\007success\030\001 \001(\010\022\r\n\005error\030\002"
@@ -478,10 +478,10 @@ const ::_pbi::TcParseTable<4, 9, 0, 57, 2> Company::_table_ = {
     // string UID = 1;
     {::_pbi::TcParser::FastUS1,
      {10, 63, 0, PROTOBUF_FIELD_OFFSET(Company, _impl_.uid_)}},
-    // uint32 SERVER_UID = 2;
+    // int32 SERVER_UID = 2;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Company, _impl_.server_uid_), 63>(),
      {16, 63, 0, PROTOBUF_FIELD_OFFSET(Company, _impl_.server_uid_)}},
-    // uint32 COMPANY_TYPE = 3;
+    // int32 COMPANY_TYPE = 3;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Company, _impl_.company_type_), 63>(),
      {24, 63, 0, PROTOBUF_FIELD_OFFSET(Company, _impl_.company_type_)}},
     // string NAME = 4;
@@ -514,12 +514,12 @@ const ::_pbi::TcParseTable<4, 9, 0, 57, 2> Company::_table_ = {
     // string UID = 1;
     {PROTOBUF_FIELD_OFFSET(Company, _impl_.uid_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
-    // uint32 SERVER_UID = 2;
+    // int32 SERVER_UID = 2;
     {PROTOBUF_FIELD_OFFSET(Company, _impl_.server_uid_), 0, 0,
-    (0 | ::_fl::kFcSingular | ::_fl::kUInt32)},
-    // uint32 COMPANY_TYPE = 3;
+    (0 | ::_fl::kFcSingular | ::_fl::kInt32)},
+    // int32 COMPANY_TYPE = 3;
     {PROTOBUF_FIELD_OFFSET(Company, _impl_.company_type_), 0, 0,
-    (0 | ::_fl::kFcSingular | ::_fl::kUInt32)},
+    (0 | ::_fl::kFcSingular | ::_fl::kInt32)},
     // string NAME = 4;
     {PROTOBUF_FIELD_OFFSET(Company, _impl_.name_), 0, 0,
     (0 | ::_fl::kFcSingular | ::_fl::kUtf8String | ::_fl::kRepAString)},
@@ -591,18 +591,18 @@ PROTOBUF_NOINLINE void Company::Clear() {
             target = stream->WriteStringMaybeAliased(1, _s, target);
           }
 
-          // uint32 SERVER_UID = 2;
+          // int32 SERVER_UID = 2;
           if (this_._internal_server_uid() != 0) {
-            target = stream->EnsureSpace(target);
-            target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-                2, this_._internal_server_uid(), target);
+            target = ::google::protobuf::internal::WireFormatLite::
+                WriteInt32ToArrayWithField<2>(
+                    stream, this_._internal_server_uid(), target);
           }
 
-          // uint32 COMPANY_TYPE = 3;
+          // int32 COMPANY_TYPE = 3;
           if (this_._internal_company_type() != 0) {
-            target = stream->EnsureSpace(target);
-            target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-                3, this_._internal_company_type(), target);
+            target = ::google::protobuf::internal::WireFormatLite::
+                WriteInt32ToArrayWithField<3>(
+                    stream, this_._internal_company_type(), target);
           }
 
           // string NAME = 4;
@@ -699,14 +699,14 @@ PROTOBUF_NOINLINE void Company::Clear() {
               total_size += 1 + ::google::protobuf::internal::WireFormatLite::BytesSize(
                                               this_._internal_logo());
             }
-            // uint32 SERVER_UID = 2;
+            // int32 SERVER_UID = 2;
             if (this_._internal_server_uid() != 0) {
-              total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+              total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
                   this_._internal_server_uid());
             }
-            // uint32 COMPANY_TYPE = 3;
+            // int32 COMPANY_TYPE = 3;
             if (this_._internal_company_type() != 0) {
-              total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+              total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
                   this_._internal_company_type());
             }
             // int64 REG_DATE = 6;
