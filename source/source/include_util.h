@@ -20,6 +20,7 @@ struct DataInfo {
         Int64,
         String,
         Double,
+        Bool,
         DateTime,
         DateTimeNoSec,
         Date,
