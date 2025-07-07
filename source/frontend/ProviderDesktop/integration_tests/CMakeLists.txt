@@ -11,9 +11,6 @@ include(../../../cmake/global-settings.cmake)
 # Use project name in c++ code
 add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")
 
-# Markup should compile with STL
-add_compile_definitions(MARKUP_STL)
-
 set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVER_MODE PRE_TEST)
 include(GoogleTest)
 
@@ -46,8 +43,13 @@ set(HEADER_FILES
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.h
 
     ${FRONTEND_INCLUDE_DIR}/include_frontend_util.h
+    ${FRONTEND_INCLUDE_DIR}/GrpcObjectTableModel.h
+    ${FRONTEND_INCLUDE_DIR}/GrpcDataControler.hpp
+
+    ${FRONTEND_INCLUDE_DIR}/ModelItems/CompanyDataModel.h
 
     ${FRONTEND_GRPC_DIR}/front_common.h
+
 )
 
 set(SOURCE_FILES
@@ -59,10 +61,14 @@ set(SOURCE_FILES
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.cc
 
     ${FRONTEND_INCLUDE_DIR}/include_frontend_util.cpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcObjectTableModel.cpp
+
+    ${FRONTEND_INCLUDE_DIR}/ModelItems/CompanyDataModel.cpp
 
     ${FRONTEND_GRPC_DIR}/company_client.hpp
 
     GrpcCompanyTests.cpp
+    GrpcObjectTableModelTests.cpp
 )
 
 add_executable(FrontendTestProject
