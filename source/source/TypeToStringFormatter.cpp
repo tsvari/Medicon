@@ -108,7 +108,7 @@ void TypeToStringFormatter::AddDataInfo(const char * paramName, FormatterDataTyp
         info.type = DataInfo::String;
     } else if (bool * ptr = std::get_if<bool>(&paramValue)) {
         info.value = std::to_string((*ptr == true)?1:0);
-        info.type = DataInfo::Int;
+        info.type = DataInfo::Bool;
     } else {
         // unknown type
         throw std::invalid_argument(FORMATER_ERR_WRONG_TYPE);
