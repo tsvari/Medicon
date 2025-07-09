@@ -45,9 +45,14 @@ set(HEADER_FILES
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.pb.h
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.h
 
+
     ${FRONTEND_INCLUDE_DIR}/include_frontend_util.h
 
+    ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.h
     ${FRONTEND_GRPC_DIR}/front_common.h
+
+
+
 )
 
 set(SOURCE_FILES
@@ -60,6 +65,8 @@ set(SOURCE_FILES
 
     ${FRONTEND_INCLUDE_DIR}/include_frontend_util.cpp
 
+
+    ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.cpp
     ${FRONTEND_GRPC_DIR}/company_client.hpp
 
     GrpcCompanyTests.cpp
