@@ -6,7 +6,7 @@
 #include <QVariant>
 
 namespace {
-using GrpcVariantGet = std::variant<int32_t, std::reference_wrapper<const std::string>, int64_t, bool, double>;
+//using GrpcVariantGet = std::variant<int32_t, std::reference_wrapper<const std::string>, int64_t, bool, double>;
 using GrpcVariantSet = std::variant<int32_t, std::string, int64_t, bool, double>;
 }
 template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
@@ -14,6 +14,7 @@ template<class... Ts> overload(Ts...) -> overload<Ts...>;
 
 struct IBaseDataController {
     virtual int propertyCount() = 0;
+    virtual int count() = 0;
     virtual QVariant data(int row, int col) = 0;
     virtual void setData(int row, int col, const QVariant & data) = 0;
     virtual QVariant horizontalHeaderData(int col) = 0;
@@ -94,6 +95,10 @@ public:
     }
 
     int propertyCount() override {
+        return m_propertiesMatrix.size();
+    }
+
+    int count() override {
         return m_data.size();
     }
 
@@ -102,25 +107,18 @@ public:
     }
 
     QVariant data(int row, int col) override {
+        GrpcVariantGet varData = nativeData(row, col);
+        return FrontConverter::to_qvariant_get(varData);
+    }
+
+    GrpcVariantGet nativeData(int row, int col) {
         GrpcVariantGet varData;
         GrpcObjectProperty property = m_properties[row].at(col);
         varData = std::visit([](const auto & getterFunction) {
             GrpcVariantGet dataToReturn = getterFunction();
             return dataToReturn;
         }, property.getter);
-
-        if (int32_t * ptr = std::get_if<int32_t>(&varData)) {
-            return QVariant::fromValue(*ptr);
-        } else if (int64_t * ptr = std::get_if<int64_t>(&varData)) {
-            return QVariant::fromValue(*ptr);
-        } else if (double * ptr = std::get_if<double>(&varData)) {
-            return QVariant::fromValue(*ptr);
-        } else if (auto ptr = std::get_if<std::reference_wrapper<const std::string>>(&varData)) {
-            return QString::fromStdString(ptr->get());
-        } else if (bool * ptr = std::get_if<bool>(&varData)) {
-            return QVariant::fromValue(*ptr);
-        }
-        return QVariant();
+        return varData;
     }
 
 

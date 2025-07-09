@@ -21,9 +21,7 @@ int GrpcObjectTableModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid())
         return 0;
-
-    // FIXME: Implement me!
-    return 0;
+    return m_controler->count();
 }
 
 int GrpcObjectTableModel::columnCount(const QModelIndex &parent) const

@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include "gmock/gmock.h"
 #include "company_client.hpp"
 #include "TypeToStringFormatter.h"
 #include "JsonParameterFormatter.h"
@@ -12,42 +13,128 @@
 //using FrontConverter::to_str;
 //using CommonUtil::sqlRowOffset;
 
+using ::testing::ElementsAre;
+using ::testing::Pointwise;
+
+#include <variant>
+#include <type_traits>
+
+
+namespace {
+
+//bool loose_compare(const std::variant<Types...>& a, const std::variant<Types...>& b) {
+//    return std::visit([](const auto& lhs, const auto& rhs) -> bool {
+//        if constexpr (std::is_same_v<decltype(lhs), decltype(rhs)>) {
+//            return lhs == rhs;
+//        }
+//        else if constexpr (std::is_arithmetic_v<decltype(lhs)> && std::is_arithmetic_v<decltype(rhs)>) {
+//            return lhs == rhs; // Or static_cast<double>(lhs) == static_cast<double>(rhs)
+//        }
+//        else {
+//            return false; // Ensure every path returns a value
+//        }
+//    }, a, b);
+//}
+
+template<typename T>
+const T& deref_if_refwrap(const T& val) {
+    return val;
+}
+
+template<typename T>
+const T& deref_if_refwrap(const std::reference_wrapper<T>& ref) {
+    return ref.get();
+}
+
+template<typename... Types>
+bool loose_compare(const std::variant<Types...>& a, const std::variant<Types...>& b) {
+    return std::visit([](const auto& lhs_raw, const auto& rhs_raw) -> bool {
+        const auto& lhs = deref_if_refwrap(lhs_raw);
+        const auto& rhs = deref_if_refwrap(rhs_raw);
+
+        using L = std::decay_t<decltype(lhs)>;
+        using R = std::decay_t<decltype(rhs)>;
+
+        if constexpr (std::is_same_v<L, R>) {
+            return lhs == rhs;
+        }
+        else if constexpr (std::is_arithmetic_v<L> && std::is_arithmetic_v<R>) {
+            //return lhs == rhs;
+            using Common = std::common_type_t<L, R>;
+            return static_cast<Common>(lhs) == static_cast<Common>(rhs);
+        }
+        else {
+            return false;
+        }
+    }, a, b);
+}
+
+// Compare two vectors of variants
+template<typename... Types>
+bool loose_vector_compare(const std::vector<std::variant<Types...>>& v1,
+                          const std::vector<std::variant<Types...>>& v2) {
+    if (v1.size() != v2.size())
+        return false;
+
+    for (size_t i = 0; i < v1.size(); ++i) {
+        if (!loose_compare(v1[i], v2[i]))
+            return false;
+    }
+
+    return true;
+}
+void compareObjects (Company & left, Company & right) {
+    EXPECT_EQ(left.uid(), right.uid());
+    EXPECT_EQ(left.server_uid(), right.server_uid());
+    EXPECT_EQ(left.company_type(), right.company_type());
+    EXPECT_EQ(left.name(), right.name());
+    EXPECT_EQ(left.address(), right.address());
+    EXPECT_EQ(TimeFormatHelper::chronoSysSecToString(left.reg_date(), DataInfo::Date), TimeFormatHelper::chronoSysSecToString(right.reg_date(), DataInfo::Date));
+    EXPECT_EQ(TimeFormatHelper::chronoSysSecToString(left.joint_date(), DataInfo::Date), TimeFormatHelper::chronoSysSecToString(right.joint_date(), DataInfo::Date));
+    EXPECT_EQ(left.license(), right.license());
+    EXPECT_EQ(left.logo(), right.logo());
+}
+
+
+
+// Company object has 9 properties
+const int PROPERTIES = 9;
+}
+
 TEST(GrpcObjectTableModelTests, GrpcDataControlerTests)
 {
     CompanyEditorClient client(grpc::CreateChannel(channelAddress, grpc::InsecureChannelCredentials()));
     QDateTime current = QDateTime::currentDateTime();
 
     Company company1;
-    company1.set_server_uid(server_uid);
+    company1.set_uid("1");
+    company1.set_server_uid(server_uid);   
     company1.set_company_type(0);
+    company1.set_name("Givi");
     company1.set_address("134 George St, New Brunswick, NJ 08901");
     company1.set_reg_date(current.toSecsSinceEpoch());
     company1.set_joint_date(current.toSecsSinceEpoch());
     company1.set_license("54321");
-    company1.set_name("Givi");
     company1.set_logo("file.png");
 
 
     Company company2;
+    company2.set_uid("2");
     company2.set_server_uid(server_uid);
     company2.set_company_type(0);
+    company2.set_name("Keto");
     company2.set_address("6063 Rousvelt Blvd, Philadelphia, PA 19149");
     company2.set_reg_date(current.toSecsSinceEpoch());
     company2.set_joint_date(current.toSecsSinceEpoch());
     company2.set_license("12345");
-    company2.set_name("Keto");
     company1.set_logo("file.jpeg");
-
-    company2.name();
-    company2.server_uid();
-    company2.joint_date();
 
     std::vector<Company> objects;
     objects.push_back(company1);
     objects.push_back(company2);
 
-
     GrpcDataController<Company> controller(std::move(objects));
+    controller.addProperty("", DataInfo::String, &Company::set_uid, &Company::uid);
     controller.addProperty("", DataInfo::Int, &Company::set_server_uid, &Company::server_uid);
     controller.addProperty("Company type", DataInfo::Int, &Company::set_company_type, &Company::company_type);
     controller.addProperty("Name", DataInfo::String, &Company::set_name, &Company::name);
@@ -58,35 +145,114 @@ TEST(GrpcObjectTableModelTests, GrpcDataControlerTests)
     controller.addProperty("Logo", DataInfo::String, &Company::set_logo, &Company::logo);
     controller.initialize();
 
-    //EXPECT_EQ(controller.)
+    Company CompanyExpect1 = controller.object(0);
+    Company CompanyExpect2 = controller.object(1);
 
-    std::string oldData = FrontConverter::to_str(controller.data(0,0));
-    std::string oldData2 = FrontConverter::to_str(controller.data(1,0));
+    // Check objects
+    compareObjects(company1, CompanyExpect1);
+    compareObjects(company2, CompanyExpect2);
 
-    //Company & proccesedObject = controller.object(0);
-    //Company & proccesedObject2 = controller.object(1);
+    // Check properies count
+    EXPECT_EQ(controller.propertyCount(), PROPERTIES);
 
-    controller.setData(0,0, "Vakho");
-    controller.setData(1,0, "Vakho");
+    std::vector<GrpcVariantGet> company1Var = {
+        company1.uid(),
+        company1.server_uid(),
+        company1.company_type(),
+        company1.name(),
+        company1.address(),
+        company1.reg_date(),
+        company1.joint_date(),
+        company1.license(),
+        company1.logo()
+    };
 
-    //std::string newData = proccesedObject.name();
-    //std::string newData2 = proccesedObject2.name();
+    std::vector<GrpcVariantGet> company2Var = {
+        company2.uid(),
+        company2.server_uid(),
+        company2.company_type(),
+        company2.name(),
+        company2.address(),
+        company2.reg_date(),
+        company2.joint_date(),
+        company2.license(),
+        company2.logo()
+    };
 
-    std::string newData = FrontConverter::to_str(controller.data(0,0));
-    std::string newData2 = FrontConverter::to_str(controller.data(1,0));
+    std::vector<QVariant> company1QVar = {
+        FrontConverter::to_qvariant_get(company1.uid()),
+        FrontConverter::to_qvariant_get(company1.server_uid()),
+        FrontConverter::to_qvariant_get(company1.company_type()),
+        FrontConverter::to_qvariant_get(company1.address()),
+        FrontConverter::to_qvariant_get(company1.reg_date()),
+        FrontConverter::to_qvariant_get(company1.joint_date()),
+        FrontConverter::to_qvariant_get(company1.license()),
+        FrontConverter::to_qvariant_get(company1.name()),
+        FrontConverter::to_qvariant_get(company1.logo())
+    };
 
-    int32_t oldInt = controller.data(0,2).toInt();
-    int64_t oldInt64 = controller.data(0,3).toInt();
+    std::vector<QVariant> company2QVar = {
+        FrontConverter::to_qvariant_get(company2.uid()),
+        FrontConverter::to_qvariant_get(company2.server_uid()),
+        FrontConverter::to_qvariant_get(company2.company_type()),
+        FrontConverter::to_qvariant_get(company2.address()),
+        FrontConverter::to_qvariant_get(company2.reg_date()),
+        FrontConverter::to_qvariant_get(company2.joint_date()),
+        FrontConverter::to_qvariant_get(company2.license()),
+        FrontConverter::to_qvariant_get(company2.name()),
+        FrontConverter::to_qvariant_get(company2.logo())
+    };
 
-    controller.setData(0,2, 101);
-    controller.setData(0,3, 888888);
+    std::vector<GrpcVariantGet> actual1 = {
+                                           controller.nativeData(0, 0),
+                                           controller.nativeData(0, 1),
+                                           controller.nativeData(0, 2),
+                                           controller.nativeData(0, 3),
+                                           controller.nativeData(0, 4),
+                                           controller.nativeData(0, 5),
+                                           controller.nativeData(0, 6),
+                                           controller.nativeData(0, 7),
+                                           controller.nativeData(0, 8)
+     };
 
-    int32_t newInt = controller.data(0,2).toInt();
-    int64_t newInt64 = controller.data(0,3).toInt();
+    std::vector<GrpcVariantGet> actual2 = {
+                                           controller.nativeData(1, 0),
+                                           controller.nativeData(1, 1),
+                                           controller.nativeData(1, 2),
+                                           controller.nativeData(1, 3),
+                                           controller.nativeData(1, 4),
+                                           controller.nativeData(1, 5),
+                                           controller.nativeData(1, 6),
+                                           controller.nativeData(1, 7),
+                                           controller.nativeData(1, 8)
+    };
 
+    std::vector<QVariant> actualQVar1 = {
+        controller.data(0, 0),
+        controller.data(0, 1),
+        controller.data(0, 2),
+        controller.data(0, 3),
+        controller.data(0, 4),
+        controller.data(0, 5),
+        controller.data(0, 6),
+        controller.data(0, 7),
+        controller.data(0, 8)
+    };
 
-    int k  = 0;
+    std::vector<QVariant> actualQVar2 = {
+        controller.data(1, 0),
+        controller.data(1, 1),
+        controller.data(1, 2),
+        controller.data(1, 3),
+        controller.data(1, 4),
+        controller.data(1, 5),
+        controller.data(1, 6),
+        controller.data(1, 7),
+        controller.data(1, 8)
+    };
 
+    EXPECT_TRUE(loose_vector_compare(company1Var, actual1));
+    EXPECT_TRUE(loose_vector_compare(company2Var, actual2));
 }
 
 TEST(GrpcObjectTableModelTests, ModelTest)
