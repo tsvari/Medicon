@@ -2,8 +2,10 @@
 #define TESTSHAREDUTILITY_H
 
 #include <QItemSelection>
-#include <QModelIndex>
+#include <QAbstractItemModel>
 #include <QVariant>
+
+#include "GrpcObjectTableModel.h"
 
 template <typename TpT = QVariant>
 auto pullout(const QItemSelection & sel, std::function<TpT(QModelIndex)> & get_type) {
@@ -11,6 +13,7 @@ auto pullout(const QItemSelection & sel, std::function<TpT(QModelIndex)> & get_t
     for(const auto & index: sel.indexes()) {
         results.push_back(get_type(index));
     }
+    return results;
 }
 
 template <typename TpT = QVariant>
@@ -21,8 +24,17 @@ auto pullout(const QItemSelection & sel, int role) {
     return pullout<TpT>(sel, func);
 }
 
-bool compareQVariant(const QVariant & lhs, const QVariant & rhs);
+template <typename TpT = QVariant>
+auto pulloutHeader(QAbstractItemModel * model, const std::vector<int> & sections, Qt::Orientation orientation, int role) {
+    std::vector<TpT> results;
+    for(const auto & section: sections) {
+        results.push_back(model->headerData(section, orientation, role).value<TpT>());
+    }
+    return results;
+}
 
+
+bool compareQVariant(const QVariant & lhs, const QVariant & rhs);
 bool compareQVariantList(const QList<QVariant> & lhs, const QList<QVariant> & rhs);
 
 template<typename T>
@@ -73,5 +85,60 @@ bool loose_vector_compare(const std::vector<std::variant<Types...>>& v1,
     return true;
 }
 
+class GprcTestDataObject
+{
+public:
+    ~GprcTestDataObject(){}
+    const std::string & name() const {return m_name;}
+    void set_name(const std::string & value) {m_name = value;}
+
+    int64_t date() const {return m_date;}
+    void set_date(int64_t value) {m_date = value;}
+
+    int32_t height() const {return m_height;}
+    void set_height(int32_t value) {m_height = value;}
+
+    double salary() const {return m_salary;}
+    void set_salary(double value) {m_salary = value;}
+
+    bool married() const {return m_married;}
+    void set_married(bool value) {m_married = value;}
+
+private:
+    std::string m_name;
+    int64_t m_date;
+    int32_t m_height;
+    double m_salary;
+    bool m_married;
+};
+
+class GrpcTestObjectTableModel : public GrpcObjectTableModel
+{
+    Q_OBJECT
+
+public:
+    explicit GrpcTestObjectTableModel(std::vector<GprcTestDataObject> && data, QObject *parent = nullptr) :
+        GrpcObjectTableModel(new GrpcDataContainer<GprcTestDataObject>(std::move(data)), parent)
+    {
+        initializeData();
+    }
+
+    void initializeData() override {
+        container()->addProperty("Name", DataInfo::String, &GprcTestDataObject::set_name, &GprcTestDataObject::name);
+        container()->addProperty("Date", DataInfo::Date, &GprcTestDataObject::set_date, &GprcTestDataObject::date);
+        container()->addProperty("Height", DataInfo::Int, &GprcTestDataObject::set_height, &GprcTestDataObject::height);
+        container()->addProperty("Salary", DataInfo::Double, &GprcTestDataObject::set_salary, &GprcTestDataObject::salary);
+        container()->addProperty("Married", DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
+        container()->initialize();
+    }
+
+private:
+    GrpcDataContainer<GprcTestDataObject> * container() {
+        return dynamic_cast<GrpcDataContainer<GprcTestDataObject>*>(m_container);
+    }
+
+};
+
+Q_DECLARE_METATYPE(GprcTestDataObject)
 
 #endif // TESTSHAREDUTILITY_H

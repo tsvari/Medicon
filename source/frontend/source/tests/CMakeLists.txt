@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(FrontendIntegrationTests LANGUAGES CXX)
+project(FrontendTestProject LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -47,7 +47,6 @@ set(HEADER_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcObjectTableModel.h
     ${FRONTEND_INCLUDE_DIR}/GrpcDataContainer.hpp
 
-    ${FRONTEND_INCLUDE_DIR}/ModelItems/CompanyTableModel.h
 
     ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.h
     ${FRONTEND_GRPC_DIR}/front_common.h
@@ -65,19 +64,16 @@ set(SOURCE_FILES
     ${FRONTEND_INCLUDE_DIR}/include_frontend_util.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcObjectTableModel.cpp
 
-    ${FRONTEND_INCLUDE_DIR}/ModelItems/CompanyTableModel.cpp
-
-
     ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.cpp
     ${FRONTEND_GRPC_DIR}/company_client.hpp
-
-    GrpcCompanyTests.cpp
-    GrpcCompanyTableModelTests.cpp
 )
 
 add_executable(FrontendTestProject
     ${HEADER_FILES}
     ${SOURCE_FILES}
+
+    GrpcDataContainerTests.cpp
+    GrpcObjectTableModelTests.cpp
 )
 
 target_compile_definitions(FrontendTestProject PRIVATE
