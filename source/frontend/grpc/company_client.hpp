@@ -24,7 +24,7 @@ using CompanyEdit::JsonParameters;
 using CompanyEdit::CompanyUid;
 using CompanyEdit::TotalCount;
 
-ABSL_FLAG(std::string, target, "0.0.0.0:12345", "Server address");
+
 
 using grpc::Channel;
 using grpc::ClientContext;
