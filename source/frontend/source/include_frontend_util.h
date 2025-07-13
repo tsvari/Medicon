@@ -8,12 +8,18 @@
 #include <QVariant>
 
 #ifdef Q_OS_MAC
-//#define PROJECT_PATH "/Users/tsvari/tida-web/"
-//#elif Q_OS_LINUX
-//#define PROJECT_PATH "/home/vaky/tida-web/"
+//
+//
 #endif
 
+namespace {
 using GrpcVariantGet = std::variant<int32_t, std::reference_wrapper<const std::string>, int64_t, bool, double>;
+using GrpcVariantSet = std::variant<int32_t, std::string, int64_t, bool, double>;
+
+template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
+template<class... Ts> overload(Ts...) -> overload<Ts...>;
+}
+
 namespace FrontConverter {
 
 QString to_str(const std::string & source);
