@@ -22,7 +22,6 @@ auto pullout(const QItemSelection & sel, int role) {
 }
 
 bool compareQVariant(const QVariant & lhs, const QVariant & rhs);
-
 bool compareQVariantList(const QList<QVariant> & lhs, const QList<QVariant> & rhs);
 
 template<typename T>
@@ -73,5 +72,30 @@ bool loose_vector_compare(const std::vector<std::variant<Types...>>& v1,
     return true;
 }
 
+class GprcTestDataObject
+{
+public:
+    const std::string & name() const {return m_name;}
+    void set_name(const std::string & value) {m_name = value;}
+
+    int64_t date() const {return m_date;}
+    void set_date(int64_t value) {m_date = value;}
+
+    int32_t height() const {return m_height;}
+    void set_height(int32_t value) {m_height = value;}
+
+    double salary() const {return m_salary;}
+    void set_salary(double value) {m_salary = value;}
+
+    bool married() const {return m_married;}
+    void set_married(bool value) {m_married = value;}
+
+private:
+    std::string m_name;
+    int64_t m_date;
+    int32_t m_height;
+    double m_salary;
+    bool m_married;
+};
 
 #endif // TESTSHAREDUTILITY_H
