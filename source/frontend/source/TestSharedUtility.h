@@ -6,6 +6,7 @@
 #include <QVariant>
 
 #include "GrpcObjectTableModel.h"
+#include "TypeToStringFormatter.h"
 
 template <typename TpT = QVariant>
 auto pullout(const QItemSelection & sel, std::function<TpT(QModelIndex)> & get_type) {
@@ -120,6 +121,13 @@ class GprcTestSlaveObject
 {
 public:
     ~GprcTestSlaveObject(){}
+    GprcTestSlaveObject(){}
+    GprcTestSlaveObject(int32_t uid, int32_t link_uid, const std::string & phone)
+        : m_uid(uid)
+        , m_link_uid(link_uid)
+        , m_phone(phone)
+    {
+    }
 
     int32_t uid() const {return m_uid;}
     void set_uid(int32_t value) {m_uid = value;}
@@ -163,6 +171,107 @@ private:
     }
 
 };
+
+class GrpcTestSlaveObjectTableModel : public GrpcObjectTableModel
+{
+    Q_OBJECT
+
+public:
+    explicit GrpcTestSlaveObjectTableModel(std::vector<GprcTestSlaveObject> && data, QObject *parent = nullptr) :
+        GrpcObjectTableModel(new GrpcDataContainer<GprcTestSlaveObject>(std::move(data)), parent)
+    {
+        initializeData();
+    }
+
+    void initializeData() override {
+        container()->addProperty("Uid", DataInfo::Int, &GprcTestSlaveObject::set_uid, &GprcTestSlaveObject::uid);
+        container()->addProperty("LinkUid", DataInfo::Int, &GprcTestSlaveObject::set_link_uid, &GprcTestSlaveObject::link_uid);
+        container()->addProperty("Name", DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
+        container()->initialize();
+    }
+
+private:
+    GrpcDataContainer<GprcTestSlaveObject> * container() {
+        return dynamic_cast<GrpcDataContainer<GprcTestSlaveObject>*>(m_container);
+    }
+
+};
+namespace TestModelData {
+static std::vector<GprcTestDataObject> masterData() {
+    std::vector<GprcTestDataObject> objects;
+
+    GprcTestDataObject obj1;
+    obj1.set_uid(1);
+    obj1.set_name("Givi");
+    obj1.set_date(TimeFormatHelper::chronoNow().time_since_epoch().count());
+    obj1.set_height(168);
+    obj1.set_salary(12.15);
+    obj1.set_married(false);
+    objects.push_back(obj1);
+
+    GprcTestDataObject obj2;
+    obj2.set_uid(2);
+    obj2.set_name("Keto");
+    obj2.set_date(TimeFormatHelper::chronoNow().time_since_epoch().count());
+    obj2.set_height(164);
+    obj2.set_salary(30.557);
+    obj2.set_married(true);
+    objects.push_back(obj2);
+
+    GprcTestDataObject obj3;
+    obj3.set_uid(3);
+    obj3.set_name("Vakho");
+    obj3.set_date(TimeFormatHelper::chronoNow().time_since_epoch().count());
+    obj3.set_height(175);
+    obj3.set_salary(135000.567);
+    obj3.set_married(true);
+    objects.push_back(obj3);
+
+    GprcTestDataObject obj4;
+    obj4.set_uid(4);
+    obj4.set_name("Elene");
+    obj4.set_date(TimeFormatHelper::chronoNow().time_since_epoch().count());
+    obj4.set_height(155);
+    obj4.set_salary(567);
+    obj4.set_married(false);
+    objects.push_back(obj4);
+
+    GprcTestDataObject obj5;
+    obj5.set_uid(5);
+    obj5.set_name("Teona");
+    obj5.set_date(TimeFormatHelper::chronoNow().time_since_epoch().count());
+    obj5.set_height(166);
+    obj5.set_salary(5.123);
+    obj5.set_married(true);
+    objects.push_back(obj5);
+
+    return objects;
+}
+
+static std::vector<GprcTestSlaveObject> slaveData()
+{
+    std::vector<GprcTestSlaveObject> objects {
+        {1, 1, "123 334 5678"},
+        {2, 1, "445 575 8778"},
+        {3, 1, "453 464 3464"},
+        {4, 1, "343 235 4364"},
+        {5, 2, "454 435 3466"},
+        {6, 2, "234 236 6588"},
+        {7, 3, "677 683 4378"},
+        {8, 3, "325 325 7679"},
+        {9, 3, "368 568 2365"},
+        {10, 4, "235 436 7988"},
+        {11, 4, "546 325 4345"},
+        {12, 5, "435 577 9870"},
+        {13, 5, "544 870 8708"},
+        {14, 5, "323 679 5670"},
+        {15, 5, "234 346 4799"},
+        {16, 5, "356 578 5758"}
+    };
+
+    return objects;
+}
+}
 
 Q_DECLARE_METATYPE(GprcTestDataObject)
 
