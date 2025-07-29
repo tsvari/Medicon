@@ -74,7 +74,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     // Second Row again
     model.insertObject(1, QVariant::fromValue<GprcTestDataObject>(obj3));
     EXPECT_EQ(model.rowCount(), 3);
-EXPECT_EQ("Givi", model.index(0,0).data().toString());
+    EXPECT_EQ("Givi", model.index(0,0).data().toString());
     auto actualRowInserted = pullout<QString>(
         {model.index(1,0), model.index(1, columnCount - 1)},
         Qt::DisplayRole
@@ -133,6 +133,17 @@ EXPECT_EQ("Givi", model.index(0,0).data().toString());
                                             "5.123",
                                             "true"));
 
+    // Be sure it's update not insert
+    EXPECT_EQ(model.rowCount(), 4);
+    actualNamesFirstColumn = pullout<QString>(
+        {model.index(0,0), model.index(3, 0)},
+        Qt::DisplayRole
+        );
+    EXPECT_THAT(actualNamesFirstColumn, ElementsAre("Givi",
+                                                    "Vakho",
+                                                    "Keto",
+                                                    "Teona"));
+
     // Header tests
     auto actualHeadersHorizontal = pulloutHeader<QString>(&model, {0, 1, 2, 3, 4}, Qt::Horizontal, Qt::DisplayRole);
     EXPECT_THAT(actualHeadersHorizontal, ElementsAre(
@@ -149,5 +160,34 @@ EXPECT_EQ("Givi", model.index(0,0).data().toString());
                                              "3",
                                              "4"));
 
+    // Test Remove
+    // Remove third object / Keto
+    model.deleteObject(2);
+    EXPECT_EQ(model.rowCount(), 3);
+    actualNamesFirstColumn = pullout<QString>(
+        {model.index(0,0), model.index(2, 0)},
+        Qt::DisplayRole
+        );
+    EXPECT_THAT(actualNamesFirstColumn, ElementsAre("Givi",
+                                                    "Vakho",
+                                                    "Teona"));
 
+    // Remove last object / Teona
+    model.deleteObject(2);
+    EXPECT_EQ(model.rowCount(), 2);
+    actualNamesFirstColumn = pullout<QString>(
+        {model.index(0,0), model.index(1, 0)},
+        Qt::DisplayRole
+        );
+    EXPECT_THAT(actualNamesFirstColumn, ElementsAre("Givi",
+                                                    "Vakho"));
+
+    // Remove First object / Givi
+    model.deleteObject(0);
+    EXPECT_EQ(model.rowCount(), 1);
+    EXPECT_THAT(model.index(0, 0).data().toString(), "Vakho");
+
+    // Remove last one
+    model.deleteObject(0);
+    EXPECT_EQ(model.rowCount(), 0);
 }

@@ -33,12 +33,15 @@ public:
     void insertObject(int row, const QVariant & data);
     void addNewObject(const QVariant & data);
     void updateObject(int row, const QVariant & data);
+    void deleteObject(int row);
 
     // purely virtual, be sure to override it in the child
     virtual void initializeData() = 0;
 
 signals:
     void inserted(int row);
+    void updated(int row);
+    void deleted(int row);
 
 protected:
     // Just protect it from being explicitly used by the object.
@@ -49,9 +52,8 @@ protected:
         return QAbstractTableModel::removeRow(row, parent);
     }
 
-    // Add data:
+    // Just protect it from being explicitly used by the object.
     bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
-    // Remove data:
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
 protected:

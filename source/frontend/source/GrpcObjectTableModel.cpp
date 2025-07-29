@@ -71,8 +71,8 @@ Qt::ItemFlags GrpcObjectTableModel::flags(const QModelIndex &index) const
 
 void GrpcObjectTableModel::insertObject(int row, const QVariant & data)
 {
-    m_container->insertObject(row, data);
     insertRow(row);
+    m_container->insertObject(row, data);  
     // Simply emit a signal to move the cursor to the newly inserted row and select it
     emit inserted(row);
 }
@@ -85,6 +85,14 @@ void GrpcObjectTableModel::addNewObject(const QVariant & data)
 void GrpcObjectTableModel::updateObject(int row, const QVariant &data)
 {
     m_container->updateObject(row, data);
+    emit updated(row);
+}
+
+void GrpcObjectTableModel::deleteObject(int row)
+{
+    removeRow(row);
+    m_container->deleteObject(row);
+    emit deleted(row);
 }
 
 bool GrpcObjectTableModel::insertRows(int row, int count, const QModelIndex &parent)
