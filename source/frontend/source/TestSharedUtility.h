@@ -89,6 +89,9 @@ class GprcTestDataObject
 {
 public:
     ~GprcTestDataObject(){}
+    int32_t uid() const {return m_uid;}
+    void set_uid(int32_t value) {m_uid = value;}
+
     const std::string & name() const {return m_name;}
     void set_name(const std::string & value) {m_name = value;}
 
@@ -105,11 +108,32 @@ public:
     void set_married(bool value) {m_married = value;}
 
 private:
+    int32_t m_uid;
     std::string m_name;
     int64_t m_date;
     int32_t m_height;
     double m_salary;
     bool m_married;
+};
+
+class GprcTestSlaveObject
+{
+public:
+    ~GprcTestSlaveObject(){}
+
+    int32_t uid() const {return m_uid;}
+    void set_uid(int32_t value) {m_uid = value;}
+
+    int32_t link_uid() const {return m_link_uid;}
+    void set_link_uid(int32_t value) {m_link_uid = value;}
+
+    const std::string & phone() const {return m_phone;}
+    void set_phone(const std::string & value) {m_phone = value;}
+
+private:
+    int32_t m_uid;
+    int32_t m_link_uid;
+    std::string m_phone;
 };
 
 class GrpcTestObjectTableModel : public GrpcObjectTableModel
@@ -124,6 +148,7 @@ public:
     }
 
     void initializeData() override {
+        container()->addProperty("Uid", DataInfo::Int, &GprcTestDataObject::set_uid, &GprcTestDataObject::uid);
         container()->addProperty("Name", DataInfo::String, &GprcTestDataObject::set_name, &GprcTestDataObject::name);
         container()->addProperty("Date", DataInfo::Date, &GprcTestDataObject::set_date, &GprcTestDataObject::date);
         container()->addProperty("Height", DataInfo::Int, &GprcTestDataObject::set_height, &GprcTestDataObject::height);

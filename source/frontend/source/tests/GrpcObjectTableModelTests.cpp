@@ -10,7 +10,7 @@
 using ::testing::ElementsAre;
 
 namespace {
-const int columnCount = 5;
+const int columnCount = 6;
 }
 
 TEST(GrpcObjectTableModelTests, GprcBasicTest)
@@ -19,6 +19,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
 
     GprcTestDataObject obj1;
 
+    obj1.set_uid(1);
     obj1.set_name("Givi");
     obj1.set_date(current.toSecsSinceEpoch());
     obj1.set_height(168);
@@ -27,6 +28,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
 
     GprcTestDataObject obj2;
 
+    obj2.set_uid(2);
     obj2.set_name("Keto");
     obj2.set_date(current.toSecsSinceEpoch());
     obj2.set_height(164);
@@ -46,7 +48,8 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
         {model.index(0,0), model.index(0, model.columnCount() - 1)},
         Qt::DisplayRole
         );
-    EXPECT_THAT(actualRow1, ElementsAre("Givi",
+    EXPECT_THAT(actualRow1, ElementsAre("1",
+                                    "Givi",
                                     std::to_string(current.toSecsSinceEpoch()),
                                     "168",
                                     "12.15",
@@ -58,13 +61,15 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
         Qt::DisplayRole
         );
 
-    EXPECT_THAT(actualRow2, ElementsAre("Keto",
+    EXPECT_THAT(actualRow2, ElementsAre("2",
+                                        "Keto",
                                         std::to_string(current.toSecsSinceEpoch()),
                                         "164",
                                         "30.557",
                                         "true"));
 
     GprcTestDataObject obj3;
+    obj3.set_uid(3);
     obj3.set_name("Vakho");
     obj3.set_date(current.toSecsSinceEpoch());
     obj3.set_height(175);
@@ -74,18 +79,20 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     // Second Row again
     model.insertObject(1, QVariant::fromValue<GprcTestDataObject>(obj3));
     EXPECT_EQ(model.rowCount(), 3);
-    EXPECT_EQ("Givi", model.index(0,0).data().toString());
+    EXPECT_EQ("Givi", model.index(0,1).data().toString());
     auto actualRowInserted = pullout<QString>(
         {model.index(1,0), model.index(1, columnCount - 1)},
         Qt::DisplayRole
         );
-    EXPECT_THAT(actualRowInserted, ElementsAre("Vakho",
+    EXPECT_THAT(actualRowInserted, ElementsAre("3",
+                                       "Vakho",
                                         std::to_string(current.toSecsSinceEpoch()),
                                         "175",
                                         "135000.567",
                                         "true"));
 
     GprcTestDataObject obj4;
+    obj4.set_uid(4);
     obj4.set_name("Elene");
     obj4.set_date(current.toSecsSinceEpoch());
     obj4.set_height(155);
@@ -100,22 +107,26 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
         {model.index(3,0), model.index(3, columnCount - 1)},
         Qt::DisplayRole
         );
-    EXPECT_THAT(actualRowAdded, ElementsAre("Elene",
-                                               std::to_string(current.toSecsSinceEpoch()),
-                                               "155",
-                                               "567",
-                                               "false"));
+    EXPECT_THAT(actualRowAdded, ElementsAre("4",
+                                            "Elene",
+                                            std::to_string(current.toSecsSinceEpoch()),
+                                            "155",
+                                            "567",
+                                            "false"));
+
     // Check names only first column
     auto actualNamesFirstColumn = pullout<QString>(
-        {model.index(0,0), model.index(3, 0)},
+        {model.index(0,1), model.index(3, 1)},
         Qt::DisplayRole
         );
     EXPECT_THAT(actualNamesFirstColumn, ElementsAre("Givi",
                                             "Vakho",
                                             "Keto",
                                             "Elene"));
+
     // Update object test
     GprcTestDataObject newObj;
+    newObj.set_uid(5);
     newObj.set_name("Teona");
     newObj.set_date(current.toSecsSinceEpoch());
     newObj.set_height(166);
@@ -127,16 +138,18 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
         {model.index(3,0), model.index(3, columnCount - 1)},
         Qt::DisplayRole
         );
-    EXPECT_THAT(actualRowUpdated, ElementsAre("Teona",
+    EXPECT_THAT(actualRowUpdated, ElementsAre("5",
+                                            "Teona",
                                             std::to_string(current.toSecsSinceEpoch()),
                                             "166",
                                             "5.123",
                                             "true"));
 
+
     // Be sure it's update not insert
     EXPECT_EQ(model.rowCount(), 4);
     actualNamesFirstColumn = pullout<QString>(
-        {model.index(0,0), model.index(3, 0)},
+        {model.index(0,1), model.index(3, 1)},
         Qt::DisplayRole
         );
     EXPECT_THAT(actualNamesFirstColumn, ElementsAre("Givi",
@@ -145,8 +158,9 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
                                                     "Teona"));
 
     // Header tests
-    auto actualHeadersHorizontal = pulloutHeader<QString>(&model, {0, 1, 2, 3, 4}, Qt::Horizontal, Qt::DisplayRole);
+    auto actualHeadersHorizontal = pulloutHeader<QString>(&model, {0, 1, 2, 3, 4, 5}, Qt::Horizontal, Qt::DisplayRole);
     EXPECT_THAT(actualHeadersHorizontal, ElementsAre(
+                                        "Uid",
                                         "Name",
                                         "Date",
                                         "Height",
@@ -165,7 +179,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     model.deleteObject(2);
     EXPECT_EQ(model.rowCount(), 3);
     actualNamesFirstColumn = pullout<QString>(
-        {model.index(0,0), model.index(2, 0)},
+        {model.index(0,1), model.index(2, 1)},
         Qt::DisplayRole
         );
     EXPECT_THAT(actualNamesFirstColumn, ElementsAre("Givi",
@@ -176,7 +190,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     model.deleteObject(2);
     EXPECT_EQ(model.rowCount(), 2);
     actualNamesFirstColumn = pullout<QString>(
-        {model.index(0,0), model.index(1, 0)},
+        {model.index(0,1), model.index(1, 1)},
         Qt::DisplayRole
         );
     EXPECT_THAT(actualNamesFirstColumn, ElementsAre("Givi",
@@ -185,9 +199,10 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     // Remove First object / Givi
     model.deleteObject(0);
     EXPECT_EQ(model.rowCount(), 1);
-    EXPECT_THAT(model.index(0, 0).data().toString(), "Vakho");
+    EXPECT_THAT(model.index(0, 1).data().toString(), "Vakho");
 
     // Remove last one
     model.deleteObject(0);
     EXPECT_EQ(model.rowCount(), 0);
+
 }
