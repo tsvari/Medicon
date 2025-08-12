@@ -26,6 +26,8 @@ set(HEADER_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcObjectTableModel.h
     ${FRONTEND_INCLUDE_DIR}/GrpcDataContainer.hpp
     ${FRONTEND_INCLUDE_DIR}/GrpcProxySortFilterModel.h
+    ${FRONTEND_INCLUDE_DIR}/GrpcForm.h
+    ${FRONTEND_INCLUDE_DIR}/GrpcUiTemplate.h
 
 
     ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.h
@@ -41,6 +43,8 @@ set(SOURCE_FILES
     ${FRONTEND_INCLUDE_DIR}/include_frontend_util.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcObjectTableModel.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcProxySortFilterModel.cpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcForm.cpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcUiTemplate.cpp
 )
 
 set(PROJECT_SOURCES
