@@ -186,7 +186,7 @@ public:
     void initializeData() override {
         container()->addProperty("Uid", DataInfo::Int, &GprcTestSlaveObject::set_uid, &GprcTestSlaveObject::uid);
         container()->addProperty("LinkUid", DataInfo::Int, &GprcTestSlaveObject::set_link_uid, &GprcTestSlaveObject::link_uid);
-        container()->addProperty("Name", DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
+        container()->addProperty("Phone", DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
         container()->initialize();
     }
 

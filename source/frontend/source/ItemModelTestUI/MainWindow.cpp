@@ -9,11 +9,16 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    GrpcTestObjectTableModel * masterModel = new  GrpcTestObjectTableModel(std::move(TestModelData::masterData()), ui->masterTableView);
-    ui->masterTableView->setModel(masterModel);
+    GrpcProxySortFilterModel * masterProxy = new GrpcProxySortFilterModel(
+        new  GrpcTestObjectTableModel(std::move(TestModelData::masterData()), ui->masterTableView),
+        {0}, ui->masterTableView);
+    ui->masterTableView->setModel(masterProxy);
 
-    GrpcTestSlaveObjectTableModel * slaveModel = new GrpcTestSlaveObjectTableModel(std::move(TestModelData::slaveData()), ui->slaveTableView);
-    ui->slaveTableView->setModel(slaveModel);
+    GrpcProxySortFilterModel * slaveProxy = new GrpcProxySortFilterModel(
+        new GrpcTestSlaveObjectTableModel(std::move(TestModelData::slaveData()), ui->slaveTableView),
+        {0, 1}, ui->slaveTableView);
+    ui->slaveTableView->setModel(slaveProxy);
+
 }
 
 MainWindow::~MainWindow()
