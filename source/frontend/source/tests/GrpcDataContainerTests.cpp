@@ -57,6 +57,11 @@ TEST(GrpcDataContainerTests, GprcTestDataObjectTest)
     // vector shouls be empty after using
     //EXPECT_TRUE(objects.empty());
 
+    QVariant variantObject = container.variantObject(0);
+    EXPECT_TRUE(variantObject.isValid());
+    GprcTestDataObject expectedRealObject = variantObject.value<GprcTestDataObject>();
+    compareObjects(obj1, expectedRealObject);
+
     GprcTestDataObject CompanyExpect1 = container.object(0);
     GprcTestDataObject CompanyExpect2 = container.object(1);
 

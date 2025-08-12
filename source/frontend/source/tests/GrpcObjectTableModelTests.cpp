@@ -10,8 +10,19 @@
 using ::testing::ElementsAre;
 
 namespace {
+void compareObjects (const GprcTestDataObject & left, const GprcTestDataObject & right) {
+    EXPECT_EQ(left.uid(), right.uid());
+    EXPECT_EQ(left.name(), right.name());
+    EXPECT_EQ(TimeFormatHelper::chronoSysSecToString(left.date(), DataInfo::Date), TimeFormatHelper::chronoSysSecToString(right.date(), DataInfo::Date));
+    EXPECT_EQ(left.height(), right.height());
+    EXPECT_EQ(left.salary(), right.salary());
+    EXPECT_EQ(left.married(), right.married());
+}
 const int columnCount = 6;
 }
+
+// Need to test setData for GrpcObjectTableModel
+// Use the same pattern as in GrpcDataContainerTests
 
 TEST(GrpcObjectTableModelTests, GprcBasicTest)
 {
@@ -42,6 +53,16 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     GrpcTestObjectTableModel model(std::move(objects));
     EXPECT_EQ(model.rowCount(), 2);
     EXPECT_EQ(model.columnCount(), columnCount);
+
+    QVariant variantObject1 = model.variantObject(0);
+    EXPECT_TRUE(variantObject1.isValid());
+    GprcTestDataObject expectedRealObject1 = variantObject1.value<GprcTestDataObject>();
+    compareObjects(obj1, expectedRealObject1);
+
+    QVariant variantObject2 = model.variantObject(1);
+    EXPECT_TRUE(variantObject2.isValid());
+    GprcTestDataObject expectedRealObject2 = variantObject2.value<GprcTestDataObject>();
+    compareObjects(obj2, expectedRealObject2);
 
     // First row
     auto actualRow1 = pullout<QString>(

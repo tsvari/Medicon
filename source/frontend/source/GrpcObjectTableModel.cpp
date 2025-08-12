@@ -95,10 +95,15 @@ void GrpcObjectTableModel::deleteObject(int row)
     emit deleted(row);
 }
 
+QVariant GrpcObjectTableModel::variantObject(int row)
+{
+    return m_container->variantObject(row);
+}
+
 bool GrpcObjectTableModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     beginInsertRows(parent, row, row + count - 1);
-    // Do nothing, the new object is already inserted into m_container
+    // Do nothing, the new object wil be inserted into m_container
     endInsertRows();
 
     return true;
@@ -107,7 +112,7 @@ bool GrpcObjectTableModel::insertRows(int row, int count, const QModelIndex &par
 bool GrpcObjectTableModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     beginRemoveRows(parent, row, row + count - 1);
-    // FIXME: Implement me!
+    // Do nothing, the new object wil be removed from m_container
     endRemoveRows();
     return true;
 }

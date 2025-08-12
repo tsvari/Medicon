@@ -35,6 +35,8 @@ public:
     void updateObject(int row, const QVariant & data);
     void deleteObject(int row);
 
+    QVariant variantObject(int row);
+
     // purely virtual, be sure to override it in the child
     virtual void initializeData() = 0;
 

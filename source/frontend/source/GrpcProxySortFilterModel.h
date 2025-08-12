@@ -10,7 +10,7 @@ class GrpcProxySortFilterModel : public QSortFilterProxyModel
 public:
     explicit GrpcProxySortFilterModel(GrpcObjectTableModel * sourceModel, const QList<int> hiddenColumns, QObject * parent = nullptr);
 
-    bool filterAcceptsColumn(int sourceColumn, const QModelIndex &sourceParent) const override;
+    bool filterAcceptsColumn(int sourceColumn, const QModelIndex & sourceParent) const override;
 
 protected:
     QList<int> m_hiddenColumns;

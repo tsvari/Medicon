@@ -24,6 +24,8 @@ struct IBaseDataContainer {
     virtual void deleteObject(int row) = 0;
     virtual void addNewObject(const QVariant & data) = 0;
     virtual void updateObject(int row, const QVariant & data) = 0;
+
+    virtual QVariant variantObject(int row) = 0;
 };
 
 template<typename GrpcObject>
@@ -120,6 +122,15 @@ public:
     ///
     GrpcObject object(int row) {
         return *m_data[row];
+    }
+
+    //////////////////////////////////////////////////
+    /// \brief variantObject
+    /// \param row
+    /// \return
+    ///
+    QVariant variantObject(int row) override {
+        return QVariant::fromValue(object(row));
     }
 
     //////////////////////////////////////////////////
