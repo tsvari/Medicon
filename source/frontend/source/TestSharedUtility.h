@@ -108,6 +108,9 @@ public:
     bool married() const {return m_married;}
     void set_married(bool value) {m_married = value;}
 
+    int32_t level() const {return m_level;}
+    void set_level(int32_t value) {m_level = value;}
+
 private:
     int32_t m_uid;
     std::string m_name;
@@ -115,6 +118,7 @@ private:
     int32_t m_height;
     double m_salary;
     bool m_married;
+    int32_t m_level; // for combo list
 };
 
 class GprcTestSlaveObject
@@ -144,6 +148,15 @@ private:
     std::string m_phone;
 };
 
+namespace MasterHeader {
+static const  char *  UID      = "Uid";
+static const  char *  NAME     = "Name";
+static const  char *  DATE     = "Date";
+static const  char *  HEIGHT   = "Height";
+static const  char *  SALARY   = "Salary";
+static const  char *  MARRIED  = "Married";
+static const  char *  LEVEL    = "Level";
+}
 class GrpcTestObjectTableModel : public GrpcObjectTableModel
 {
     Q_OBJECT
@@ -155,13 +168,16 @@ public:
         initializeData();
     }
 
+    enum COLUMNS {};
+
     void initializeData() override {
-        container()->addProperty("Uid", DataInfo::Int, &GprcTestDataObject::set_uid, &GprcTestDataObject::uid);
-        container()->addProperty("Name", DataInfo::String, &GprcTestDataObject::set_name, &GprcTestDataObject::name);
-        container()->addProperty("Date", DataInfo::Date, &GprcTestDataObject::set_date, &GprcTestDataObject::date);
-        container()->addProperty("Height", DataInfo::Int, &GprcTestDataObject::set_height, &GprcTestDataObject::height);
-        container()->addProperty("Salary", DataInfo::Double, &GprcTestDataObject::set_salary, &GprcTestDataObject::salary);
-        container()->addProperty("Married", DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
+        container()->addProperty(MasterHeader::UID, DataInfo::String, &GprcTestDataObject::set_uid, &GprcTestDataObject::uid);
+        container()->addProperty(MasterHeader::NAME, DataInfo::String, &GprcTestDataObject::set_name, &GprcTestDataObject::name);
+        container()->addProperty(MasterHeader::DATE, DataInfo::Date, &GprcTestDataObject::set_date, &GprcTestDataObject::date);
+        container()->addProperty(MasterHeader::HEIGHT, DataInfo::Int, &GprcTestDataObject::set_height, &GprcTestDataObject::height);
+        container()->addProperty(MasterHeader::SALARY, DataInfo::Double, &GprcTestDataObject::set_salary, &GprcTestDataObject::salary);
+        container()->addProperty(MasterHeader::MARRIED, DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
+        container()->addProperty(MasterHeader::LEVEL, DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
         container()->initialize();
     }
 
@@ -172,6 +188,11 @@ private:
 
 };
 
+namespace SlaveHeadr {
+static const  char *  UID      = "Uid";
+static const  char *  LINK_UID = "LinkUid";
+static const  char *  PHONE    = "Phone";
+}
 class GrpcTestSlaveObjectTableModel : public GrpcObjectTableModel
 {
     Q_OBJECT
@@ -184,9 +205,9 @@ public:
     }
 
     void initializeData() override {
-        container()->addProperty("Uid", DataInfo::Int, &GprcTestSlaveObject::set_uid, &GprcTestSlaveObject::uid);
-        container()->addProperty("LinkUid", DataInfo::Int, &GprcTestSlaveObject::set_link_uid, &GprcTestSlaveObject::link_uid);
-        container()->addProperty("Phone", DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
+        container()->addProperty(SlaveHeadr::UID, DataInfo::Int, &GprcTestSlaveObject::set_uid, &GprcTestSlaveObject::uid);
+        container()->addProperty(SlaveHeadr::LINK_UID, DataInfo::Int, &GprcTestSlaveObject::set_link_uid, &GprcTestSlaveObject::link_uid);
+        container()->addProperty(SlaveHeadr::PHONE, DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
         container()->initialize();
     }
 
