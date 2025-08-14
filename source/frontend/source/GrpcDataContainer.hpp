@@ -48,44 +48,6 @@ public:
     using GrpcDoubleSet = void (GrpcObject::*)(double);
     using GrpcDoubleGet = double (GrpcObject::*)()const;
 
-    struct PropertyHolder
-    {
-        std::variant<
-            std::function<void (const string &)>,
-            std::function<void (int64_t)>,
-            std::function<void (int32_t)>,
-            std::function<void (bool)>,
-            std::function<void (double)>
-            > setter;
-        std::variant<
-            std::function<const std::string&(void)>,
-            std::function<int64_t(void)>,
-            std::function<int32_t(void)>,
-            std::function<bool(void)>,
-            std::function<double(void)>
-            > getter;
-    };
-
-    struct Property
-    {
-        string name;  // Header data
-        DataInfo::Type type;
-        std::variant<
-            GrpcStrSet,
-            Grpc64Set,
-            Grpc32Set,
-            GrpcBoolSet,
-            GrpcDoubleSet
-            > setter;
-        std::variant<
-            GrpcStrGet,
-            Grpc64Get,
-            Grpc32Get,
-            GrpcBoolGet,
-            GrpcDoubleGet
-            > getter;
-    };
-
     //////////////////////////////////////////////////
     /// \brief GrpcDataContainer
     /// \param data
@@ -277,7 +239,7 @@ public:
                      GrpcStrSet setter,
                      GrpcStrGet getter)
     {
-        Property property;
+        Property<GrpcObject> property;
         property.name = name;
         property.type = type;
         property.setter = setter;
@@ -297,7 +259,7 @@ public:
                      Grpc64Set setter,
                      Grpc64Get getter)
     {
-        Property property;
+        Property<GrpcObject> property;
         property.name = name;
         property.type = type;
         property.setter = setter;
@@ -317,7 +279,7 @@ public:
                      Grpc32Set setter,
                      Grpc32Get getter)
     {
-        Property property;
+        Property<GrpcObject> property;
         property.name = name;
         property.type = type;
         property.setter = setter;
@@ -337,7 +299,7 @@ public:
                      GrpcBoolSet setter,
                      GrpcBoolGet getter)
     {
-        Property property;
+        Property<GrpcObject> property;
         property.name = name;
         property.type = type;
         property.setter = setter;
@@ -357,7 +319,7 @@ public:
                      GrpcDoubleSet setter,
                      GrpcDoubleGet getter)
     {
-        Property property;
+        Property<GrpcObject> property;
         property.name = name;
         property.type = type;
         property.setter = setter;
@@ -505,7 +467,7 @@ private:
 private:
     std::vector<GrpcObject*> m_data;
     std::vector<std::vector<PropertyHolder>> m_propertyHolders;
-    std::vector<Property> m_properties;
+    std::vector<Property<GrpcObject>> m_properties;
 };
 
 #endif // GRPCDATACONTROLER_H
