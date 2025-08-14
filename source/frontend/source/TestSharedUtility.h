@@ -113,6 +113,9 @@ public:
     int32_t level() const {return m_level;}
     void set_level(int32_t value) {m_level = value;}
 
+    const std::string & level_name() const {return m_level_name;}
+    void set_level_name(const std::string & value) {m_level_name = value;}
+
 private:
     int32_t m_uid;
     std::string m_name;
@@ -121,6 +124,7 @@ private:
     double m_salary;
     bool m_married;
     int32_t m_level; // for combo list
+    std::string m_level_name; // combo/edit text
 };
 
 class GprcTestSlaveObject
@@ -158,6 +162,7 @@ static const  char *  HEIGHT   = "Height";
 static const  char *  SALARY   = "Salary";
 static const  char *  MARRIED  = "Married";
 static const  char *  LEVEL    = "Level";
+static const  char *  LEVEL_NAME    = "Level Name";
 }
 class GrpcTestObjectTableModel : public GrpcObjectTableModel
 {
@@ -179,6 +184,7 @@ public:
         container()->addProperty(MasterHeader::SALARY, DataInfo::Double, &GprcTestDataObject::set_salary, &GprcTestDataObject::salary);
         container()->addProperty(MasterHeader::MARRIED, DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
         container()->addProperty(MasterHeader::LEVEL, DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
+        container()->addProperty(MasterHeader::LEVEL_NAME, DataInfo::String, &GprcTestDataObject::set_level_name, &GprcTestDataObject::level_name);
         container()->initialize();
     }
 

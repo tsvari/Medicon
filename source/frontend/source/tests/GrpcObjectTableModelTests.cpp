@@ -18,7 +18,7 @@ void compareObjects (const GprcTestDataObject & left, const GprcTestDataObject &
     EXPECT_EQ(left.salary(), right.salary());
     EXPECT_EQ(left.married(), right.married());
 }
-const int columnCount = 7;
+const int columnCount = 8;
 }
 
 // Need to test setData for GrpcObjectTableModel
@@ -37,6 +37,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     obj1.set_salary(12.15);
     obj1.set_married(false);
     obj1.set_level(2);
+    obj1.set_level_name("Level2");
 
     GprcTestDataObject obj2;
 
@@ -47,12 +48,14 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     obj2.set_salary(30.557);
     obj2.set_married(true);
     obj2.set_level(1);
+    obj2.set_level_name("Level1");
 
     std::vector<GprcTestDataObject> objects;
     objects.push_back(obj1);
     objects.push_back(obj2);
 
     GrpcTestObjectTableModel model(std::move(objects));
+    model.initializeData();
     EXPECT_EQ(model.rowCount(), 2);
     EXPECT_EQ(model.columnCount(), columnCount);
 
@@ -77,7 +80,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
                                     "168",
                                     "12.15",
                                     "false",
-                                    "2"));
+                                    "2", "Level2"));
 
     // Second row
     auto actualRow2 = pullout<QString>(
@@ -91,7 +94,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
                                         "164",
                                         "30.557",
                                         "true",
-                                        "1"));
+                                        "1", "Level1"));
 
     GprcTestDataObject obj3;
     obj3.set_uid(3);
@@ -101,6 +104,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     obj3.set_salary(135000.567);
     obj3.set_married(true);
     obj3.set_level(3);
+    obj3.set_level_name("Level3");
 
     // Second Row again
     model.insertObject(1, QVariant::fromValue<GprcTestDataObject>(obj3));
@@ -115,7 +119,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
                                         std::to_string(current.toSecsSinceEpoch()),
                                         "175",
                                         "135000.567",
-                                        "true", "3"));
+                                        "true", "3", "Level3"));
 
     GprcTestDataObject obj4;
     obj4.set_uid(4);
@@ -125,6 +129,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     obj4.set_salary(567);
     obj4.set_married(false);
     obj4.set_level(5);
+    obj4.set_level_name("Level5");
 
     // Forth row
     model.addNewObject(QVariant::fromValue<GprcTestDataObject>(obj4));
@@ -139,7 +144,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
                                             std::to_string(current.toSecsSinceEpoch()),
                                             "155",
                                             "567",
-                                            "false", "5"));
+                                            "false", "5", "Level5"));
 
     // Check names only first column
     auto actualNamesFirstColumn = pullout<QString>(
@@ -160,6 +165,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     newObj.set_salary(5.123);
     newObj.set_married(true);
     newObj.set_level(4);
+    newObj.set_level_name("Level4");
 
     model.updateObject(3, QVariant::fromValue<GprcTestDataObject>(newObj));
     auto actualRowUpdated = pullout<QString>(
@@ -171,7 +177,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
                                             std::to_string(current.toSecsSinceEpoch()),
                                             "166",
                                             "5.123",
-                                            "true", "4"));
+                                            "true", "4", "Level4"));
 
 
     // Be sure it's update not insert
@@ -186,14 +192,14 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
                                                     "Teona"));
 
     // Header tests
-    auto actualHeadersHorizontal = pulloutHeader<QString>(&model, {0, 1, 2, 3, 4, 5, 6}, Qt::Horizontal, Qt::DisplayRole);
+    auto actualHeadersHorizontal = pulloutHeader<QString>(&model, {0, 1, 2, 3, 4, 5, 6, 7}, Qt::Horizontal, Qt::DisplayRole);
     EXPECT_THAT(actualHeadersHorizontal, ElementsAre(
                                         "Uid",
                                         "Name",
                                         "Date",
                                         "Height",
                                         "Salary",
-                                        "Married", "Level"));
+                                        "Married", "Level", "Level Name"));
 
     auto actualHeadersVertical = pulloutHeader<QString>(&model, {0, 1, 2, 3}, Qt::Vertical, Qt::DisplayRole);
     EXPECT_THAT(actualHeadersVertical, ElementsAre(
