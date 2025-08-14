@@ -4,9 +4,11 @@
 #include <QItemSelection>
 #include <QAbstractItemModel>
 #include <QVariant>
+#include <QLineEdit>
 
 #include "GrpcObjectTableModel.h"
 #include "TypeToStringFormatter.h"
+#include "GrpcForm.h"
 
 template <typename TpT = QVariant>
 auto pullout(const QItemSelection & sel, std::function<TpT(QModelIndex)> & get_type) {
@@ -165,7 +167,6 @@ public:
     explicit GrpcTestObjectTableModel(std::vector<GprcTestDataObject> && data, QObject *parent = nullptr) :
         GrpcObjectTableModel(new GrpcDataContainer<GprcTestDataObject>(std::move(data)), parent)
     {
-        initializeData();
     }
 
     enum COLUMNS {};
@@ -201,7 +202,6 @@ public:
     explicit GrpcTestSlaveObjectTableModel(std::vector<GprcTestSlaveObject> && data, QObject *parent = nullptr) :
         GrpcObjectTableModel(new GrpcDataContainer<GprcTestSlaveObject>(std::move(data)), parent)
     {
-        initializeData();
     }
 
     void initializeData() override {
@@ -217,6 +217,59 @@ private:
     }
 
 };
+
+
+class MasterForm : public GrpcForm
+{
+    Q_OBJECT
+
+public:
+    explicit MasterForm(QWidget *parent = nullptr) : GrpcForm(parent){
+        int i = 0;
+    }
+
+    void initializeData() override {
+        QLineEdit * name = this->findChild<QLineEdit*>("nameEdit");
+        int i = 0;
+    }
+
+public slots:
+    void initializeWrapper(const QVariant & varData) override {
+        Q_ASSERT(varData.isValid());
+        wrapper()->grpcObject = std::move(varData.value<GprcTestDataObject>());
+        wrapper()->bindSettersGetters();
+    }
+private:
+    GrpcObjectWrapper<GprcTestDataObject> * wrapper() {
+        return dynamic_cast<GrpcObjectWrapper<GprcTestDataObject>*>(m_objectWrapper);
+    }
+};
+
+class SlaveForm : public GrpcForm
+{
+    Q_OBJECT
+
+public:
+    explicit SlaveForm(QWidget *parent = nullptr) : GrpcForm(parent){
+
+    }
+
+    void initializeData() override {
+
+    }
+
+public slots:
+    void initializeWrapper(const QVariant & varData) override {
+        Q_ASSERT(varData.isValid());
+        wrapper()->grpcObject = std::move(varData.value<GprcTestDataObject>());
+        wrapper()->bindSettersGetters();
+    }
+private:
+    GrpcObjectWrapper<GprcTestDataObject> * wrapper() {
+        return dynamic_cast<GrpcObjectWrapper<GprcTestDataObject>*>(m_objectWrapper);
+    }
+};
+
 namespace TestModelData {
 static std::vector<GprcTestDataObject> masterData() {
     std::vector<GprcTestDataObject> objects;
