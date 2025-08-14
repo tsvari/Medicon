@@ -28,6 +28,7 @@ set(HEADER_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcProxySortFilterModel.h
     ${FRONTEND_INCLUDE_DIR}/GrpcForm.h
     ${FRONTEND_INCLUDE_DIR}/GrpcUiTemplate.h
+    ${FRONTEND_INCLUDE_DIR}/GrpcObjectWrapper.hpp
 
 
     ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.h
