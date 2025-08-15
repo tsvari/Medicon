@@ -129,6 +129,7 @@ public:
         GrpcVariantGet varData = nativeData(row, col);
         return FrontConverter::to_qvariant_get(varData);
     }
+
     //////////////////////////////////////////////////
     /// \brief nativeData
     /// \param row
@@ -142,7 +143,7 @@ public:
             GrpcVariantGet dataToReturn = getterFunction();
             return dataToReturn;
         }, property.getter);
-        return varData;
+        return varData; // it's safe because of object is alocated
     }
 
     //////////////////////////////////////////////////

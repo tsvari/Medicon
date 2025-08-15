@@ -153,6 +153,12 @@ std::string to_str(const QVariant & source);
 QVariant to_qvariant_get(GrpcVariantGet varData);
 }
 
+namespace GlobalRoles {
+enum {
+    VariantObjectRole = Qt::UserRole + 1000
+    };
+}
+
 
 
 
