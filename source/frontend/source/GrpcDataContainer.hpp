@@ -25,6 +25,8 @@ struct IBaseDataContainer {
     virtual void addNewObject(const QVariant & data) = 0;
     virtual void updateObject(int row, const QVariant & data) = 0;
 
+    virtual void initialize() = 0;
+
     virtual QVariant variantObject(int row) = 0;
 };
 
@@ -62,6 +64,10 @@ public:
 
     }
 
+    // Default constructor
+    GrpcDataContainer() = default;
+
+    // Destructor
     virtual ~GrpcDataContainer()
     {
         removeAll();
@@ -331,7 +337,7 @@ public:
     //////////////////////////////////////////////////
     /// \brief Bind setters and getters from PropertyHolder object to GrpcObject from m_data list
     ///
-    void initialize()
+    void initialize() override
     {
         int row = 0;
         for(GrpcObject * object: m_data) {

@@ -103,6 +103,19 @@ QVariant GrpcObjectTableModel::variantObject(int row)
     return m_container->variantObject(row);
 }
 
+void GrpcObjectTableModel::setContainer(IBaseDataContainer * container)
+{
+    if(m_container) {
+        delete m_container;
+    }
+    m_container = container;
+}
+
+void GrpcObjectTableModel::initializeData()
+{
+    m_container->initialize();
+}
+
 bool GrpcObjectTableModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     beginInsertRows(parent, row, row + count - 1);
