@@ -1,5 +1,6 @@
 #include "GrpcObjectTableModel.h"
 #include "include_frontend_util.h"
+#include "GrpcDataContainer.hpp"
 
 GrpcObjectTableModel::GrpcObjectTableModel(IBaseDataContainer * container, QObject *parent)
     : QAbstractTableModel(parent)
@@ -46,6 +47,8 @@ QVariant GrpcObjectTableModel::data(const QModelIndex & index, int role) const
 
     if(role == Qt::DisplayRole) {
         return m_container->data(index.row(), index.column());
+    } else if (role == GlobalRoles::VariantObjectRole) {
+        return m_container->variantObject(index.row());
     }
 
     return QVariant();

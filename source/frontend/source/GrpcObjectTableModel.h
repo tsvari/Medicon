@@ -1,7 +1,6 @@
 #ifndef GRPCOBJECTTABLEMODEL_H
 #define GRPCOBJECTTABLEMODEL_H
 
-#include "GrpcDataContainer.hpp"
 #include <QAbstractTableModel>
 
 class IBaseDataContainer;
