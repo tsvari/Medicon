@@ -7,6 +7,7 @@
 #include <QLineEdit>
 
 #include "GrpcObjectTableModel.h"
+#include "GrpcDataContainer.hpp"
 #include "TypeToStringFormatter.h"
 #include "GrpcForm.h"
 
@@ -154,6 +155,28 @@ private:
     std::string m_phone;
 };
 
+class GprcTestLevelObject
+{
+public:
+    ~GprcTestLevelObject(){}
+    GprcTestLevelObject(){}
+    GprcTestLevelObject(int32_t uid, const std::string & name)
+        : m_uid(uid)
+        , m_name(name)
+    {
+    }
+
+    int32_t uid() const {return m_uid;}
+    void set_uid(int32_t value) {m_uid = value;}
+
+    const std::string & name() const {return m_name;}
+    void set_name(const std::string & value) {m_name = value;}
+
+private:
+    int32_t m_uid;
+    std::string m_name;
+};
+
 namespace MasterHeader {
 static const  char *  UID      = "Uid";
 static const  char *  NAME     = "Name";
@@ -164,6 +187,7 @@ static const  char *  MARRIED  = "Married";
 static const  char *  LEVEL    = "Level";
 static const  char *  LEVEL_NAME    = "Level Name";
 }
+
 class GrpcTestObjectTableModel : public GrpcObjectTableModel
 {
     Q_OBJECT
@@ -224,19 +248,49 @@ private:
 
 };
 
+class GrpcTestLevelObjectTableModel : public GrpcObjectTableModel
+{
+    Q_OBJECT
+
+public:
+    explicit GrpcTestLevelObjectTableModel(std::vector<GprcTestLevelObject> && data, QObject *parent = nullptr) :
+        GrpcObjectTableModel(new GrpcDataContainer<GprcTestLevelObject>(std::move(data)), parent)
+    {
+        initializeData();
+    }
+
+    void initializeData() override {
+        container()->addProperty("Uid", DataInfo::Int, &GprcTestLevelObject::set_uid, &GprcTestLevelObject::uid);
+        container()->addProperty("Level", DataInfo::String, &GprcTestLevelObject::set_name, &GprcTestLevelObject::name);
+        container()->initialize();
+    }
+
+private:
+    GrpcDataContainer<GprcTestLevelObject> * container() {
+        return dynamic_cast<GrpcDataContainer<GprcTestLevelObject>*>(m_container);
+    }
+};
 
 class MasterForm : public GrpcForm
 {
     Q_OBJECT
 
 public:
-    explicit MasterForm(QWidget *parent = nullptr) : GrpcForm(parent){
+    explicit MasterForm(QWidget *parent = nullptr) :
+        GrpcForm( new GrpcObjectWrapper<GprcTestDataObject>(), parent){
         int i = 0;
     }
 
     void initializeData() override {
-        QLineEdit * name = this->findChild<QLineEdit*>("nameEdit");
-        int i = 0;
+        //wrapper()->addProperty("Uid", DataInfo::String, &GprcTestDataObject::set_uid, &GprcTestDataObject::uid);
+        wrapper()->addProperty("nameEdit", DataInfo::String, &GprcTestDataObject::set_name, &GprcTestDataObject::name);
+        wrapper()->addProperty("dateEdit", DataInfo::Date, &GprcTestDataObject::set_date, &GprcTestDataObject::date);
+        wrapper()->addProperty("heightEdit", DataInfo::Int, &GprcTestDataObject::set_height, &GprcTestDataObject::height);
+        wrapper()->addProperty("salaryEdit", DataInfo::Double, &GprcTestDataObject::set_salary, &GprcTestDataObject::salary);
+        wrapper()->addProperty("marriedCheckBox", DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
+        //wrapper()->addProperty("Level", DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
+        wrapper()->addProperty("levelCombo", DataInfo::String, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
+        initialize();
     }
 
 public slots:
@@ -244,6 +298,7 @@ public slots:
         Q_ASSERT(varData.isValid());
         wrapper()->grpcObject = std::move(varData.value<GprcTestDataObject>());
         wrapper()->bindSettersGetters();
+        fillForm();
     }
 private:
     GrpcObjectWrapper<GprcTestDataObject> * wrapper() {
@@ -256,23 +311,29 @@ class SlaveForm : public GrpcForm
     Q_OBJECT
 
 public:
-    explicit SlaveForm(QWidget *parent = nullptr) : GrpcForm(parent){
+    explicit SlaveForm(QWidget *parent = nullptr) :
+        GrpcForm(new GrpcObjectWrapper<GprcTestSlaveObject>(), parent){
 
     }
 
     void initializeData() override {
+        //wrapper()->addProperty("Uid", DataInfo::Int, &GprcTestSlaveObject::set_uid, &GprcTestSlaveObject::uid);
+        //wrapper()->addProperty("LinkUid", DataInfo::Int, &GprcTestSlaveObject::set_link_uid, &GprcTestSlaveObject::link_uid);
+        wrapper()->addProperty("phoneEdit", DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
 
+        initialize();
     }
 
 public slots:
     void initializeWrapper(const QVariant & varData) override {
         Q_ASSERT(varData.isValid());
-        wrapper()->grpcObject = std::move(varData.value<GprcTestDataObject>());
+        wrapper()->grpcObject = std::move(varData.value<GprcTestSlaveObject>());
         wrapper()->bindSettersGetters();
+        fillForm();
     }
 private:
-    GrpcObjectWrapper<GprcTestDataObject> * wrapper() {
-        return dynamic_cast<GrpcObjectWrapper<GprcTestDataObject>*>(m_objectWrapper);
+    GrpcObjectWrapper<GprcTestSlaveObject> * wrapper() {
+        return dynamic_cast<GrpcObjectWrapper<GprcTestSlaveObject>*>(m_objectWrapper);
     }
 };
 
@@ -287,6 +348,8 @@ static std::vector<GprcTestDataObject> masterData() {
     obj1.set_height(168);
     obj1.set_salary(12.15);
     obj1.set_married(false);
+    obj1.set_level(2);
+    obj1.set_level_name("Level2");
     objects.push_back(obj1);
 
     GprcTestDataObject obj2;
@@ -296,6 +359,8 @@ static std::vector<GprcTestDataObject> masterData() {
     obj2.set_height(164);
     obj2.set_salary(30.557);
     obj2.set_married(true);
+    obj2.set_level(1);
+    obj2.set_level_name("Level1");
     objects.push_back(obj2);
 
     GprcTestDataObject obj3;
@@ -305,6 +370,8 @@ static std::vector<GprcTestDataObject> masterData() {
     obj3.set_height(175);
     obj3.set_salary(135000.567);
     obj3.set_married(true);
+    obj3.set_level(3);
+    obj3.set_level_name("Level3");
     objects.push_back(obj3);
 
     GprcTestDataObject obj4;
@@ -314,6 +381,8 @@ static std::vector<GprcTestDataObject> masterData() {
     obj4.set_height(155);
     obj4.set_salary(567);
     obj4.set_married(false);
+    obj4.set_level(5);
+    obj4.set_level_name("Level5");
     objects.push_back(obj4);
 
     GprcTestDataObject obj5;
@@ -323,6 +392,8 @@ static std::vector<GprcTestDataObject> masterData() {
     obj5.set_height(166);
     obj5.set_salary(5.123);
     obj5.set_married(true);
+    obj5.set_level(4);
+    obj5.set_level_name("Level4");
     objects.push_back(obj5);
 
     return objects;
@@ -347,6 +418,19 @@ static std::vector<GprcTestSlaveObject> slaveData()
         {14, 5, "323 679 5670"},
         {15, 5, "234 346 4799"},
         {16, 5, "356 578 5758"}
+    };
+
+    return objects;
+}
+
+static std::vector<GprcTestLevelObject> comboLevelData()
+{
+    std::vector<GprcTestLevelObject> objects {
+        {1, "Level1"},
+        {2, "Level2"},
+        {3, "Level3"},
+        {4, "Level4"},
+        {5, "Level5"}
     };
 
     return objects;
