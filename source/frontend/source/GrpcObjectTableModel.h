@@ -35,9 +35,10 @@ public:
     void deleteObject(int row);
 
     QVariant variantObject(int row);
+    void setContainer(IBaseDataContainer * container);
 
-    // purely virtual, be sure to override it in the child
-    virtual void initializeData() = 0;
+    // be sure to override it in the child
+    virtual void initializeData();
 
 signals:
     void inserted(int row);

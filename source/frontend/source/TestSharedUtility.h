@@ -177,17 +177,6 @@ private:
     std::string m_name;
 };
 
-namespace MasterHeader {
-static const  char *  UID      = "Uid";
-static const  char *  NAME     = "Name";
-static const  char *  DATE     = "Date";
-static const  char *  HEIGHT   = "Height";
-static const  char *  SALARY   = "Salary";
-static const  char *  MARRIED  = "Married";
-static const  char *  LEVEL    = "Level";
-static const  char *  LEVEL_NAME    = "Level Name";
-}
-
 class GrpcTestObjectTableModel : public GrpcObjectTableModel
 {
     Q_OBJECT
@@ -198,18 +187,25 @@ public:
     {
     }
 
+    explicit GrpcTestObjectTableModel(QObject *parent = nullptr) :
+        GrpcObjectTableModel( new GrpcDataContainer<GprcTestDataObject>(), parent)
+    {
+    }
+
     enum COLUMNS {};
 
     void initializeData() override {
-        container()->addProperty(MasterHeader::UID, DataInfo::String, &GprcTestDataObject::set_uid, &GprcTestDataObject::uid);
-        container()->addProperty(MasterHeader::NAME, DataInfo::String, &GprcTestDataObject::set_name, &GprcTestDataObject::name);
-        container()->addProperty(MasterHeader::DATE, DataInfo::Date, &GprcTestDataObject::set_date, &GprcTestDataObject::date);
-        container()->addProperty(MasterHeader::HEIGHT, DataInfo::Int, &GprcTestDataObject::set_height, &GprcTestDataObject::height);
-        container()->addProperty(MasterHeader::SALARY, DataInfo::Double, &GprcTestDataObject::set_salary, &GprcTestDataObject::salary);
-        container()->addProperty(MasterHeader::MARRIED, DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
-        container()->addProperty(MasterHeader::LEVEL, DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
-        container()->addProperty(MasterHeader::LEVEL_NAME, DataInfo::String, &GprcTestDataObject::set_level_name, &GprcTestDataObject::level_name);
-        container()->initialize();
+        container()->addProperty("Uid", DataInfo::String, &GprcTestDataObject::set_uid, &GprcTestDataObject::uid);
+        container()->addProperty("Name", DataInfo::String, &GprcTestDataObject::set_name, &GprcTestDataObject::name);
+        container()->addProperty("Date", DataInfo::Date, &GprcTestDataObject::set_date, &GprcTestDataObject::date);
+        container()->addProperty("Height", DataInfo::Int, &GprcTestDataObject::set_height, &GprcTestDataObject::height);
+        container()->addProperty("Salary", DataInfo::Double, &GprcTestDataObject::set_salary, &GprcTestDataObject::salary);
+        container()->addProperty("Married", DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
+        container()->addProperty("Level", DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
+        container()->addProperty("Level Name", DataInfo::String, &GprcTestDataObject::set_level_name, &GprcTestDataObject::level_name);
+
+        // Should be invoked
+        GrpcObjectTableModel::initializeData();
     }
 
 private:
@@ -219,11 +215,6 @@ private:
 
 };
 
-namespace SlaveHeadr {
-static const  char *  UID      = "Uid";
-static const  char *  LINK_UID = "LinkUid";
-static const  char *  PHONE    = "Phone";
-}
 class GrpcTestSlaveObjectTableModel : public GrpcObjectTableModel
 {
     Q_OBJECT
@@ -234,11 +225,17 @@ public:
     {
     }
 
+    explicit GrpcTestSlaveObjectTableModel(QObject *parent = nullptr) :
+        GrpcObjectTableModel(new GrpcDataContainer<GprcTestSlaveObject>(), parent)
+    {
+    }
+
     void initializeData() override {
-        container()->addProperty(SlaveHeadr::UID, DataInfo::Int, &GprcTestSlaveObject::set_uid, &GprcTestSlaveObject::uid);
-        container()->addProperty(SlaveHeadr::LINK_UID, DataInfo::Int, &GprcTestSlaveObject::set_link_uid, &GprcTestSlaveObject::link_uid);
-        container()->addProperty(SlaveHeadr::PHONE, DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
-        container()->initialize();
+        container()->addProperty("Uid", DataInfo::Int, &GprcTestSlaveObject::set_uid, &GprcTestSlaveObject::uid);
+        container()->addProperty("LinkUid", DataInfo::Int, &GprcTestSlaveObject::set_link_uid, &GprcTestSlaveObject::link_uid);
+        container()->addProperty("Phone", DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
+        // Should be invoked
+        GrpcObjectTableModel::initializeData();
     }
 
 private:
@@ -276,9 +273,8 @@ class MasterForm : public GrpcForm
     Q_OBJECT
 
 public:
-    explicit MasterForm(QWidget *parent = nullptr) :
-        GrpcForm( new GrpcObjectWrapper<GprcTestDataObject>(), parent){
-        int i = 0;
+    explicit MasterForm(QWidget *parent = nullptr)
+        : GrpcForm( new GrpcObjectWrapper<GprcTestDataObject>(), parent){
     }
 
     void initializeData() override {
@@ -290,16 +286,9 @@ public:
         wrapper()->addProperty("marriedCheckBox", DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
         //wrapper()->addProperty("Level", DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
         wrapper()->addProperty("levelCombo", DataInfo::String, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
-        initialize();
+        GrpcForm::initializeData();
     }
 
-public slots:
-    void initializeWrapper(const QVariant & varData) override {
-        Q_ASSERT(varData.isValid());
-        wrapper()->grpcObject = std::move(varData.value<GprcTestDataObject>());
-        wrapper()->bindSettersGetters();
-        fillForm();
-    }
 private:
     GrpcObjectWrapper<GprcTestDataObject> * wrapper() {
         return dynamic_cast<GrpcObjectWrapper<GprcTestDataObject>*>(m_objectWrapper);
@@ -321,16 +310,10 @@ public:
         //wrapper()->addProperty("LinkUid", DataInfo::Int, &GprcTestSlaveObject::set_link_uid, &GprcTestSlaveObject::link_uid);
         wrapper()->addProperty("phoneEdit", DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
 
-        initialize();
+        // Should be invoked
+        GrpcForm::initializeData();
     }
 
-public slots:
-    void initializeWrapper(const QVariant & varData) override {
-        Q_ASSERT(varData.isValid());
-        wrapper()->grpcObject = std::move(varData.value<GprcTestSlaveObject>());
-        wrapper()->bindSettersGetters();
-        fillForm();
-    }
 private:
     GrpcObjectWrapper<GprcTestSlaveObject> * wrapper() {
         return dynamic_cast<GrpcObjectWrapper<GprcTestSlaveObject>*>(m_objectWrapper);
@@ -341,10 +324,16 @@ namespace TestModelData {
 static std::vector<GprcTestDataObject> masterData() {
     std::vector<GprcTestDataObject> objects;
 
+    static int incr = 0;
+    auto increament = [=]() {
+        incr += 11111;
+        return (TimeFormatHelper::chronoNow().time_since_epoch().count() + incr);
+    };
+
     GprcTestDataObject obj1;
     obj1.set_uid(1);
     obj1.set_name("Givi");
-    obj1.set_date(TimeFormatHelper::chronoNow().time_since_epoch().count());
+    obj1.set_date(increament());
     obj1.set_height(168);
     obj1.set_salary(12.15);
     obj1.set_married(false);
@@ -355,7 +344,7 @@ static std::vector<GprcTestDataObject> masterData() {
     GprcTestDataObject obj2;
     obj2.set_uid(2);
     obj2.set_name("Keto");
-    obj2.set_date(TimeFormatHelper::chronoNow().time_since_epoch().count());
+    obj2.set_date(increament());
     obj2.set_height(164);
     obj2.set_salary(30.557);
     obj2.set_married(true);
@@ -366,7 +355,7 @@ static std::vector<GprcTestDataObject> masterData() {
     GprcTestDataObject obj3;
     obj3.set_uid(3);
     obj3.set_name("Vakho");
-    obj3.set_date(TimeFormatHelper::chronoNow().time_since_epoch().count());
+    obj3.set_date(increament());
     obj3.set_height(175);
     obj3.set_salary(135000.567);
     obj3.set_married(true);
@@ -377,7 +366,7 @@ static std::vector<GprcTestDataObject> masterData() {
     GprcTestDataObject obj4;
     obj4.set_uid(4);
     obj4.set_name("Elene");
-    obj4.set_date(TimeFormatHelper::chronoNow().time_since_epoch().count());
+    obj4.set_date(increament());
     obj4.set_height(155);
     obj4.set_salary(567);
     obj4.set_married(false);
@@ -388,7 +377,7 @@ static std::vector<GprcTestDataObject> masterData() {
     GprcTestDataObject obj5;
     obj5.set_uid(5);
     obj5.set_name("Teona");
-    obj5.set_date(TimeFormatHelper::chronoNow().time_since_epoch().count());
+    obj5.set_date(increament());
     obj5.set_height(166);
     obj5.set_salary(5.123);
     obj5.set_married(true);

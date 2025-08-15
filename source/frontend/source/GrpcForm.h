@@ -5,22 +5,34 @@
 
 #include "GrpcObjectWrapper.hpp"
 
-class GrpcUiTemplate;
 class GrpcForm : public QWidget
 {
     Q_OBJECT
 public:
-    explicit GrpcForm(QWidget *parent = nullptr);
+    explicit GrpcForm(IBaseGrpcObjectWrapper * objectWrapper, QWidget *parent = nullptr);
+    virtual ~GrpcForm();
 
-    // purely virtual, be sure to override it in the child
-    virtual void initializeData() = 0;
+    QVariant object();
 
 public slots:
-    virtual void initializeWrapper(const QVariant & varData) = 0;
+    // Can be overridden in a child class if needed
+    virtual void initializeWrapper(const QModelIndex & index);
 
 protected:
-    friend class GrpcUiTemplate;
+    // be sure to override it in the child class
+    virtual void initializeData();
+
+    // Can be overridden in a child class if needed
+    virtual void fillForm();
+    virtual void fillObject();
+
     IBaseGrpcObjectWrapper * m_objectWrapper = nullptr;
+
+private:
+    friend class GrpcUiTemplate;
+
+    void fillWidget(QWidget * widget, const DataInfo::Type & type, const QVariant & data);
+    QList<QWidget*> m_formWidgets;
 };
 
 #endif // GRPCFORM_H

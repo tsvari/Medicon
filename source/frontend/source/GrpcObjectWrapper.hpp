@@ -9,7 +9,19 @@ struct IBaseGrpcObjectWrapper
 {
     virtual ~IBaseGrpcObjectWrapper() = default;
 
-    virtual QVariant variantObject(int row) = 0;
+    virtual QVariant data(int col) = 0;
+
+    virtual void setData(int col, const QVariant & data) = 0;
+    virtual void setData(int col, const GrpcVariantSet & data) = 0;
+
+    virtual QVariant variantObject() = 0;
+
+    virtual int propertyCount() = 0;
+    virtual QVariant propertyWidgetName(int col) = 0;
+    virtual DataInfo::Type dataType(int col) = 0;
+
+    virtual void setObject(const QVariant & data) = 0;
+    virtual void bindSettersGetters() = 0;
 };
 
 
@@ -17,8 +29,6 @@ template<typename GrpcObject>
 class GrpcObjectWrapper : public IBaseGrpcObjectWrapper
 {
 public:
-    GrpcObject grpcObject;
-
     using Grpc32Set = void (GrpcObject::*)(int32_t);
     using Grpc32Get = int32_t (GrpcObject::*)()const;
 
@@ -34,16 +44,95 @@ public:
     using GrpcDoubleSet = void (GrpcObject::*)(double);
     using GrpcDoubleGet = double (GrpcObject::*)()const;
 
-    GrpcObjectWrapper(const std::vector<Property<GrpcObject>> & properties)
-        : m_properties(properties)
-    {
-
-    }
+    GrpcObjectWrapper(){}
 
     virtual ~GrpcObjectWrapper()
     {
     }
 
+    QVariant propertyWidgetName(int col) override {
+        return FrontConverter::to_str(m_properties[col].name);
+    }
+
+    int propertyCount() override {
+        return m_properties.size();
+    }
+
+    QVariant data( int col) override {
+        GrpcVariantGet varData;
+        PropertyHolder property = m_propertyHolders.at(col);
+        varData = std::visit([](const auto & getterFunction) {
+            GrpcVariantGet dataToReturn = getterFunction();
+            return dataToReturn;
+        }, property.getter);
+        return FrontConverter::to_qvariant_get(varData);
+    }
+
+    void setData(int col, const GrpcVariantSet & data) override {
+        PropertyHolder property = m_propertyHolders.at(col);
+        std::visit(overload {
+                       [](std::function<void(const std::string&)> setter, const std::string & param) {
+                           setter(param);
+                       },
+                       [](std::function<void(int64_t)> setter, int64_t param) {
+                           setter(param);
+                       },
+                       [](std::function<void(int32_t)> setter, int32_t param) {
+                           setter(param);
+                       },
+                       [](std::function<void(bool)> setter, bool param) { setter(param); },
+                       [](std::function<void(double)> setter, double param) { setter(param); },
+                       [](auto, auto) { /* Handle other combinations if needed */ }
+                   }, property.setter, data);
+    }
+
+    void setData(int col, const QVariant & data) override {
+        GrpcVariantSet variantData;
+        DataInfo::Type type = m_properties.at(col).type;
+        std::string propertyName =m_properties.at(col).name;
+        switch(type) {
+        case DataInfo::Int:
+            if(data.canConvert<int32_t>()) {
+                variantData = data.toInt();
+            }
+            break;
+        case DataInfo::Int64:
+            if(data.canConvert<int64_t>()) {
+                variantData = data.toLongLong();
+            }
+            break;
+        case DataInfo::String:
+            if(data.canConvert<QString>()) {
+                variantData = FrontConverter::to_str(data.toString());
+            }
+            break;
+        case DataInfo::Double:
+            if(data.canConvert<double>()) {
+                variantData = data.toDouble();
+            }
+            break;
+        case DataInfo::Bool:
+            if(data.canConvert<bool>()) {
+                variantData = data.toBool();
+            }
+            break;
+        case DataInfo::Date:
+        case DataInfo::DateTime:
+        case DataInfo::DateTimeNoSec:
+            if(data.canConvert<int64_t>()) {
+                variantData = data.toLongLong();
+            }
+            break;
+        default:
+            break;
+        }
+        setData(col, variantData);
+    }
+
+    void setObject(const QVariant & data) override
+    {
+        grpcObject = grpcObject = std::move(data.value<GrpcObject>());
+    }
     //////////////////////////////////////////////////
     /// \brief addProperty
     /// \param name
@@ -144,18 +233,20 @@ public:
         m_properties.push_back(property);
     }
 
+    DataInfo::Type dataType(int col) override {
+        return m_properties.at(col).type;
+    }
 
     //////////////////////////////////////////////////
     /// \brief variantObject
     /// \param row
     /// \return
     ///
-    QVariant variantObject(int row) override {
+    QVariant variantObject() override {
         return QVariant::fromValue(grpcObject);
     }
 
-public:
-    void bindSettersGetters()
+    void bindSettersGetters() override
     {
         m_propertyHolders.clear();
         for(auto & property: m_properties) {
@@ -208,7 +299,7 @@ public:
         }
     }
 private:
-
+    GrpcObject grpcObject;
     std::vector<Property<GrpcObject>> m_properties;
     std::vector<PropertyHolder> m_propertyHolders;
 };
