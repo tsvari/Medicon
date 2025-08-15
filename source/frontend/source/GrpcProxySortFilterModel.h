@@ -1,7 +1,7 @@
 #ifndef GRPCPROXYSORTFILTERMODEL_H
 #define GRPCPROXYSORTFILTERMODEL_H
 
-#include <QSortFilterProxyModel >
+#include <QSortFilterProxyModel>
 
 class GrpcObjectTableModel;
 class GrpcProxySortFilterModel : public QSortFilterProxyModel

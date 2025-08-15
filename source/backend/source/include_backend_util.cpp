@@ -1,6 +1,7 @@
 #include "include_backend_util.h"
 #include <fstream>
 #include <iostream>
+#include <cstring>
 
 namespace SaBinary {
 
