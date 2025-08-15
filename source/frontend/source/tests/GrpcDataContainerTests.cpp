@@ -166,7 +166,7 @@ TEST(GrpcDataContainerTests, GprcTestDataObjectTest)
     container.setData(1,0, newVariant);
     actualObject.set_name(newName);
 
-    newVariant = newDate;
+    newVariant.fromValue<int64_t>(newDate);
     newGrpcVariant = newDate;
     container.setData(0,1, newGrpcVariant);
     container.setData(1,1, newVariant);
