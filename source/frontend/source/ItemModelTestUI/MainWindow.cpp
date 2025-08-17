@@ -3,7 +3,7 @@
 #include "TestSharedUtility.h"
 #include "GrpcProxySortFilterModel.h"
 #include "GrpcUiTemplate.h"
-#include "GrpcTemplateController.h"
+#include "GrpcMasterSlaveController.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
     SlaveTemplate * slaveTemplate = new SlaveTemplate(slaveProxy, ui->slaveTableView, ui->slaveForm, this);
 
     // Controller
-    GrpcTemplateController * controller = new GrpcTemplateController(masterTemplate, slaveTemplate, this);
+    GrpcMasterSlaveController * controller = new GrpcMasterSlaveController(masterTemplate, slaveTemplate, this);
 
     masterTemplate->applySearchCriterias({});
 

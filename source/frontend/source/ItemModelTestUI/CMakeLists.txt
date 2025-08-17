@@ -28,7 +28,7 @@ set(HEADER_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcProxySortFilterModel.h
     ${FRONTEND_INCLUDE_DIR}/GrpcForm.h
     ${FRONTEND_INCLUDE_DIR}/GrpcUiTemplate.h
-    ${FRONTEND_INCLUDE_DIR}/GrpcTemplateController.h
+    ${FRONTEND_INCLUDE_DIR}/GrpcMasterSlaveController.h
     ${FRONTEND_INCLUDE_DIR}/GrpcObjectWrapper.hpp
 
 
@@ -47,7 +47,7 @@ set(SOURCE_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcProxySortFilterModel.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcForm.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcUiTemplate.cpp
-    ${FRONTEND_INCLUDE_DIR}/GrpcTemplateController.cpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcMasterSlaveController.cpp
 )
 
 set(PROJECT_SOURCES
