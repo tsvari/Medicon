@@ -1,14 +1,14 @@
-#ifndef GRPCTEMPLATECONTROLLER_H
-#define GRPCTEMPLATECONTROLLER_H
+#ifndef GRPCMASTERSLAVECONTROLLER_H
+#define GRPCMASTERSLAVECONTROLLER_H
 
 #include <QObject>
 
 class GrpcUiTemplate;
-class GrpcTemplateController : public QObject
+class GrpcMasterSlaveController : public QObject
 {
     Q_OBJECT
 public:
-    explicit GrpcTemplateController(GrpcUiTemplate * master, GrpcUiTemplate * slave, QObject *parent = nullptr);
+    explicit GrpcMasterSlaveController(GrpcUiTemplate * master, GrpcUiTemplate * slave, QObject *parent = nullptr);
 
     void addMasterSlave(GrpcUiTemplate * master, GrpcUiTemplate * slave);
 
@@ -27,4 +27,4 @@ private:
 
 };
 
-#endif // GRPCTEMPLATECONTROLLER_H
+#endif // GRPCMASTERSLAVECONTROLLER_H
