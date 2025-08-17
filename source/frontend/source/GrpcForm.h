@@ -12,6 +12,9 @@ public:
     explicit GrpcForm(IBaseGrpcObjectWrapper * objectWrapper, QWidget *parent = nullptr);
     virtual ~GrpcForm();
 
+    // be sure to override it in the child class
+    virtual void initializeData();
+
     QVariant object();
 
 public slots:
@@ -20,8 +23,6 @@ public slots:
     virtual void clearForm();
 
 protected:
-    // be sure to override it in the child class
-    virtual void initializeData();
 
     // Can be overridden in a child class if needed
     virtual void fillObject();
@@ -29,8 +30,6 @@ protected:
     IBaseGrpcObjectWrapper * objectWrapper() {return m_objectWrapper;}
 
 private:
-    friend class GrpcUiTemplate;
-
     void fillWidget(QWidget * widget, const DataInfo::Type & type, const QVariant & data);
     QList<QWidget*> m_formWidgets;
 

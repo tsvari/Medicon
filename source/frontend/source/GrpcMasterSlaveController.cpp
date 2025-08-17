@@ -1,14 +1,14 @@
 #include "GrpcMasterSlaveController.h"
-#include "GrpcUiTemplate.h"
+#include "GrpcTemplateController.h"
 
-GrpcMasterSlaveController::GrpcMasterSlaveController(GrpcUiTemplate * master, GrpcUiTemplate * slave, QObject *parent)
+GrpcMasterSlaveController::GrpcMasterSlaveController(GrpcTemplateController * master, GrpcTemplateController * slave, QObject *parent)
     : QObject{parent}
 {
     addMasterSlave(master, slave);
 }
 
-void GrpcMasterSlaveController::addMasterSlave(GrpcUiTemplate * master, GrpcUiTemplate * slave)
+void GrpcMasterSlaveController::addMasterSlave(GrpcTemplateController * master, GrpcTemplateController * slave)
 {
-    connect(master, &GrpcUiTemplate::rowChanged, slave, &GrpcUiTemplate::masterRowChanged);
+    connect(master, &GrpcTemplateController::rowChanged, slave, &GrpcTemplateController::masterRowChanged);
     m_masterSlaveList.push_back({master, slave});
 }

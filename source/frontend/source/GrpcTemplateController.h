@@ -1,5 +1,5 @@
-#ifndef GRPCUITEMPLATE_H
-#define GRPCUITEMPLATE_H
+#ifndef GRPCTEMPLATECONTROLLER_H
+#define GRPCTEMPLATECONTROLLER_H
 
 #include <QObject>
 
@@ -11,12 +11,12 @@ class QAbstractItemView;
 class QTabWidget;
 class IBaseGrpcObjectWrapper;
 class IBaseDataContainer;
-class GrpcUiTemplate : public QObject
+class GrpcTemplateController : public QObject
 {
     Q_OBJECT
 public:
-    explicit GrpcUiTemplate(GrpcProxySortFilterModel * proxyModel, QAbstractItemView  * tableView, GrpcForm * form, IBaseGrpcObjectWrapper * masterObjectWrapper, QObject *parent = nullptr);
-    virtual ~GrpcUiTemplate();
+    explicit GrpcTemplateController(GrpcProxySortFilterModel * proxyModel, QAbstractItemView  * tableView, GrpcForm * form, IBaseGrpcObjectWrapper * masterObjectWrapper, QObject *parent = nullptr);
+    virtual ~GrpcTemplateController();
 
 signals:
     void rowChanged(const QModelIndex & index);
@@ -47,4 +47,4 @@ private:
     IBaseGrpcObjectWrapper * m_masterObjectWrapper = nullptr;
 };
 
-#endif // GRPCUITEMPLATE_H
+#endif // GRPCTEMPLATECONTROLLER_H

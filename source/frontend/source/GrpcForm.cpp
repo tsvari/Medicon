@@ -1,5 +1,4 @@
 #include "GrpcForm.h"
-#include "GrpcUiTemplate.h"
 #include "GrpcObjectTableModel.h"
 
 #include <QLineEdit>
@@ -99,5 +98,6 @@ void GrpcForm::fillWidget(QWidget * widget, const DataInfo::Type & type, const Q
     if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
         // Check type should be suitable
         Q_ASSERT(type == DataInfo::String);
+        textEdit->setText(data.toString());
     }
 }

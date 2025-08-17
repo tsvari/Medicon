@@ -1,4 +1,4 @@
-#include "GrpcUiTemplate.h"
+#include "GrpcTemplateController.h"
 
 #include <QTableView>
 
@@ -9,7 +9,7 @@
 #include "GrpcDataContainer.hpp"
 #include "GrpcObjectWrapper.hpp"
 
-GrpcUiTemplate::GrpcUiTemplate(GrpcProxySortFilterModel * proxyModel, QAbstractItemView  * view, GrpcForm * form, IBaseGrpcObjectWrapper * masterObjectWrapper, QObject *parent)
+GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyModel, QAbstractItemView  * view, GrpcForm * form, IBaseGrpcObjectWrapper * masterObjectWrapper, QObject *parent)
     : QObject{parent}
     , m_proxyModel(proxyModel)
     , m_view(view)
@@ -27,20 +27,20 @@ GrpcUiTemplate::GrpcUiTemplate(GrpcProxySortFilterModel * proxyModel, QAbstractI
     form->initializeData();
     view->setModel(proxyModel);
 
-    connect(this, &GrpcUiTemplate::rowChanged, form, &GrpcForm::fillForm);
-    connect(this, &GrpcUiTemplate::populateModel, sourceModel, &GrpcObjectTableModel::setModelData);
-    connect(view->selectionModel(), &QItemSelectionModel::currentChanged, this, &GrpcUiTemplate::currentChanged);
-    connect(this, &GrpcUiTemplate::rowChanged, this, &GrpcUiTemplate::activateForm);
+    connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::fillForm);
+    connect(this, &GrpcTemplateController::populateModel, sourceModel, &GrpcObjectTableModel::setModelData);
+    connect(view->selectionModel(), &QItemSelectionModel::currentChanged, this, &GrpcTemplateController::currentChanged);
+    connect(this, &GrpcTemplateController::rowChanged, this, &GrpcTemplateController::activateForm);
 }
 
-GrpcUiTemplate::~GrpcUiTemplate()
+GrpcTemplateController::~GrpcTemplateController()
 {
     if(m_masterObjectWrapper) {
         delete m_masterObjectWrapper;
     }
 }
 
-void GrpcUiTemplate::masterRowChanged(const QModelIndex & index)
+void GrpcTemplateController::masterRowChanged(const QModelIndex & index)
 {
     // Will only be called in the slave template
     // A template can be both a master and a slave at the same time
@@ -51,20 +51,20 @@ void GrpcUiTemplate::masterRowChanged(const QModelIndex & index)
     }
 }
 
-void GrpcUiTemplate::applySearchCriterias(const JsonParameterFormatter & searchCriterias)
+void GrpcTemplateController::applySearchCriterias(const JsonParameterFormatter & searchCriterias)
 {
     m_searchCriterias = searchCriterias;
     modelData();
 }
 
-void GrpcUiTemplate::currentChanged(const QModelIndex & current, const QModelIndex & previous)
+void GrpcTemplateController::currentChanged(const QModelIndex & current, const QModelIndex & previous)
 {
     if(current.row() != previous.row()) {
         emit rowChanged(current);
     }
 }
 
-void GrpcUiTemplate::activateForm()
+void GrpcTemplateController::activateForm()
 {
     if(QTabWidget * widget = tabWidget()) {
         // m_form->parentWidget() should be QWidget (Tab)
@@ -75,17 +75,17 @@ void GrpcUiTemplate::activateForm()
     }
 }
 
-QVariant GrpcUiTemplate::variantObject()
+QVariant GrpcTemplateController::variantObject()
 {
     return m_masterObjectWrapper->variantObject();
 }
 
-JsonParameterFormatter & GrpcUiTemplate::searchCriterias()
+JsonParameterFormatter & GrpcTemplateController::searchCriterias()
 {
     return m_searchCriterias;
 }
 
-QTabWidget * GrpcUiTemplate::tabWidget()
+QTabWidget * GrpcTemplateController::tabWidget()
 {
     QWidget * currentParent = m_form->parentWidget();
     while (currentParent) {

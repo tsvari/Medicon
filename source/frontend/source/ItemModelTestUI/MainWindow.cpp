@@ -2,7 +2,7 @@
 #include "./ui_MainWindow.h"
 #include "TestSharedUtility.h"
 #include "GrpcProxySortFilterModel.h"
-#include "GrpcUiTemplate.h"
+#include "GrpcTemplateController.h"
 #include "GrpcMasterSlaveController.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent)
     GrpcTestLevelObjectTableModel * comboModel = new  GrpcTestLevelObjectTableModel(std::move(TestModelData::comboLevelData()), ui->levelCombo);
     ui->levelCombo->setModel(comboModel);
     ui->levelCombo->setModelColumn(1);
-    ui->levelCombo->setPlaceholderText("......");
+    ui->levelCombo->setPlaceholderText("...");
     ui->levelCombo->setCurrentIndex(-1); // show nothing when start
 }
 
