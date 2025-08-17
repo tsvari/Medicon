@@ -131,7 +131,8 @@ public:
 
     void setObject(const QVariant & data) override
     {
-        grpcObject = grpcObject = std::move(data.value<GrpcObject>());
+        grpcObject = std::move(data.value<GrpcObject>());
+        bindSettersGetters();
     }
     //////////////////////////////////////////////////
     /// \brief addProperty

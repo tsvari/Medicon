@@ -13,6 +13,7 @@
 #include "GrpcForm.h"
 #include "GrpcProxySortFilterModel.h"
 #include "GrpcUiTemplate.h"
+#include "include_frontend_util.h"
 
 template <typename TpT = QVariant>
 auto pullout(const QItemSelection & sel, std::function<TpT(QModelIndex)> & get_type) {
@@ -418,11 +419,19 @@ class MasterTemplate : public GrpcUiTemplate
     Q_OBJECT
 
 public: explicit MasterTemplate(GrpcProxySortFilterModel * model, QTableView * tableView, GrpcForm * form, QObject *parent = nullptr) :
-        GrpcUiTemplate(model, tableView, form, parent){}
+        GrpcUiTemplate(model,
+                         tableView,
+                         form,
+                         new GrpcObjectWrapper<GprcTestDataObject>(),
+                         parent)
+    {
+
+    }
 
     void modelData() override {
-        // Access to m_searchCriterias
-        //(new GrpcDataContainer<GprcTestDataObject>(std::move(TestModelData::masterData()))
+        //JsonParameterFormatter criterias = searchCriterias();
+        // Dont need master object in thinscase
+
         emit populateModel(new
             GrpcDataContainer<GprcTestDataObject>(std::move(TestModelData::masterData()))
         );
@@ -435,22 +444,29 @@ class SlaveTemplate : public GrpcUiTemplate
     Q_OBJECT
 
 public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, QTableView * tableView, GrpcForm * form, QObject *parent = nullptr) :
-        GrpcUiTemplate(proxyModel, tableView, form, parent){}
-
-    // For slave templates only
-    void masterRowChanged(const QModelIndex & index) override {
-
-    }
+        GrpcUiTemplate(proxyModel,
+                         tableView,
+                         form,
+                         new GrpcObjectWrapper<GprcTestDataObject>(),
+                         parent){}
 
     void modelData() override {
-        // Accesss to m_searchCriterias
-        // Accesss to m_masterObjectWrapper
-        // emit populateModel();
+        //JsonParameterFormatter criterias = searchCriterias();
+        QVariant varObject = variantObject();
+        if(varObject.isValid()) {
+            GprcTestDataObject masterObject = varObject.value<GprcTestDataObject>();
+            std::vector<GprcTestSlaveObject> filteredData,
+                                             slaveData = TestModelData::slaveData();
+
+            std::copy_if(slaveData.begin(), slaveData.end(), std::back_inserter(filteredData), [masterObject](GprcTestSlaveObject & ob) {
+                return ob.link_uid() == masterObject.uid();
+            });
+            emit populateModel(new
+                               GrpcDataContainer<GprcTestSlaveObject>(std::move(filteredData))
+                               );
+        }
     }
 };
-
-
-
 
 Q_DECLARE_METATYPE(GprcTestDataObject)
 

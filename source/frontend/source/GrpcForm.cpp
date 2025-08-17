@@ -30,7 +30,6 @@ void GrpcForm::fillForm(const QModelIndex &index)
     const QVariant varData = index.data(GlobalRoles::VariantObjectRole);
     if(varData.isValid()) {
         m_objectWrapper->setObject(varData);
-        m_objectWrapper->bindSettersGetters();
         Q_ASSERT(m_formWidgets.count() == m_objectWrapper->propertyCount());
         for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
             DataInfo::Type type = m_objectWrapper->dataType(i);
