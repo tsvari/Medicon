@@ -2,10 +2,11 @@
 #include "include_frontend_util.h"
 #include "GrpcDataContainer.hpp"
 
+
 GrpcObjectTableModel::GrpcObjectTableModel(IBaseDataContainer * container, QObject *parent)
     : QAbstractTableModel(parent)
     , m_container(container)
-{ 
+{
 }
 
 GrpcObjectTableModel::~GrpcObjectTableModel()
@@ -103,12 +104,18 @@ QVariant GrpcObjectTableModel::variantObject(int row)
     return m_container->variantObject(row);
 }
 
-void GrpcObjectTableModel::setContainer(IBaseDataContainer * container)
+void GrpcObjectTableModel::setModelData(IBaseDataContainer * container)
 {
     if(m_container) {
         delete m_container;
     }
+    // Start reset source model
+    beginResetModel();
+
     m_container = container;
+    initializeData();
+
+    endResetModel();
 }
 
 void GrpcObjectTableModel::initializeData()
