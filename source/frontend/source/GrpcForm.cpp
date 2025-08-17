@@ -25,13 +25,17 @@ QVariant GrpcForm::object()
     return m_objectWrapper->variantObject();
 }
 
-void GrpcForm::initializeWrapper(const QModelIndex &index)
+void GrpcForm::fillForm(const QModelIndex &index)
 {
     const QVariant varData = index.data(GlobalRoles::VariantObjectRole);
     if(varData.isValid()) {
         m_objectWrapper->setObject(varData);
         m_objectWrapper->bindSettersGetters();
-        fillForm();
+        Q_ASSERT(m_formWidgets.count() == m_objectWrapper->propertyCount());
+        for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
+            DataInfo::Type type = m_objectWrapper->dataType(i);
+            fillWidget(m_formWidgets[i], type, m_objectWrapper->data(i));
+        }
     }
 }
 
@@ -44,16 +48,12 @@ void GrpcForm::initializeData()
     }
 }
 
-void GrpcForm::fillForm()
+void GrpcForm::fillObject()
 {
-    Q_ASSERT(m_formWidgets.count() == m_objectWrapper->propertyCount());
-    for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
-        DataInfo::Type type = m_objectWrapper->dataType(i);
-        fillWidget(m_formWidgets[i], type, m_objectWrapper->data(i));
-    }
+
 }
 
-void GrpcForm::fillObject()
+void GrpcForm::clearForm()
 {
 
 }

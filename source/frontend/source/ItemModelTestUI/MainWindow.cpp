@@ -13,22 +13,24 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Master Template classes
     GrpcProxySortFilterModel * masterProxy = new GrpcProxySortFilterModel(
-        new  GrpcTestObjectTableModel(std::move(TestModelData::masterData()),
+        new  GrpcTestObjectTableModel(//std::move(TestModelData::masterData()),
                                     ui->masterTableView),
                                     {0, 6}, // Uid and Level Uid
                                     ui->masterTableView);
-    GrpcUiTemplate * masterTemplate = new GrpcUiTemplate(masterProxy, ui->masterTableView, ui->masterForm, this);
+    MasterTemplate * masterTemplate = new MasterTemplate(masterProxy, ui->masterTableView, ui->masterForm, this);
 
     // Slave Template classes
     GrpcProxySortFilterModel * slaveProxy = new GrpcProxySortFilterModel(
-        new GrpcTestSlaveObjectTableModel(std::move(TestModelData::slaveData()),
+        new GrpcTestSlaveObjectTableModel(//std::move(TestModelData::slaveData()),
                                     ui->slaveTableView),
                                     {0, 1},
                                     ui->slaveTableView);
-    GrpcUiTemplate * slaveTemplate = new GrpcUiTemplate(slaveProxy, ui->slaveTableView, ui->slaveForm, this);
+    SlaveTemplate * slaveTemplate = new SlaveTemplate(slaveProxy, ui->slaveTableView, ui->slaveForm, this);
 
     // Controller
     GrpcTemplateController * controller = new GrpcTemplateController(masterTemplate, slaveTemplate, this);
+
+    masterTemplate->applySearchCriterias({});
 
     GrpcTestLevelObjectTableModel * comboModel = new  GrpcTestLevelObjectTableModel(std::move(TestModelData::comboLevelData()), ui->levelCombo);
     ui->levelCombo->setModel(comboModel);

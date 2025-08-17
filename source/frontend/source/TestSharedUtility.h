@@ -5,11 +5,14 @@
 #include <QAbstractItemModel>
 #include <QVariant>
 #include <QLineEdit>
+#include <QTableView>
 
 #include "GrpcObjectTableModel.h"
 #include "GrpcDataContainer.hpp"
 #include "TypeToStringFormatter.h"
 #include "GrpcForm.h"
+#include "GrpcProxySortFilterModel.h"
+#include "GrpcUiTemplate.h"
 
 template <typename TpT = QVariant>
 auto pullout(const QItemSelection & sel, std::function<TpT(QModelIndex)> & get_type) {
@@ -195,24 +198,20 @@ public:
     enum COLUMNS {};
 
     void initializeData() override {
-        container()->addProperty("Uid", DataInfo::String, &GprcTestDataObject::set_uid, &GprcTestDataObject::uid);
-        container()->addProperty("Name", DataInfo::String, &GprcTestDataObject::set_name, &GprcTestDataObject::name);
-        container()->addProperty("Date", DataInfo::Date, &GprcTestDataObject::set_date, &GprcTestDataObject::date);
-        container()->addProperty("Height", DataInfo::Int, &GprcTestDataObject::set_height, &GprcTestDataObject::height);
-        container()->addProperty("Salary", DataInfo::Double, &GprcTestDataObject::set_salary, &GprcTestDataObject::salary);
-        container()->addProperty("Married", DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
-        container()->addProperty("Level", DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
-        container()->addProperty("Level Name", DataInfo::String, &GprcTestDataObject::set_level_name, &GprcTestDataObject::level_name);
+        GrpcDataContainer<GprcTestDataObject> * container = dynamic_cast<GrpcDataContainer<GprcTestDataObject>*>(objectContainer());
+
+        container->addProperty("Uid", DataInfo::String, &GprcTestDataObject::set_uid, &GprcTestDataObject::uid);
+        container->addProperty("Name", DataInfo::String, &GprcTestDataObject::set_name, &GprcTestDataObject::name);
+        container->addProperty("Date", DataInfo::Date, &GprcTestDataObject::set_date, &GprcTestDataObject::date);
+        container->addProperty("Height", DataInfo::Int, &GprcTestDataObject::set_height, &GprcTestDataObject::height);
+        container->addProperty("Salary", DataInfo::Double, &GprcTestDataObject::set_salary, &GprcTestDataObject::salary);
+        container->addProperty("Married", DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
+        container->addProperty("Level", DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
+        container->addProperty("Level Name", DataInfo::String, &GprcTestDataObject::set_level_name, &GprcTestDataObject::level_name);
 
         // Should be invoked
         GrpcObjectTableModel::initializeData();
     }
-
-private:
-    GrpcDataContainer<GprcTestDataObject> * container() {
-        return dynamic_cast<GrpcDataContainer<GprcTestDataObject>*>(m_container);
-    }
-
 };
 
 class GrpcTestSlaveObjectTableModel : public GrpcObjectTableModel
@@ -231,18 +230,14 @@ public:
     }
 
     void initializeData() override {
-        container()->addProperty("Uid", DataInfo::Int, &GprcTestSlaveObject::set_uid, &GprcTestSlaveObject::uid);
-        container()->addProperty("LinkUid", DataInfo::Int, &GprcTestSlaveObject::set_link_uid, &GprcTestSlaveObject::link_uid);
-        container()->addProperty("Phone", DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
-        // Should be invoked
+        GrpcDataContainer<GprcTestSlaveObject> * container = dynamic_cast<GrpcDataContainer<GprcTestSlaveObject>*>(objectContainer());
+
+        container->addProperty("Uid", DataInfo::Int, &GprcTestSlaveObject::set_uid, &GprcTestSlaveObject::uid);
+        container->addProperty("LinkUid", DataInfo::Int, &GprcTestSlaveObject::set_link_uid, &GprcTestSlaveObject::link_uid);
+        container->addProperty("Phone", DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
+        // Should be called
         GrpcObjectTableModel::initializeData();
     }
-
-private:
-    GrpcDataContainer<GprcTestSlaveObject> * container() {
-        return dynamic_cast<GrpcDataContainer<GprcTestSlaveObject>*>(m_container);
-    }
-
 };
 
 class GrpcTestLevelObjectTableModel : public GrpcObjectTableModel
@@ -257,14 +252,12 @@ public:
     }
 
     void initializeData() override {
-        container()->addProperty("Uid", DataInfo::Int, &GprcTestLevelObject::set_uid, &GprcTestLevelObject::uid);
-        container()->addProperty("Level", DataInfo::String, &GprcTestLevelObject::set_name, &GprcTestLevelObject::name);
-        container()->initialize();
-    }
+        GrpcDataContainer<GprcTestLevelObject> * container = dynamic_cast<GrpcDataContainer<GprcTestLevelObject>*>(objectContainer());
 
-private:
-    GrpcDataContainer<GprcTestLevelObject> * container() {
-        return dynamic_cast<GrpcDataContainer<GprcTestLevelObject>*>(m_container);
+        container->addProperty("Uid", DataInfo::Int, &GprcTestLevelObject::set_uid, &GprcTestLevelObject::uid);
+        container->addProperty("Level", DataInfo::String, &GprcTestLevelObject::set_name, &GprcTestLevelObject::name);
+        // Should be called
+        GrpcObjectTableModel::initializeData();
     }
 };
 
@@ -278,20 +271,18 @@ public:
     }
 
     void initializeData() override {
-        //wrapper()->addProperty("Uid", DataInfo::String, &GprcTestDataObject::set_uid, &GprcTestDataObject::uid);
-        wrapper()->addProperty("nameEdit", DataInfo::String, &GprcTestDataObject::set_name, &GprcTestDataObject::name);
-        wrapper()->addProperty("dateEdit", DataInfo::Date, &GprcTestDataObject::set_date, &GprcTestDataObject::date);
-        wrapper()->addProperty("heightEdit", DataInfo::Int, &GprcTestDataObject::set_height, &GprcTestDataObject::height);
-        wrapper()->addProperty("salaryEdit", DataInfo::Double, &GprcTestDataObject::set_salary, &GprcTestDataObject::salary);
-        wrapper()->addProperty("marriedCheckBox", DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
-        //wrapper()->addProperty("Level", DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
-        wrapper()->addProperty("levelCombo", DataInfo::String, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
-        GrpcForm::initializeData();
-    }
+        GrpcObjectWrapper<GprcTestDataObject> * wrapper = dynamic_cast<GrpcObjectWrapper<GprcTestDataObject>*>(objectWrapper());
 
-private:
-    GrpcObjectWrapper<GprcTestDataObject> * wrapper() {
-        return dynamic_cast<GrpcObjectWrapper<GprcTestDataObject>*>(m_objectWrapper);
+        //wrapper()->addProperty("Uid", DataInfo::String, &GprcTestDataObject::set_uid, &GprcTestDataObject::uid);
+        wrapper->addProperty("nameEdit", DataInfo::String, &GprcTestDataObject::set_name, &GprcTestDataObject::name);
+        wrapper->addProperty("dateEdit", DataInfo::Date, &GprcTestDataObject::set_date, &GprcTestDataObject::date);
+        wrapper->addProperty("heightEdit", DataInfo::Int, &GprcTestDataObject::set_height, &GprcTestDataObject::height);
+        wrapper->addProperty("salaryEdit", DataInfo::Double, &GprcTestDataObject::set_salary, &GprcTestDataObject::salary);
+        wrapper->addProperty("marriedCheckBox", DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
+        //wrapper()->addProperty("Level", DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
+        wrapper->addProperty("levelCombo", DataInfo::String, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
+
+        GrpcForm::initializeData();
     }
 };
 
@@ -306,17 +297,13 @@ public:
     }
 
     void initializeData() override {
-        //wrapper()->addProperty("Uid", DataInfo::Int, &GprcTestSlaveObject::set_uid, &GprcTestSlaveObject::uid);
-        //wrapper()->addProperty("LinkUid", DataInfo::Int, &GprcTestSlaveObject::set_link_uid, &GprcTestSlaveObject::link_uid);
-        wrapper()->addProperty("phoneEdit", DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
+        GrpcObjectWrapper<GprcTestSlaveObject> * wrapper = dynamic_cast<GrpcObjectWrapper<GprcTestSlaveObject>*>(objectWrapper());
+        //wrapper->addProperty("Uid", DataInfo::Int, &GprcTestSlaveObject::set_uid, &GprcTestSlaveObject::uid);
+        //wrapper->addProperty("LinkUid", DataInfo::Int, &GprcTestSlaveObject::set_link_uid, &GprcTestSlaveObject::link_uid);
+        wrapper->addProperty("phoneEdit", DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
 
         // Should be invoked
         GrpcForm::initializeData();
-    }
-
-private:
-    GrpcObjectWrapper<GprcTestSlaveObject> * wrapper() {
-        return dynamic_cast<GrpcObjectWrapper<GprcTestSlaveObject>*>(m_objectWrapper);
     }
 };
 
@@ -425,6 +412,45 @@ static std::vector<GprcTestLevelObject> comboLevelData()
     return objects;
 }
 }
+
+class MasterTemplate : public GrpcUiTemplate
+{
+    Q_OBJECT
+
+public: explicit MasterTemplate(GrpcProxySortFilterModel * model, QTableView * tableView, GrpcForm * form, QObject *parent = nullptr) :
+        GrpcUiTemplate(model, tableView, form, parent){}
+
+    void modelData() override {
+        // Access to m_searchCriterias
+        //(new GrpcDataContainer<GprcTestDataObject>(std::move(TestModelData::masterData()))
+        emit populateModel(new
+            GrpcDataContainer<GprcTestDataObject>(std::move(TestModelData::masterData()))
+        );
+    }
+};
+
+
+class SlaveTemplate : public GrpcUiTemplate
+{
+    Q_OBJECT
+
+public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, QTableView * tableView, GrpcForm * form, QObject *parent = nullptr) :
+        GrpcUiTemplate(proxyModel, tableView, form, parent){}
+
+    // For slave templates only
+    void masterRowChanged(const QModelIndex & index) override {
+
+    }
+
+    void modelData() override {
+        // Accesss to m_searchCriterias
+        // Accesss to m_masterObjectWrapper
+        // emit populateModel();
+    }
+};
+
+
+
 
 Q_DECLARE_METATYPE(GprcTestDataObject)
 

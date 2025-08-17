@@ -35,15 +35,19 @@ public:
     void deleteObject(int row);
 
     QVariant variantObject(int row);
-    void setContainer(IBaseDataContainer * container);
 
     // be sure to override it in the child
     virtual void initializeData();
+
+    IBaseDataContainer * objectContainer() {return m_container;}
 
 signals:
     void inserted(int row);
     void updated(int row);
     void deleted(int row);
+
+public slots:
+    void setModelData(IBaseDataContainer * container);
 
 protected:
     // Just protect it from being explicitly used by the object.
@@ -58,7 +62,7 @@ protected:
     bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
-protected:
+private:
     IBaseDataContainer * m_container = nullptr; // delete or smart pointer
 };
 
