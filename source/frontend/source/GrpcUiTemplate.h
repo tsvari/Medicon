@@ -7,14 +7,15 @@
 
 class GrpcForm;
 class GrpcProxySortFilterModel;
-class QTableView;
+class QAbstractItemView;
+class QTabWidget;
 class IBaseGrpcObjectWrapper;
 class IBaseDataContainer;
 class GrpcUiTemplate : public QObject
 {
     Q_OBJECT
 public:
-    explicit GrpcUiTemplate(GrpcProxySortFilterModel * proxyModel, QTableView * tableView, GrpcForm * form, QObject *parent = nullptr);
+    explicit GrpcUiTemplate(GrpcProxySortFilterModel * proxyModel, QAbstractItemView  * tableView, GrpcForm * form, IBaseGrpcObjectWrapper * masterObjectWrapper, QObject *parent = nullptr);
     virtual ~GrpcUiTemplate();
 
 signals:
@@ -27,17 +28,23 @@ public slots:
 
 private slots:
     void currentChanged(const QModelIndex & current, const QModelIndex & previous);
+    void activateForm();
 
 protected:
     virtual void modelData() = 0;
 
-    JsonParameterFormatter m_searchCriterias;
-    IBaseGrpcObjectWrapper * m_masterObjectWrapper = nullptr;
+    QVariant variantObject();
+    JsonParameterFormatter & searchCriterias();
 
 private:
+    QTabWidget * tabWidget();
+
     GrpcForm * m_form;
     GrpcProxySortFilterModel * m_proxyModel;
-    QTableView * m_tableView;    
+    QAbstractItemView  * m_view;
+
+    JsonParameterFormatter m_searchCriterias;
+    IBaseGrpcObjectWrapper * m_masterObjectWrapper = nullptr;
 };
 
 #endif // GRPCUITEMPLATE_H
