@@ -12,7 +12,7 @@
 #include "TypeToStringFormatter.h"
 #include "GrpcForm.h"
 #include "GrpcProxySortFilterModel.h"
-#include "GrpcUiTemplate.h"
+#include "GrpcTemplateController.h"
 #include "include_frontend_util.h"
 
 template <typename TpT = QVariant>
@@ -414,12 +414,12 @@ static std::vector<GprcTestLevelObject> comboLevelData()
 }
 }
 
-class MasterTemplate : public GrpcUiTemplate
+class MasterTemplate : public GrpcTemplateController
 {
     Q_OBJECT
 
 public: explicit MasterTemplate(GrpcProxySortFilterModel * model, QTableView * tableView, GrpcForm * form, QObject *parent = nullptr) :
-        GrpcUiTemplate(model,
+        GrpcTemplateController(model,
                          tableView,
                          form,
                          new GrpcObjectWrapper<GprcTestDataObject>(),
@@ -439,12 +439,12 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model, QTableView * t
 };
 
 
-class SlaveTemplate : public GrpcUiTemplate
+class SlaveTemplate : public GrpcTemplateController
 {
     Q_OBJECT
 
 public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, QTableView * tableView, GrpcForm * form, QObject *parent = nullptr) :
-        GrpcUiTemplate(proxyModel,
+        GrpcTemplateController(proxyModel,
                          tableView,
                          form,
                          new GrpcObjectWrapper<GprcTestDataObject>(),

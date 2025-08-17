@@ -3,21 +3,21 @@
 
 #include <QObject>
 
-class GrpcUiTemplate;
+class GrpcTemplateController;
 class GrpcMasterSlaveController : public QObject
 {
     Q_OBJECT
 public:
-    explicit GrpcMasterSlaveController(GrpcUiTemplate * master, GrpcUiTemplate * slave, QObject *parent = nullptr);
+    explicit GrpcMasterSlaveController(GrpcTemplateController * master, GrpcTemplateController * slave, QObject *parent = nullptr);
 
-    void addMasterSlave(GrpcUiTemplate * master, GrpcUiTemplate * slave);
+    void addMasterSlave(GrpcTemplateController * master, GrpcTemplateController * slave);
 
     struct MasterSlave {
-        MasterSlave(GrpcUiTemplate * master, GrpcUiTemplate * slave)
+        MasterSlave(GrpcTemplateController * master, GrpcTemplateController * slave)
             : master(master)
             , slave(slave){}
-        GrpcUiTemplate * master = nullptr;
-        GrpcUiTemplate * slave = nullptr;
+        GrpcTemplateController * master = nullptr;
+        GrpcTemplateController * slave = nullptr;
     };
 
 signals:
