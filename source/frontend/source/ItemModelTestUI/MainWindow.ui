@@ -203,10 +203,10 @@
    <widget class="QTableView" name="masterTableView">
     <property name="geometry">
      <rect>
-      <x>4</x>
-      <y>4</y>
+      <x>0</x>
+      <y>60</y>
       <width>361</width>
-      <height>511</height>
+      <height>541</height>
      </rect>
     </property>
     <property name="selectionMode">
@@ -215,6 +215,53 @@
     <property name="selectionBehavior">
      <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
     </property>
+   </widget>
+   <widget class="GrpcSearchForm" name="searchForm" native="true">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>351</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string/>
+       </property>
+       <widget class="QPushButton" name="searchButton">
+        <property name="geometry">
+         <rect>
+          <x>260</x>
+          <y>10</y>
+          <width>83</width>
+          <height>29</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Search</string>
+        </property>
+       </widget>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -240,6 +287,12 @@
    <class>SlaveForm</class>
    <extends>QWidget</extends>
    <header>C:\projects\Medicon\source\frontend\source\TestSharedUtility.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GrpcSearchForm</class>
+   <extends>QWidget</extends>
+   <header>C:\projects\Medicon\source\frontend\source\GrpcSearchForm.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

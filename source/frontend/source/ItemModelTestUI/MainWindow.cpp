@@ -30,7 +30,8 @@ MainWindow::MainWindow(QWidget *parent)
     // Controller
     GrpcMasterSlaveController * controller = new GrpcMasterSlaveController(masterTemplate, slaveTemplate, this);
 
-    masterTemplate->applySearchCriterias({});
+    masterTemplate->addSearchForm(ui->searchForm);
+    connect(ui->searchButton, &QPushButton::clicked, ui->searchForm, &GrpcSearchForm::submit);
 
     GrpcTestLevelObjectTableModel * comboModel = new  GrpcTestLevelObjectTableModel(std::move(TestModelData::comboLevelData()), ui->levelCombo);
     ui->levelCombo->setModel(comboModel);
