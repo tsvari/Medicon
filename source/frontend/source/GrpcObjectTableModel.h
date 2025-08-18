@@ -46,6 +46,8 @@ signals:
     void updated(int row);
     void deleted(int row);
 
+    void zerroCount();
+
 public slots:
     void setModelData(IBaseDataContainer * container);
 
