@@ -30,6 +30,7 @@ set(HEADER_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcTemplateController.h
     ${FRONTEND_INCLUDE_DIR}/GrpcMasterSlaveController.h
     ${FRONTEND_INCLUDE_DIR}/GrpcObjectWrapper.hpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcSearchForm.h
 
 
     ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.h
@@ -48,6 +49,7 @@ set(SOURCE_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcForm.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcTemplateController.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcMasterSlaveController.cpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcSearchForm.cpp
 )
 
 set(PROJECT_SOURCES

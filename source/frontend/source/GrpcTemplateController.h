@@ -11,12 +11,15 @@ class QAbstractItemView;
 class QTabWidget;
 class IBaseGrpcObjectWrapper;
 class IBaseDataContainer;
+class GrpcSearchForm;
 class GrpcTemplateController : public QObject
 {
     Q_OBJECT
 public:
     explicit GrpcTemplateController(GrpcProxySortFilterModel * proxyModel, QAbstractItemView  * tableView, GrpcForm * form, IBaseGrpcObjectWrapper * masterObjectWrapper, QObject *parent = nullptr);
     virtual ~GrpcTemplateController();
+
+    void addSearchForm(GrpcSearchForm * searchForm);
 
 signals:
     void rowChanged(const QModelIndex & index);

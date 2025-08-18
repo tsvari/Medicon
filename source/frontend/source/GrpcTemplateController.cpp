@@ -5,6 +5,7 @@
 #include "GrpcForm.h"
 #include "GrpcObjectTableModel.h"
 #include "GrpcProxySortFilterModel.h"
+#include "GrpcSearchForm.h"
 
 #include "GrpcDataContainer.hpp"
 #include "GrpcObjectWrapper.hpp"
@@ -55,6 +56,12 @@ GrpcTemplateController::~GrpcTemplateController()
     if(m_masterObjectWrapper) {
         delete m_masterObjectWrapper;
     }
+}
+
+void GrpcTemplateController::addSearchForm(GrpcSearchForm * searchForm)
+{
+    Q_ASSERT(searchForm);
+    connect(searchForm, &GrpcSearchForm::startSearch, this, &GrpcTemplateController::applySearchCriterias);
 }
 
 void GrpcTemplateController::masterRowChanged(const QModelIndex & index)
