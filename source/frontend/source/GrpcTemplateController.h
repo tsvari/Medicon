@@ -28,7 +28,6 @@ public slots:
 
 private slots:
     void currentChanged(const QModelIndex & current, const QModelIndex & previous);
-    void activateForm();
 
 protected:
     virtual void modelData() = 0;
@@ -37,12 +36,6 @@ protected:
     JsonParameterFormatter & searchCriterias();
 
 private:
-    QTabWidget * tabWidget();
-
-    GrpcForm * m_form;
-    GrpcProxySortFilterModel * m_proxyModel;
-    QAbstractItemView  * m_view;
-
     JsonParameterFormatter m_searchCriterias;
     IBaseGrpcObjectWrapper * m_masterObjectWrapper = nullptr;
 };
