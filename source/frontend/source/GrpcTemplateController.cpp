@@ -29,6 +29,9 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::fillForm);
     connect(this, &GrpcTemplateController::populateModel, sourceModel, &GrpcObjectTableModel::setModelData);
     connect(view->selectionModel(), &QItemSelectionModel::currentChanged, this, &GrpcTemplateController::currentChanged);
+    connect(sourceModel, &GrpcObjectTableModel::zerroCount, this, [form]() {
+        form->clearForm();
+    });
 
     auto getTabWidget = [=]() -> QTabWidget* {
         QWidget * currentParent = form->parentWidget();

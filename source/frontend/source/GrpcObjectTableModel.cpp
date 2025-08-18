@@ -113,6 +113,9 @@ void GrpcObjectTableModel::setModelData(IBaseDataContainer * container)
     beginResetModel();
 
     m_container = container;
+    if(m_container->count() == 0) {
+        emit zerroCount();
+    }
     initializeData();
 
     endResetModel();

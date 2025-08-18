@@ -373,6 +373,17 @@ static std::vector<GprcTestDataObject> masterData() {
     obj5.set_level_name("Level4");
     objects.push_back(obj5);
 
+    GprcTestDataObject obj6;
+    obj6.set_uid(6);
+    obj6.set_name("Tsio");
+    obj6.set_date(increament());
+    obj6.set_height(166);
+    obj6.set_salary(5.123);
+    obj6.set_married(true);
+    obj6.set_level(4);
+    obj6.set_level_name("Level4");
+    objects.push_back(obj6);
+
     return objects;
 }
 
