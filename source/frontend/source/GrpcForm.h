@@ -12,8 +12,6 @@ public:
     explicit GrpcForm(IBaseGrpcObjectWrapper * objectWrapper, QWidget *parent = nullptr);
     virtual ~GrpcForm();
 
-
-
     QVariant object();
 
 public slots:
@@ -29,13 +27,13 @@ protected:
     virtual void fillObject();
     void initilizeWidget();
 
-    IBaseGrpcObjectWrapper * objectWrapper() {return m_objectWrapper;}
+    IBaseGrpcObjectWrapper * objectWrapper() {return m_objectWrapper.get();}
 
 private:
     void fillWidget(QWidget * widget, const DataInfo::Type & type, const QVariant & data);
     QList<QWidget*> m_formWidgets;
 
-    IBaseGrpcObjectWrapper * m_objectWrapper = nullptr;
+    std::unique_ptr<IBaseGrpcObjectWrapper> m_objectWrapper = nullptr;
 };
 
 #endif // GRPCFORM_H

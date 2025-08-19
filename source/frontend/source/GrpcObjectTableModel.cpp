@@ -12,7 +12,6 @@ GrpcObjectTableModel::GrpcObjectTableModel(IBaseDataContainer * container, QObje
 
 GrpcObjectTableModel::~GrpcObjectTableModel()
 {
-    //delete m_container;
 }
 
 QVariant GrpcObjectTableModel::headerData(int section, Qt::Orientation orientation, int role) const

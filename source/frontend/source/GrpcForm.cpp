@@ -17,7 +17,6 @@ GrpcForm::GrpcForm(IBaseGrpcObjectWrapper * objectWrapper, QWidget *parent)
 
 GrpcForm::~GrpcForm()
 {
-    delete m_objectWrapper;
 }
 
 QVariant GrpcForm::object()
