@@ -24,23 +24,25 @@ public:
 signals:
     void rowChanged(const QModelIndex & index);
     void populateModel(std::shared_ptr<IBaseDataContainer> container);
+    void masterRowChanged(const QModelIndex & index);
 
 public slots:
-    virtual void masterRowChanged(const QModelIndex & index);
+    virtual void masterChanged(const QModelIndex & index);
     void applySearchCriterias( const JsonParameterFormatter & searchCriterias);
 
 private slots:
     void currentChanged(const QModelIndex & current, const QModelIndex & previous);
 
 protected:
+    // be sure to override it in the child
     virtual void modelData() = 0;
 
-    QVariant variantObject();
+    QVariant masterVariantObject();
     JsonParameterFormatter & searchCriterias();
 
 private:
     JsonParameterFormatter m_searchCriterias;
-    IBaseGrpcObjectWrapper * m_masterObjectWrapper = nullptr;
+    std::unique_ptr<IBaseGrpcObjectWrapper> m_masterObjectWrapper;
 };
 
 #endif // GRPCTEMPLATECONTROLLER_H

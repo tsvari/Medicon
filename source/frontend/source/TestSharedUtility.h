@@ -424,7 +424,7 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model, QTableView * t
         GrpcTemplateController(model,
                          tableView,
                          form,
-                         new GrpcObjectWrapper<GprcTestDataObject>(),
+                         nullptr,// It's master only
                          parent)
     {
     }
@@ -455,7 +455,7 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, QTableView
 
     void modelData() override {
         //JsonParameterFormatter criterias = searchCriterias();
-        QVariant varObject = variantObject();
+        QVariant varObject = masterVariantObject();
         if(varObject.isValid()) {
             GprcTestDataObject masterObject = varObject.value<GprcTestDataObject>();
             std::vector<GprcTestSlaveObject> filteredData,

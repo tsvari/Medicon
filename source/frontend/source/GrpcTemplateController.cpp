@@ -17,7 +17,6 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     Q_ASSERT(proxyModel);
     Q_ASSERT(view);
     Q_ASSERT(form);
-    Q_ASSERT(masterObjectWrapper);
 
     GrpcObjectTableModel * sourceModel = qobject_cast<GrpcObjectTableModel*>(proxyModel->sourceModel());
     Q_ASSERT(sourceModel);
@@ -30,9 +29,10 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::fillForm);
     connect(this, &GrpcTemplateController::populateModel, sourceModel, &GrpcObjectTableModel::setModelData);
     connect(view->selectionModel(), &QItemSelectionModel::currentChanged, this, &GrpcTemplateController::currentChanged);
-    connect(sourceModel, &GrpcObjectTableModel::zerroCount, this, [form]() {
-        form->clearForm();
-    });
+    connect(sourceModel, &GrpcObjectTableModel::zerroCount, this, [form]() {form->clearForm();});
+    if(masterObjectWrapper) {
+        connect(this, &GrpcTemplateController::masterRowChanged, this, &GrpcTemplateController::masterChanged);
+    }
 
     auto getTabWidget = [=]() -> QTabWidget* {
         QWidget * currentParent = form->parentWidget();
@@ -53,13 +53,12 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
             }
         }
     });
+
+
 }
 
 GrpcTemplateController::~GrpcTemplateController()
 {
-    if(m_masterObjectWrapper) {
-        delete m_masterObjectWrapper;
-    }
 }
 
 void GrpcTemplateController::addSearchForm(GrpcSearchForm * searchForm)
@@ -68,7 +67,7 @@ void GrpcTemplateController::addSearchForm(GrpcSearchForm * searchForm)
     connect(searchForm, &GrpcSearchForm::startSearch, this, &GrpcTemplateController::applySearchCriterias);
 }
 
-void GrpcTemplateController::masterRowChanged(const QModelIndex & index)
+void GrpcTemplateController::masterChanged(const QModelIndex & index)
 {
     // Will only be called in the slave template
     // A template can be both a master and a slave at the same time
@@ -92,9 +91,12 @@ void GrpcTemplateController::currentChanged(const QModelIndex & current, const Q
     }
 }
 
-QVariant GrpcTemplateController::variantObject()
+QVariant GrpcTemplateController::masterVariantObject()
 {
-    return m_masterObjectWrapper->variantObject();
+    if(m_masterObjectWrapper) {
+        return m_masterObjectWrapper->variantObject();
+    }
+    return QVariant();
 }
 
 JsonParameterFormatter & GrpcTemplateController::searchCriterias()
