@@ -198,8 +198,6 @@ public:
     {
     }
 
-    enum COLUMNS {};
-
     void initializeModel() override {
         GrpcDataContainer<GprcTestDataObject> * container = dynamic_cast<GrpcDataContainer<GprcTestDataObject>*>(objectContainer());
 
@@ -269,7 +267,7 @@ public:
         : GrpcForm( new GrpcObjectWrapper<GprcTestDataObject>(), parent){
     }
 
-    void initializeData() override {
+    void initializeForm() override {
         GrpcObjectWrapper<GprcTestDataObject> * wrapper = dynamic_cast<GrpcObjectWrapper<GprcTestDataObject>*>(objectWrapper());
 
         //wrapper()->addProperty("Uid", DataInfo::String, &GprcTestDataObject::set_uid, &GprcTestDataObject::uid);
@@ -280,8 +278,6 @@ public:
         wrapper->addProperty("marriedCheckBox", DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
         //wrapper()->addProperty("Level", DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
         wrapper->addProperty("levelCombo", DataInfo::String, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
-
-        GrpcForm::initializeData();
     }
 };
 
@@ -295,14 +291,11 @@ public:
 
     }
 
-    void initializeData() override {
+    void initializeForm() override {
         GrpcObjectWrapper<GprcTestSlaveObject> * wrapper = dynamic_cast<GrpcObjectWrapper<GprcTestSlaveObject>*>(objectWrapper());
         //wrapper->addProperty("Uid", DataInfo::Int, &GprcTestSlaveObject::set_uid, &GprcTestSlaveObject::uid);
         //wrapper->addProperty("LinkUid", DataInfo::Int, &GprcTestSlaveObject::set_link_uid, &GprcTestSlaveObject::link_uid);
         wrapper->addProperty("phoneEdit", DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
-
-        // Should be invoked
-        GrpcForm::initializeData();
     }
 };
 

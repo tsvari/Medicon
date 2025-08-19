@@ -1,5 +1,6 @@
 #include "GrpcForm.h"
 #include "GrpcObjectTableModel.h"
+#include "GrpcTemplateController.h"
 
 #include <QLineEdit>
 #include <QComboBox>
@@ -37,7 +38,7 @@ void GrpcForm::fillForm(const QModelIndex &index)
     }
 }
 
-void GrpcForm::initializeData()
+void GrpcForm::initializeForm()
 {
     for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
         QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
@@ -49,6 +50,15 @@ void GrpcForm::initializeData()
 void GrpcForm::fillObject()
 {
 
+}
+
+void GrpcForm::initilizeWidget()
+{
+    for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
+        QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
+        Q_ASSERT(widget);
+        m_formWidgets << widget;
+    }
 }
 
 void GrpcForm::clearForm()
