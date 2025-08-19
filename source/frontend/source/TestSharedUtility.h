@@ -189,7 +189,7 @@ public:
     explicit GrpcTestObjectTableModel(std::vector<GprcTestDataObject> && data, QObject *parent = nullptr) :
         GrpcObjectTableModel(new GrpcDataContainer<GprcTestDataObject>(std::move(data)), parent)
     {
-        initializeData();
+        initializeModel();
         initializeContainer();
     }
 
@@ -200,7 +200,7 @@ public:
 
     enum COLUMNS {};
 
-    void initializeData() override {
+    void initializeModel() override {
         GrpcDataContainer<GprcTestDataObject> * container = dynamic_cast<GrpcDataContainer<GprcTestDataObject>*>(objectContainer());
 
         container->addProperty("Uid", DataInfo::String, &GprcTestDataObject::set_uid, &GprcTestDataObject::uid);
@@ -222,7 +222,7 @@ public:
     explicit GrpcTestSlaveObjectTableModel(std::vector<GprcTestSlaveObject> && data, QObject *parent = nullptr) :
         GrpcObjectTableModel(new GrpcDataContainer<GprcTestSlaveObject>(std::move(data)), parent)
     {
-        initializeData();
+        initializeModel();
         initializeContainer();
     }
 
@@ -231,7 +231,7 @@ public:
     {
     }
 
-    void initializeData() override {
+    void initializeModel() override {
         GrpcDataContainer<GprcTestSlaveObject> * container = dynamic_cast<GrpcDataContainer<GprcTestSlaveObject>*>(objectContainer());
 
         container->addProperty("Uid", DataInfo::Int, &GprcTestSlaveObject::set_uid, &GprcTestSlaveObject::uid);
@@ -248,11 +248,11 @@ public:
     explicit GrpcTestLevelObjectTableModel(std::vector<GprcTestLevelObject> && data, QObject *parent = nullptr) :
         GrpcObjectTableModel(new GrpcDataContainer<GprcTestLevelObject>(std::move(data)), parent)
     {
-        initializeData();
+        initializeModel();
         initializeContainer();
     }
 
-    void initializeData() override {
+    void initializeModel() override {
         GrpcDataContainer<GprcTestLevelObject> * container = dynamic_cast<GrpcDataContainer<GprcTestLevelObject>*>(objectContainer());
 
         container->addProperty("Uid", DataInfo::Int, &GprcTestLevelObject::set_uid, &GprcTestLevelObject::uid);
