@@ -49,7 +49,7 @@ public slots:
 protected:
     friend class GrpcTemplateController;
     // be sure to override it in the child
-    virtual void initializeModel() {};
+    virtual void initializeModel() = 0;
     void initializeContainer();
     IBaseDataContainer * objectContainer() {return m_container;}
 
