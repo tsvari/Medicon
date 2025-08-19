@@ -189,6 +189,8 @@ public:
     explicit GrpcTestObjectTableModel(std::vector<GprcTestDataObject> && data, QObject *parent = nullptr) :
         GrpcObjectTableModel(new GrpcDataContainer<GprcTestDataObject>(std::move(data)), parent)
     {
+        initializeData();
+        initializeContainer();
     }
 
     explicit GrpcTestObjectTableModel(QObject *parent = nullptr) :
@@ -209,9 +211,6 @@ public:
         container->addProperty("Married", DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
         container->addProperty("Level", DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
         container->addProperty("Level Name", DataInfo::String, &GprcTestDataObject::set_level_name, &GprcTestDataObject::level_name);
-
-        // Should be invoked
-        GrpcObjectTableModel::initializeData();
     }
 };
 
@@ -223,6 +222,8 @@ public:
     explicit GrpcTestSlaveObjectTableModel(std::vector<GprcTestSlaveObject> && data, QObject *parent = nullptr) :
         GrpcObjectTableModel(new GrpcDataContainer<GprcTestSlaveObject>(std::move(data)), parent)
     {
+        initializeData();
+        initializeContainer();
     }
 
     explicit GrpcTestSlaveObjectTableModel(QObject *parent = nullptr) :
@@ -236,8 +237,6 @@ public:
         container->addProperty("Uid", DataInfo::Int, &GprcTestSlaveObject::set_uid, &GprcTestSlaveObject::uid);
         container->addProperty("LinkUid", DataInfo::Int, &GprcTestSlaveObject::set_link_uid, &GprcTestSlaveObject::link_uid);
         container->addProperty("Phone", DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
-        // Should be called
-        GrpcObjectTableModel::initializeData();
     }
 };
 
@@ -250,6 +249,7 @@ public:
         GrpcObjectTableModel(new GrpcDataContainer<GprcTestLevelObject>(std::move(data)), parent)
     {
         initializeData();
+        initializeContainer();
     }
 
     void initializeData() override {
@@ -257,8 +257,6 @@ public:
 
         container->addProperty("Uid", DataInfo::Int, &GprcTestLevelObject::set_uid, &GprcTestLevelObject::uid);
         container->addProperty("Level", DataInfo::String, &GprcTestLevelObject::set_name, &GprcTestLevelObject::name);
-        // Should be called
-        GrpcObjectTableModel::initializeData();
     }
 };
 

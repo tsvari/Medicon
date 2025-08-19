@@ -55,7 +55,6 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     objects.push_back(obj2);
 
     GrpcTestObjectTableModel model(std::move(objects));
-    model.initializeData();
     EXPECT_EQ(model.rowCount(), 2);
     EXPECT_EQ(model.columnCount(), columnCount);
 
