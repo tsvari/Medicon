@@ -36,11 +36,6 @@ public:
 
     QVariant variantObject(int row);
 
-    // be sure to override it in the child
-    virtual void initializeData();
-
-    IBaseDataContainer * objectContainer() {return m_container;}
-
 signals:
     void inserted(int row);
     void updated(int row);
@@ -52,6 +47,12 @@ public slots:
     void setModelData(IBaseDataContainer * container);
 
 protected:
+    friend class GrpcTemplateController;
+    // be sure to override it in the child
+    virtual void initializeData() {};
+    void initializeContainer();
+    IBaseDataContainer * objectContainer() {return m_container;}
+
     // Just protect it from being explicitly used by the object.
     bool insertRow(int row, const QModelIndex &parent = QModelIndex()) {
         return QAbstractTableModel::insertRow(row, parent);

@@ -26,6 +26,7 @@ struct IBaseDataContainer {
     virtual void updateObject(int row, const QVariant & data) = 0;
 
     virtual void initialize() = 0;
+    virtual void copyData(IBaseDataContainer * source) = 0;
 
     virtual QVariant variantObject(int row) = 0;
 };
@@ -70,7 +71,7 @@ public:
     // Destructor
     virtual ~GrpcDataContainer()
     {
-        removeAll();
+        clearAllData();
     }
 
 
@@ -402,7 +403,7 @@ public:
         m_propertyHolders.erase(m_propertyHolders.begin() + row);
     }
 
-    void removeAll()
+    void clearAllData()
     {
         for (auto it = m_data.begin(); it != m_data.end(); ) {
             delete *it; // Delete the object pointed to by the pointer
@@ -410,6 +411,13 @@ public:
         }
         m_data.clear();
         m_propertyHolders.clear();
+    }
+
+    void copyData(IBaseDataContainer * source) override {
+        GrpcDataContainer * child = dynamic_cast<GrpcDataContainer * >(source);
+        assert(child);
+        m_data = std::move(child->m_data);
+        m_propertyHolders.resize(m_data.size());
     }
 
 private:
