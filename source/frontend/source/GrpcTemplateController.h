@@ -23,7 +23,7 @@ public:
 
 signals:
     void rowChanged(const QModelIndex & index);
-    void populateModel(IBaseDataContainer * container);
+    void populateModel(std::shared_ptr<IBaseDataContainer> container);
 
 public slots:
     virtual void masterRowChanged(const QModelIndex & index);

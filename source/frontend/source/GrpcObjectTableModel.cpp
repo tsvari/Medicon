@@ -12,7 +12,7 @@ GrpcObjectTableModel::GrpcObjectTableModel(IBaseDataContainer * container, QObje
 
 GrpcObjectTableModel::~GrpcObjectTableModel()
 {
-    delete m_container;
+    //delete m_container;
 }
 
 QVariant GrpcObjectTableModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -105,16 +105,15 @@ QVariant GrpcObjectTableModel::variantObject(int row)
     return m_container->variantObject(row);
 }
 
-void GrpcObjectTableModel::setModelData(IBaseDataContainer * container)
+void GrpcObjectTableModel::setModelData(std::shared_ptr<IBaseDataContainer> container)
 {
     beginResetModel();
 
-    m_container->acquireData(container);
+    m_container->acquireData(container.get());
     if(m_container->count() == 0) {
         emit zerroCount();
     }
     m_container->initialize();
-    delete container;
 
     endResetModel();
 }
