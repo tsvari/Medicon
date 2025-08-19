@@ -44,14 +44,14 @@ signals:
     void zerroCount();
 
 public slots:
-    void setModelData(IBaseDataContainer * container);
+    void setModelData(std::shared_ptr<IBaseDataContainer> container);
 
 protected:
     friend class GrpcTemplateController;
     // be sure to override it in the child
     virtual void initializeModel() = 0;
     void initializeContainer();
-    IBaseDataContainer * objectContainer() {return m_container;}
+    IBaseDataContainer * objectContainer() {return m_container.get();}
 
     // Just protect it from being explicitly used by the object.
     bool insertRow(int row, const QModelIndex &parent = QModelIndex()) {
@@ -66,7 +66,7 @@ protected:
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
 private:
-    IBaseDataContainer * m_container = nullptr; // delete or smart pointer
+    std::unique_ptr<IBaseDataContainer> m_container; // delete or smart pointer
 };
 
 #endif // GRPCOBJECTTABLEMODEL_H

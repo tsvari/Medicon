@@ -427,16 +427,17 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model, QTableView * t
                          new GrpcObjectWrapper<GprcTestDataObject>(),
                          parent)
     {
-
     }
 
     void modelData() override {
         //JsonParameterFormatter criterias = searchCriterias();
         // Dont need master object in thinscase
 
-        emit populateModel(new
-            GrpcDataContainer<GprcTestDataObject>(std::move(TestModelData::masterData()))
-        );
+        emit populateModel(
+            std::make_shared<GrpcDataContainer<GprcTestDataObject>>(
+                std::move(TestModelData::masterData())
+                )
+            );
     }
 };
 
@@ -463,9 +464,12 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, QTableView
             std::copy_if(slaveData.begin(), slaveData.end(), std::back_inserter(filteredData), [masterObject](GprcTestSlaveObject & ob) {
                 return ob.link_uid() == masterObject.uid();
             });
-            emit populateModel(new
-                               GrpcDataContainer<GprcTestSlaveObject>(std::move(filteredData))
-                               );
+
+            emit populateModel(
+                std::make_shared<GrpcDataContainer<GprcTestSlaveObject>>(
+                    std::move(filteredData)
+                    )
+                );
         }
     }
 };
