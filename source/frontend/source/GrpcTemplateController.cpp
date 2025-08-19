@@ -22,7 +22,7 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     GrpcObjectTableModel * sourceModel = qobject_cast<GrpcObjectTableModel*>(proxyModel->sourceModel());
     Q_ASSERT(sourceModel);
 
-    sourceModel->initializeData();
+    sourceModel->initializeModel();
     form->initializeData();
     view->setModel(proxyModel);
 
