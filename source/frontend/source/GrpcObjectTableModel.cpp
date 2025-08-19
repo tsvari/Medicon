@@ -114,6 +114,7 @@ void GrpcObjectTableModel::setModelData(IBaseDataContainer * container)
         emit zerroCount();
     }
     m_container->initialize();
+    delete container;
 
     endResetModel();
 }
