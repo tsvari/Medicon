@@ -26,7 +26,7 @@ struct IBaseDataContainer {
     virtual void updateObject(int row, const QVariant & data) = 0;
 
     virtual void initialize() = 0;
-    virtual void copyData(IBaseDataContainer * source) = 0;
+    virtual void acquireData(IBaseDataContainer * source) = 0;
 
     virtual QVariant variantObject(int row) = 0;
 };
@@ -413,7 +413,7 @@ public:
         m_propertyHolders.clear();
     }
 
-    void copyData(IBaseDataContainer * source) override {
+    void acquireData(IBaseDataContainer * source) override {
         GrpcDataContainer * child = dynamic_cast<GrpcDataContainer * >(source);
         assert(child);
         m_data = std::move(child->m_data);
