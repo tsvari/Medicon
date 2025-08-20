@@ -13,18 +13,16 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Master Template classes
     GrpcProxySortFilterModel * masterProxy = new GrpcProxySortFilterModel(
-        new  GrpcTestObjectTableModel(//std::move(TestModelData::masterData()),
-                                    ui->masterTableView),
-                                    {0, 6}, // Uid and Level Uid
+        new  GrpcTestObjectTableModel(ui->masterTableView),
+                                    {0, 5, 6}, // Uid and Level Uid
                                     ui->masterTableView);
     MasterTemplate * masterTemplate = new MasterTemplate(masterProxy, ui->masterTableView, ui->masterForm, this);
 
     // Slave Template classes
     GrpcProxySortFilterModel * slaveProxy = new GrpcProxySortFilterModel(
-        new GrpcTestSlaveObjectTableModel(//std::move(TestModelData::slaveData()),
-                                    ui->slaveTableView),
-                                    {0, 1},
-                                    ui->slaveTableView);
+        new GrpcTestSlaveObjectTableModel(ui->slaveTableView),
+                                        {0, 1},
+                                        ui->slaveTableView);
     SlaveTemplate * slaveTemplate = new SlaveTemplate(slaveProxy, ui->slaveTableView, ui->slaveForm, this);
 
     // Controller
