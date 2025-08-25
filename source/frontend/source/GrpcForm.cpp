@@ -48,7 +48,48 @@ void GrpcForm::initializeForm()
 
 void GrpcForm::fillObject()
 {
+    for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
+        QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
+        Q_ASSERT(widget);
+        QVariant data = widgetData(widget, m_objectWrapper->dataType(i));
+        Q_ASSERT(data.isValid());
+        m_objectWrapper->setData(i, data);
+    }
+}
 
+QVariant GrpcForm::widgetData(QWidget *widget, const DataInfo::Type &type)
+{
+    if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
+        return lineEdit->text();
+    }
+    if(QComboBox * comboEdit = qobject_cast<QComboBox*>(widget)) {
+        if(GrpcObjectTableModel * model = qobject_cast<GrpcObjectTableModel*>(comboEdit->model())) {
+            return model->data(model->index(comboEdit->currentIndex(), 0));
+        } else {
+            return comboEdit->itemData(comboEdit->currentIndex(), Qt::DisplayRole);
+        }
+    }
+    if(QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget)) {
+        return checkBox->isChecked();
+    }
+    if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(widget);
+        QDateTimeEdit * dateTimeEdit = qobject_cast<QDateTimeEdit*>(widget)) {
+        QDateTime dateTime;
+        if(dateEdit) {
+            dateTime = dateEdit->dateTime();
+        } else {
+            dateTime = dateTimeEdit->dateTime();
+        }
+        return dateTime.toMSecsSinceEpoch();
+    }
+    if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(widget)) {
+        QDateTime dateTime(QDate::currentDate(), timeEdit->time());
+        return dateTime.toMSecsSinceEpoch();
+    }
+    if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
+        return textEdit->toPlainText();
+    }
+    return QVariant();
 }
 
 void GrpcForm::initilizeWidget()
@@ -99,6 +140,12 @@ void GrpcForm::fillWidget(QWidget * widget, const DataInfo::Type & type, const Q
         Q_ASSERT(type == DataInfo::DateTime || type == DataInfo::DateTimeNoSec || type == DataInfo::Date);
         // Use by need DateTime or Date only
         // if DateTimeNoSec change format
+        QDateTime dateTime = QDateTime::fromSecsSinceEpoch(data.toLongLong());
+        if(dateEdit) {
+            dateEdit->setDateTime(dateTime);
+        } else {
+            dateTimeEdit->setDateTime(dateTime);
+        }
     }
     if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(widget)) {
         // Check type should be suitable
@@ -110,3 +157,5 @@ void GrpcForm::fillWidget(QWidget * widget, const DataInfo::Type & type, const Q
         textEdit->setText(data.toString());
     }
 }
+
+

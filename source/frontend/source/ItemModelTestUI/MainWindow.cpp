@@ -45,19 +45,26 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    int row = ui->levelCombo->currentIndex();
-    if(GrpcObjectTableModel * model = qobject_cast<GrpcObjectTableModel*>(ui->levelCombo->model()); row > -1) {
-        QString data = model->data(model->index(row, 0)).toString();
-    }
+    //int row = ui->levelCombo->currentIndex();
+    //if(GrpcObjectTableModel * model = qobject_cast<GrpcObjectTableModel*>(ui->levelCombo->model()); row > -1) {
+    //    QString data = model->data(model->index(row, 0)).toString();
+    //}
 
-    // Controller sends object with UID 5; find the row index and select combo
-    std::string objectUid = "5";
-    if(GrpcObjectTableModel * model = qobject_cast<GrpcObjectTableModel*>(ui->levelCombo->model())) {
-        const QModelIndexList foundIndexList = model->match(model->index(0, 0), Qt::DisplayRole, FrontConverter::to_str(objectUid));
-        if(foundIndexList.count() > 0) {
-            ui->levelCombo->setCurrentIndex(foundIndexList.at(0).row());
-        }
-    }
+    //// Controller sends object with UID 5; find the row index and select combo
+    //std::string objectUid = "5";
+    //if(GrpcObjectTableModel * model = qobject_cast<GrpcObjectTableModel*>(ui->levelCombo->model())) {
+    //    const QModelIndexList foundIndexList = model->match(model->index(0, 0), Qt::DisplayRole, FrontConverter::to_str(objectUid));
+    //    if(foundIndexList.count() > 0) {
+    //        ui->levelCombo->setCurrentIndex(foundIndexList.at(0).row());
+    //    }
+    //}
+
+    ui->masterForm->fillObject();
+
+    QVariant filledObject = ui->masterForm->object();
+    Q_ASSERT(filledObject.isValid());
+
+    GprcTestDataObject object = filledObject.value<GprcTestDataObject>();
 
 }
 
