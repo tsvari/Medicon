@@ -276,8 +276,8 @@ public:
         wrapper->addProperty("heightEdit", DataInfo::Int, &GprcTestDataObject::set_height, &GprcTestDataObject::height);
         wrapper->addProperty("salaryEdit", DataInfo::Double, &GprcTestDataObject::set_salary, &GprcTestDataObject::salary);
         wrapper->addProperty("marriedCheckBox", DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
-        //wrapper()->addProperty("Level", DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
-        wrapper->addProperty("levelCombo", DataInfo::String, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
+        wrapper->addProperty("levelCombo", DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
+        //wrapper->addProperty("levelCombo", DataInfo::String, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
     }
 };
 
