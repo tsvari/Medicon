@@ -83,6 +83,7 @@ add_executable(FrontendTestProject
 
     GrpcDataContainerTests.cpp
     GrpcObjectTableModelTests.cpp
+    GrpcObjectWrapperTests.cpp
 )
 
 target_compile_definitions(FrontendTestProject PRIVATE
