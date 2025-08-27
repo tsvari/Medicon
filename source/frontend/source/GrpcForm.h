@@ -19,6 +19,7 @@ public slots:
     virtual void fill(const QModelIndex & index);
     virtual void clear();
     virtual void fillObject();
+    void selectTab();
 
 protected:
     friend class GrpcTemplateController;

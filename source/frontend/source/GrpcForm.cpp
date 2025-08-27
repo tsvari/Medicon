@@ -92,6 +92,17 @@ QVariant GrpcForm::widgetData(QWidget *widget, const DataInfo::Type &type)
     return QVariant();
 }
 
+void GrpcForm::selectTab()
+{
+    QWidget * currentParent = this->parentWidget();
+    while (currentParent) {
+        if (QTabWidget * tabWidget = qobject_cast<QTabWidget *>(currentParent)) {
+            tabWidget->setCurrentWidget(parentWidget());
+        }
+        currentParent = currentParent->parentWidget();
+    }
+}
+
 void GrpcForm::initilizeWidget()
 {
     for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
