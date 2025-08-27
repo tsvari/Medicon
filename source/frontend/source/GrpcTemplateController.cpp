@@ -26,10 +26,11 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     form->initilizeWidget();
     view->setModel(proxyModel);
 
-    connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::fillForm);
+    connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::fill);
+    connect(this, &GrpcTemplateController::clearForm, form, &GrpcForm::clear);
     connect(this, &GrpcTemplateController::populateModel, sourceModel, &GrpcObjectTableModel::setModelData);
     connect(view->selectionModel(), &QItemSelectionModel::currentChanged, this, &GrpcTemplateController::currentChanged);
-    connect(sourceModel, &GrpcObjectTableModel::zerroCount, this, [form]() {form->clearForm();});
+    connect(sourceModel, &GrpcObjectTableModel::zerroCount, this, &GrpcTemplateController::clearForm);
     if(masterObjectWrapper) {
         connect(this, &GrpcTemplateController::masterRowChanged, this, &GrpcTemplateController::masterChanged);
     }
@@ -75,6 +76,8 @@ void GrpcTemplateController::masterChanged(const QModelIndex & index)
     if(variantObject.isValid()) {
         m_masterObjectWrapper->setObject(variantObject);
         modelData();
+        m_state = Unselected;
+        m_currentRow = -1;
     }
 }
 
@@ -82,12 +85,16 @@ void GrpcTemplateController::applySearchCriterias(const JsonParameterFormatter &
 {
     m_searchCriterias = searchCriterias;
     modelData();
+    m_state = Unselected;
+    m_currentRow = -1;
 }
 
 void GrpcTemplateController::currentChanged(const QModelIndex & current, const QModelIndex & previous)
 {
     if(current.row() != previous.row()) {
         emit rowChanged(current);
+        m_state = Browsing;
+        m_currentRow = current.row();
     }
 }
 
