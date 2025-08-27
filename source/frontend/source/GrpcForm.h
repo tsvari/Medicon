@@ -16,8 +16,8 @@ public:
 
 public slots:
     // Can be overridden in a child class if needed
-    virtual void fillForm(const QModelIndex & index);
-    virtual void clearForm();
+    virtual void fill(const QModelIndex & index);
+    virtual void clear();
     virtual void fillObject();
 
 protected:

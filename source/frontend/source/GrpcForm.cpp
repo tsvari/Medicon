@@ -24,7 +24,7 @@ QVariant GrpcForm::object()
     return m_objectWrapper->variantObject();
 }
 
-void GrpcForm::fillForm(const QModelIndex &index)
+void GrpcForm::fill(const QModelIndex &index)
 {
     const QVariant varData = index.data(GlobalRoles::VariantObjectRole);
     if(varData.isValid()) {
@@ -101,7 +101,7 @@ void GrpcForm::initilizeWidget()
     }
 }
 
-void GrpcForm::clearForm()
+void GrpcForm::clear()
 {
 
 }
