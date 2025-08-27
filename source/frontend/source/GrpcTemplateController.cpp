@@ -27,35 +27,15 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     view->setModel(proxyModel);
 
     connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::fill);
+    connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::selectTab);
     connect(this, &GrpcTemplateController::clearForm, form, &GrpcForm::clear);
+
     connect(this, &GrpcTemplateController::populateModel, sourceModel, &GrpcObjectTableModel::setModelData);
     connect(view->selectionModel(), &QItemSelectionModel::currentChanged, this, &GrpcTemplateController::currentChanged);
     connect(sourceModel, &GrpcObjectTableModel::zerroCount, this, &GrpcTemplateController::clearForm);
     if(masterObjectWrapper) {
         connect(this, &GrpcTemplateController::masterRowChanged, this, &GrpcTemplateController::masterChanged);
     }
-
-    auto getTabWidget = [=]() -> QTabWidget* {
-        QWidget * currentParent = form->parentWidget();
-        while (currentParent) {
-            if (QTabWidget * tabWidget = qobject_cast<QTabWidget *>(currentParent)) {
-                return tabWidget;
-            }
-            currentParent = currentParent->parentWidget();
-        }
-        return nullptr;
-    };
-    connect(this, &GrpcTemplateController::rowChanged, this, [getTabWidget, form]() {
-        if(QTabWidget * widget = getTabWidget()) {
-            // m_form->parentWidget() should be QWidget (Tab)
-            // Do not place an extra layer in the form
-            if(widget->currentWidget() != form->parentWidget()) {
-                widget->setCurrentWidget(form->parentWidget());
-            }
-        }
-    });
-
-
 }
 
 GrpcTemplateController::~GrpcTemplateController()
