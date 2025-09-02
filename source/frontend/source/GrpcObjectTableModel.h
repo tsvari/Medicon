@@ -66,6 +66,8 @@ protected:
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
 private:
+    QVariant alignment(int type) const;
+
     std::unique_ptr<IBaseDataContainer> m_container; // delete or smart pointer
 };
 

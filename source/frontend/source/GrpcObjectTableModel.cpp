@@ -20,6 +20,8 @@ QVariant GrpcObjectTableModel::headerData(int section, Qt::Orientation orientati
         return m_container->horizontalHeaderData(section);
     } else if(orientation == Qt::Vertical && role == Qt::DisplayRole) {
         return section + 1;
+    } else if(orientation == Qt::Horizontal && role == Qt::TextAlignmentRole) {
+        return alignment(m_container->dataType(section));
     }
     return QVariant();
 }
@@ -50,6 +52,8 @@ QVariant GrpcObjectTableModel::data(const QModelIndex & index, int role) const
         return m_container->data(index.row(), index.column());
     } else if (role == GlobalRoles::VariantObjectRole) {
         return m_container->variantObject(index.row());
+    } else if(role == Qt::TextAlignmentRole) {
+        return alignment(m_container->dataType(index.column()));
     }
 
     return QVariant();
@@ -137,5 +141,24 @@ bool GrpcObjectTableModel::removeRows(int row, int count, const QModelIndex &par
     // Do nothing, the new object wil be removed from m_container
     endRemoveRows();
     return true;
+}
+
+QVariant GrpcObjectTableModel::alignment(int type) const
+{
+    switch(static_cast<DataInfo::Type>(type)) {
+    case DataInfo::DateTime:
+    case DataInfo::DateTimeNoSec:
+    case DataInfo::Date:
+    case DataInfo::Time:
+    case DataInfo::Bool:
+        return QVariant::fromValue<Qt::Alignment>(Qt::AlignCenter);
+    case DataInfo::Int:
+    case DataInfo::Int64:
+    case DataInfo::Double:
+        return QVariant::fromValue<Qt::Alignment>(Qt::AlignRight | Qt::AlignVCenter);
+    default:
+        QVariant::fromValue<Qt::Alignment>(Qt::AlignLeft | Qt::AlignVCenter);
+    }
+    return QVariant();
 }
 
