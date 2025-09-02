@@ -19,7 +19,7 @@ map<string, string> JsonParameterFormatter::fromJsonString(const string & jsonSt
     try {
         doc = json::parse(jsonString);
     } catch (json::parse_error & ex) {
-        throw std::invalid_argument(FORMATER_ERR_WRONG_XML);
+        throw std::invalid_argument(FORMATER_ERR_WRONG_JSON);
     }
     return doc.get<map<string, string>>();
 }
