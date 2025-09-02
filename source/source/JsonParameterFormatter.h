@@ -4,7 +4,7 @@
 #include "TypeToStringFormatter.h"
 
 namespace {
-const char * FORMATER_ERR_WRONG_XML = "Wrong format JSON as parameter!";
+const char * FORMATER_ERR_WRONG_JSON = "Wrong format JSON as parameter!";
 }
 class JsonParameterFormatter : public TypeToStringFormatter
 {
