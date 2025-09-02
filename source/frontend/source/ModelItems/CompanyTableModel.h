@@ -15,8 +15,7 @@ public:
     explicit CompanyTableModel(std::vector<Company> && data, QObject *parent = nullptr);
 
 private:
-    GrpcDataContainer<Company> * container();
-    void initializeData() override;
+    void initializeModel() override;
 };
 
 #endif // COMPANYDATAMODEL_H

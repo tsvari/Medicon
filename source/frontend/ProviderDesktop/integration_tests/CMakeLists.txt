@@ -14,7 +14,7 @@ add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")
 set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVER_MODE PRE_TEST)
 include(GoogleTest)
 
-find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 
 qt_standard_project_setup()
 
@@ -46,6 +46,12 @@ set(HEADER_FILES
     ${FRONTEND_INCLUDE_DIR}/include_frontend_util.h
     ${FRONTEND_INCLUDE_DIR}/GrpcObjectTableModel.h
     ${FRONTEND_INCLUDE_DIR}/GrpcDataContainer.hpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcProxySortFilterModel.h
+    ${FRONTEND_INCLUDE_DIR}/GrpcForm.h
+    ${FRONTEND_INCLUDE_DIR}/GrpcTemplateController.h
+    ${FRONTEND_INCLUDE_DIR}/GrpcMasterSlaveController.h
+    ${FRONTEND_INCLUDE_DIR}/GrpcObjectWrapper.hpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcSearchForm.h
 
     ${FRONTEND_INCLUDE_DIR}/ModelItems/CompanyTableModel.h
 
@@ -64,6 +70,11 @@ set(SOURCE_FILES
 
     ${FRONTEND_INCLUDE_DIR}/include_frontend_util.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcObjectTableModel.cpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcProxySortFilterModel.cpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcForm.cpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcTemplateController.cpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcMasterSlaveController.cpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcSearchForm.cpp
 
     ${FRONTEND_INCLUDE_DIR}/ModelItems/CompanyTableModel.cpp
 
@@ -96,7 +107,7 @@ target_link_libraries(FrontendTestProject
     ${_PROTOBUF_LIBPROTOBUF}
 
     Qt6::Core
-
+    Qt6::Widgets
 )
 
 

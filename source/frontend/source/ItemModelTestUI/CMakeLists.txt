@@ -50,6 +50,8 @@ set(SOURCE_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcTemplateController.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcMasterSlaveController.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcSearchForm.cpp
+
+    ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.cpp
 )
 
 set(PROJECT_SOURCES
