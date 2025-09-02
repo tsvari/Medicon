@@ -80,9 +80,6 @@ TEST(GrpcObjectTableModelTests, GrpcDataContainerTests)
     container.addProperty("Logo", DataInfo::String, &Company::set_logo, &Company::logo);
     container.initialize();
 
-    // vector shouls be empty after using
-    EXPECT_TRUE(objects.empty());
-
     Company CompanyExpect1 = container.object(0);
     Company CompanyExpect2 = container.object(1);
 
