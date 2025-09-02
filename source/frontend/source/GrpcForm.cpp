@@ -24,7 +24,7 @@ QVariant GrpcForm::object()
     return m_objectWrapper->variantObject();
 }
 
-void GrpcForm::fill(const QModelIndex &index)
+void GrpcForm::fill(const QModelIndex & index)
 {
     const QVariant varData = index.data(GlobalRoles::VariantObjectRole);
     if(varData.isValid()) {
@@ -34,15 +34,6 @@ void GrpcForm::fill(const QModelIndex &index)
             DataInfo::Type type = m_objectWrapper->dataType(i);
             fillWidget(m_formWidgets[i], type, m_objectWrapper->data(i));
         }
-    }
-}
-
-void GrpcForm::initializeForm()
-{
-    for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
-        QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
-        Q_ASSERT(widget);
-        m_formWidgets << widget;
     }
 }
 
@@ -57,7 +48,7 @@ void GrpcForm::fillObject()
     }
 }
 
-QVariant GrpcForm::widgetData(QWidget *widget, const DataInfo::Type &type)
+QVariant GrpcForm::widgetData(QWidget *widget, const DataInfo::Type & type)
 {
     if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
         return lineEdit->text();
@@ -103,7 +94,7 @@ void GrpcForm::selectTab()
     }
 }
 
-void GrpcForm::initilizeWidget()
+void GrpcForm::initilizeWidgets()
 {
     for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
         QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());

@@ -23,7 +23,7 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
 
     sourceModel->initializeModel();
     form->initializeForm();
-    form->initilizeWidget();
+    form->initilizeWidgets();
     view->setModel(proxyModel);
 
     connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::fill);

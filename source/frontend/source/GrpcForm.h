@@ -9,7 +9,7 @@ class GrpcForm : public QWidget
 {
     Q_OBJECT
 public:
-    explicit GrpcForm(IBaseGrpcObjectWrapper * objectWrapper, QWidget *parent = nullptr);
+    explicit GrpcForm(IBaseGrpcObjectWrapper * objectWrapper, QWidget * parent = nullptr);
     virtual ~GrpcForm();
 
     QVariant object();
@@ -25,13 +25,12 @@ protected:
     friend class GrpcTemplateController;
     // be sure to override it in the child class
     virtual void initializeForm() = 0;
-    void initilizeWidget();
-
     IBaseGrpcObjectWrapper * objectWrapper() {return m_objectWrapper.get();}
 
 private:
     void fillWidget(QWidget * widget, const DataInfo::Type & type, const QVariant & data);
     QVariant widgetData(QWidget * widget, const DataInfo::Type & type);
+    void initilizeWidgets();
 
     QList<QWidget*> m_formWidgets;
     std::unique_ptr<IBaseGrpcObjectWrapper> m_objectWrapper = nullptr;
