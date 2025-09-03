@@ -2,6 +2,8 @@
 #define GRPCFORM_H
 
 #include <QWidget>
+#include <QTabBar>
+#include <QTabWidget>
 
 #include "GrpcObjectWrapper.hpp"
 
@@ -31,9 +33,12 @@ private:
     void fillWidget(QWidget * widget, const DataInfo::Type & type, const QVariant & data);
     QVariant widgetData(QWidget * widget, const DataInfo::Type & type);
     void initilizeWidgets();
+    QTabBar * tabBar();
+    QTabWidget * tabWidget();
 
     QList<QWidget*> m_formWidgets;
     std::unique_ptr<IBaseGrpcObjectWrapper> m_objectWrapper = nullptr;
+    QString formTabTitle;
 };
 
 #endif // GRPCFORM_H
