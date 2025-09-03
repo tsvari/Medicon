@@ -29,6 +29,7 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::fill);
     connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::selectTab);
     connect(this, &GrpcTemplateController::clearForm, form, &GrpcForm::clear);
+    connect(form, &GrpcForm::contentChanged, this, &GrpcTemplateController::updateState);
 
     connect(this, &GrpcTemplateController::populateModel, sourceModel, &GrpcObjectTableModel::setModelData);
     connect(view->selectionModel(), &QItemSelectionModel::currentChanged, this, &GrpcTemplateController::currentChanged);
@@ -76,6 +77,12 @@ void GrpcTemplateController::currentChanged(const QModelIndex & current, const Q
         m_state = Browsing;
         m_currentRow = current.row();
     }
+}
+
+void GrpcTemplateController::updateState()
+{
+    // Recalculate State
+    // Then update actions insert/update/save/delete
 }
 
 QVariant GrpcTemplateController::masterVariantObject()

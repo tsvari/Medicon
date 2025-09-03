@@ -29,6 +29,9 @@ protected:
     virtual void initializeForm() = 0;
     IBaseGrpcObjectWrapper * objectWrapper() {return m_objectWrapper.get();}
 
+signals:
+    void contentChanged();
+
 private:
     void fillWidget(QWidget * widget, const DataInfo::Type & type, const QVariant & data);
     QVariant widgetData(QWidget * widget, const DataInfo::Type & type);

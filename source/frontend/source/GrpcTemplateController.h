@@ -35,6 +35,7 @@ public slots:
 
 private slots:
     void currentChanged(const QModelIndex & current, const QModelIndex & previous);
+    void updateState();
 
 protected:
     // be sure to override it in the child
