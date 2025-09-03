@@ -134,6 +134,27 @@ void GrpcForm::initilizeWidgets()
         QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
         Q_ASSERT(widget);
         m_formWidgets << widget;
+        // Connect content changes to GrpcTemplateController State
+        if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
+            connect(lineEdit, &QLineEdit::textEdited, this, &GrpcForm::contentChanged);
+        } else if(QComboBox * comboBox = qobject_cast<QComboBox*>(widget)) {
+            connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &GrpcForm::contentChanged);
+        } else if(QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget)) {
+            connect(checkBox, &QCheckBox::checkStateChanged, this, &GrpcForm::contentChanged);
+        } else if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(widget);
+            QDateTimeEdit * dateTimeEdit = qobject_cast<QDateTimeEdit*>(widget)) {
+            if(dateEdit) {
+                connect(dateEdit, &QDateEdit::dateChanged, this, &GrpcForm::contentChanged);
+            } else {
+                connect(dateTimeEdit, &QDateTimeEdit::dateTimeChanged, this, &GrpcForm::contentChanged);
+            }
+        } else if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(widget)) {
+            connect(timeEdit, &QTimeEdit::timeChanged, this, &GrpcForm::contentChanged);
+        } else if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
+            connect(textEdit, &QTextEdit::textChanged, this, &GrpcForm::contentChanged);
+        } else {
+            // It's not known managed widget yet
+        }
     }
 }
 
