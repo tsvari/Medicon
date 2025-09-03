@@ -111,6 +111,13 @@ QTabWidget * GrpcForm::tabWidget()
     return nullptr;
 }
 
+int GrpcForm::tabIndex()
+{
+    if (QTabWidget * widget = tabWidget()) {
+        return  widget->indexOf(parentWidget());
+    }
+    return -1;
+}
 
 void GrpcForm::initilizeWidgets()
 {
