@@ -39,7 +39,7 @@ private:
 
     QList<QWidget*> m_formWidgets;
     std::unique_ptr<IBaseGrpcObjectWrapper> m_objectWrapper = nullptr;
-    QString formTabTitle;
+    QIcon m_saveIcon;
 };
 
 #endif // GRPCFORM_H
