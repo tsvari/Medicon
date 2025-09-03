@@ -36,6 +36,7 @@ set(HEADER_FILES
     ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.h
     ${FRONTEND_GRPC_DIR}/front_common.h
 
+
 )
 
 set(SOURCE_FILES
@@ -61,12 +62,17 @@ set(PROJECT_SOURCES
         MainWindow.ui
 )
 
+set(RESOURCE_FILES
+    ${FRONTEND_INCLUDE_DIR}/Frontend.qrc
+)
+
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(ItemModelTestUI
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         ${HEADER_FILES}
         ${SOURCE_FILES}
+        ${RESOURCE_FILES}
     )
 endif()
 

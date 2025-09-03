@@ -13,7 +13,9 @@
 GrpcForm::GrpcForm(IBaseGrpcObjectWrapper * objectWrapper, QWidget *parent)
     : QWidget{parent}
     , m_objectWrapper(objectWrapper)
-{}
+{
+    m_saveIcon = QIcon(":/icons/save.png");
+}
 
 GrpcForm::~GrpcForm()
 {
@@ -35,6 +37,13 @@ void GrpcForm::fill(const QModelIndex & index)
             fillWidget(m_formWidgets[i], type, m_objectWrapper->data(i));
         }
     }
+    //static bool first  = true;
+    //if(first) {
+    //    tabBar()->setTabIcon(tabIndex(), m_saveIcon);
+    //} else {
+    //    tabBar()->setTabIcon(tabIndex(), QIcon());
+    //}
+    //first = !first;
 }
 
 void GrpcForm::fillObject()
@@ -125,13 +134,6 @@ void GrpcForm::initilizeWidgets()
         QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
         Q_ASSERT(widget);
         m_formWidgets << widget;
-    }
-
-    if (QTabWidget * widget = tabWidget()) {
-        int tabIndex =  widget->indexOf(parentWidget());
-        if(QTabBar * bar = tabBar(); tabIndex >= 0 ) {
-            formTabTitle = bar->tabText(tabIndex);
-        }
     }
 }
 
