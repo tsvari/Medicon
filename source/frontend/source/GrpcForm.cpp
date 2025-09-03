@@ -85,14 +85,32 @@ QVariant GrpcForm::widgetData(QWidget *widget, const DataInfo::Type & type)
 
 void GrpcForm::selectTab()
 {
-    QWidget * currentParent = this->parentWidget();
+    if (QTabWidget * widget = tabWidget()) {
+        widget->setCurrentWidget(parentWidget());
+        //tabWidget->tabBar()->setStyleSheet("QTabBar::tab:selected { color: #00ff00; }");
+    }
+}
+
+QTabBar * GrpcForm::tabBar()
+{
+    if(QTabWidget * widget = tabWidget()) {
+        return widget->tabBar();
+    }
+    return nullptr;
+}
+
+QTabWidget * GrpcForm::tabWidget()
+{
+    QWidget * currentParent = parentWidget();
     while (currentParent) {
         if (QTabWidget * tabWidget = qobject_cast<QTabWidget *>(currentParent)) {
-            tabWidget->setCurrentWidget(parentWidget());
+            return tabWidget;
         }
         currentParent = currentParent->parentWidget();
     }
+    return nullptr;
 }
+
 
 void GrpcForm::initilizeWidgets()
 {
@@ -100,6 +118,13 @@ void GrpcForm::initilizeWidgets()
         QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
         Q_ASSERT(widget);
         m_formWidgets << widget;
+    }
+
+    if (QTabWidget * widget = tabWidget()) {
+        int tabIndex =  widget->indexOf(parentWidget());
+        if(QTabBar * bar = tabBar(); tabIndex >= 0 ) {
+            formTabTitle = bar->tabText(tabIndex);
+        }
     }
 }
 
