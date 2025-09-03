@@ -35,6 +35,7 @@ private:
     void initilizeWidgets();
     QTabBar * tabBar();
     QTabWidget * tabWidget();
+    int tabIndex();
 
     QList<QWidget*> m_formWidgets;
     std::unique_ptr<IBaseGrpcObjectWrapper> m_objectWrapper = nullptr;
