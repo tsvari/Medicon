@@ -1,5 +1,11 @@
 <RCC>
     <qresource prefix="/">
         <file>icons/save.png</file>
+        <file>icons/delete.png</file>
+        <file>icons/edit.png</file>
+        <file>icons/refresh.png</file>
+        <file>icons/add_new.png</file>
+        <file>icons/exit.png</file>
+        <file>icons/search.png</file>
     </qresource>
 </RCC>

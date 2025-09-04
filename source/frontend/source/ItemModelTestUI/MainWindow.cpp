@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
                                     {0, 5, 6}, // Uid and Level Uid
                                     ui->masterTableView);
     MasterTemplate * masterTemplate = new MasterTemplate(masterProxy, ui->masterTableView, ui->masterForm, this);
+    masterTemplate->addActionBars(this, ui->mainMenuBar, ui->mainToolBar, ui->mainStatusBAr);
 
     // Slave Template classes
     GrpcProxySortFilterModel * slaveProxy = new GrpcProxySortFilterModel(
@@ -24,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
                                         {0, 1},
                                         ui->slaveTableView);
     SlaveTemplate * slaveTemplate = new SlaveTemplate(slaveProxy, ui->slaveTableView, ui->slaveForm, this);
+    slaveTemplate->addActionBars(this, ui->mainMenuBar, ui->mainToolBar, ui->mainStatusBAr);
 
     // Controller
     GrpcMasterSlaveController * controller = new GrpcMasterSlaveController(masterTemplate, slaveTemplate, this);

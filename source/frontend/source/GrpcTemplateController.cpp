@@ -1,6 +1,12 @@
 #include "GrpcTemplateController.h"
 
+#include <QAction>
+#include <QMainWindow>
 #include <QTableView>
+#include <QMenu>
+#include <QMenuBar>
+#include <QToolBar>
+#include <QStatusBar>
 
 #include "GrpcForm.h"
 #include "GrpcObjectTableModel.h"
@@ -49,6 +55,71 @@ void GrpcTemplateController::addSearchForm(GrpcSearchForm * searchForm)
     connect(searchForm, &GrpcSearchForm::startSearch, this, &GrpcTemplateController::applySearchCriterias);
 }
 
+void GrpcTemplateController::addActionBars(QMainWindow * mainWindow, QMenuBar * menuBar, QToolBar * toolBar, QStatusBar * statusBar)
+{
+    if(menuBar || toolBar) {
+        m_actionRefresh = new QAction(tr("&Refresh"), this);
+        m_actionRefresh->setIcon(QIcon(":/icons/refresh.png"));
+        m_actionRefresh->setShortcut(QKeySequence("F5"));
+        m_actionRefresh->setStatusTip(tr("Refresh table"));
+        connect(m_actionRefresh, &QAction::triggered, this, &GrpcTemplateController::refresh_all);
+
+        m_actionAddNew = new QAction(tr("Add &New"), this);
+        m_actionAddNew->setIcon(QIcon(":/icons/add_new.png"));
+        m_actionAddNew->setShortcut(QKeySequence("Ctrl+n"));
+        m_actionAddNew->setStatusTip(tr("Add current record"));
+        connect(m_actionAddNew, &QAction::triggered, this, &GrpcTemplateController::add_new_record);
+
+        m_actionEdit = new QAction(tr("&Edit"), this);
+        m_actionEdit->setIcon(QIcon(":/icons/edit.png"));
+        m_actionEdit->setShortcut(QKeySequence("Ctrl+e"));
+        m_actionEdit->setStatusTip(tr("Edit current record"));
+        connect(m_actionEdit, &QAction::triggered, this, &GrpcTemplateController::edit_record);
+
+        m_actionDelete = new QAction(tr("&Delete"), this);
+        m_actionDelete->setIcon(QIcon(":/icons/delete.png"));
+        m_actionDelete->setShortcut(QKeySequence("Del"));
+        m_actionDelete->setStatusTip(tr("Delete current record"));
+        connect(m_actionDelete, &QAction::triggered, this, &GrpcTemplateController::delete_record);
+
+        m_actionSave = new QAction(tr("&Save"), this);
+        m_actionSave->setIcon(QIcon(":/icons/save.png"));
+        m_actionSave->setShortcut(QKeySequence("Ctrl+s"));
+        m_actionSave->setStatusTip(tr("Save Changes"));
+        connect(m_actionSave, &QAction::triggered, this, &GrpcTemplateController::save_record);
+    }
+
+    if(menuBar) {
+        m_templateMenu = menuBar->addMenu(tr("Edit Records"));
+
+        m_templateMenu->addAction(m_actionRefresh);
+        m_templateMenu->addSeparator();
+        m_templateMenu->addAction(m_actionAddNew);
+        m_templateMenu->addAction(m_actionEdit);
+        m_templateMenu->addAction(m_actionDelete);
+        m_templateMenu->addAction(m_actionSave);
+    }
+
+    if(toolBar) {
+        m_mainToolBar = toolBar;
+        m_templateToolBar = new QToolBar("Template Tool Bar", m_mainToolBar);
+
+        m_templateToolBar->addAction(m_actionRefresh);
+        m_templateToolBar->addSeparator();
+        m_templateToolBar->addAction(m_actionAddNew);
+        m_templateToolBar->addAction(m_actionEdit);
+        m_templateToolBar->addAction(m_actionDelete);
+        m_templateToolBar->addAction(m_actionSave);
+
+        m_templateToolBar->setIconSize(QSize(16, 16));
+        mainWindow->addToolBar(m_templateToolBar);
+    }
+
+    if(statusBar) {
+        connect(this, &GrpcTemplateController::showStatusMessage, statusBar, &QStatusBar::showMessage);
+    }
+}
+
 void GrpcTemplateController::masterChanged(const QModelIndex & index)
 {
     // Will only be called in the slave template
@@ -83,6 +154,31 @@ void GrpcTemplateController::updateState()
 {
     // Recalculate State
     // Then update actions insert/update/save/delete
+}
+
+void GrpcTemplateController::refresh_all()
+{
+
+}
+
+void GrpcTemplateController::add_new_record()
+{
+
+}
+
+void GrpcTemplateController::edit_record()
+{
+
+}
+
+void GrpcTemplateController::delete_record()
+{
+
+}
+
+void GrpcTemplateController::save_record()
+{
+
 }
 
 QVariant GrpcTemplateController::masterVariantObject()
