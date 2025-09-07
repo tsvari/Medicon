@@ -22,7 +22,7 @@ public slots:
     virtual void fill(const QModelIndex & index);
     virtual void clear();
     virtual void fillObject();
-    void selectTab();
+    void hideAllButThis();
 
 protected:
     friend class GrpcTemplateController;

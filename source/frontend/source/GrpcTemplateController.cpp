@@ -34,7 +34,6 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     view->setModel(proxyModel);
 
     connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::fill);
-    connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::selectTab);
     connect(this, &GrpcTemplateController::clearForm, form, &GrpcForm::clear);
     connect(form, &GrpcForm::contentChanged, this, &GrpcTemplateController::updateState);
 
@@ -46,7 +45,9 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
         connect(this, &GrpcTemplateController::masterRowChanged, this, &GrpcTemplateController::masterChanged);
     }
 
-
+    connect(view, &GrpcTableView::focusIn, form, &GrpcForm::hideAllButThis);
+    connect(view, &GrpcTableView::focusIn, this, [this](){showMenuAndToolbar(true);});
+    connect(view, &GrpcTableView::focusOut, this, [this](){showMenuAndToolbar(false);});
 }
 
 GrpcTemplateController::~GrpcTemplateController()
@@ -122,7 +123,7 @@ void GrpcTemplateController::addActionBars(QMainWindow * mainWindow, QMenuBar * 
         connect(this, &GrpcTemplateController::showStatusMessage, statusBar, &QStatusBar::showMessage);
     }
 
-    //showMenuAndToolbar(false);
+    showMenuAndToolbar(false);
 }
 
 void GrpcTemplateController::showMenuAndToolbar(bool show)

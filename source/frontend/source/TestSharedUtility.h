@@ -6,6 +6,9 @@
 #include <QVariant>
 #include <QLineEdit>
 #include <QTableView>
+#include <QToolBar>
+#include <QMenuBar>
+#include <QMenu>
 
 #include "GrpcObjectTableModel.h"
 #include "GrpcDataContainer.hpp"
@@ -434,14 +437,20 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model, GrpcTableView 
         GrpcTemplateController::addActionBars(mainWindow, menuBar, toolBar, statusBar);
 
         // Create new actions and connect to slots
+        m_testAction = new QAction("Test", this);
+        m_testAction->setIcon(QIcon(":/icons/exit.png"));
+        m_testAction->setStatusTip(tr("Testing tool button"));
+        connect(m_testAction, &QAction::triggered, this, &MasterTemplate::testSlot);
 
         // Add new actions to menu and/or toolbar
         if(QMenu * menu = templateMenu()) {
-
+            menu->addSeparator();
+            menu->addAction(m_testAction);
         }
 
         if( QToolBar * toobar = templateToolBar()) {
-
+            toobar->addSeparator();
+            toobar->addAction(m_testAction);
         }
     }
 
@@ -455,6 +464,12 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model, GrpcTableView 
                 )
             );
     }
+private slots:
+    void testSlot() {
+
+    }
+private:
+    QAction * m_testAction;
 };
 
 

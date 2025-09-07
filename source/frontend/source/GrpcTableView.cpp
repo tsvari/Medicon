@@ -9,11 +9,13 @@ GrpcTableView::GrpcTableView(QWidget * parent)
 void GrpcTableView::focusInEvent(QFocusEvent * event)
 {
     emit focusIn();
-    qDebug()<<"Focus In"<<this->objectName();
+    //qDebug()<<"Focus In"<<this->objectName();
+    QTableView::focusInEvent(event);
 }
 
 void GrpcTableView::focusOutEvent(QFocusEvent * event)
 {
     emit focusOut();
-    qDebug()<<"Focus Out"<<this->objectName();
+    //qDebug()<<"Focus Out"<<this->objectName();
+    QTableView::focusInEvent(event);
 }
