@@ -14,7 +14,7 @@ using std::variant;
 using std::set;
 
 struct DataInfo {
-    enum Type{
+    enum Type {
         Zero = 0,
         Int, // int32_t
         Int64,

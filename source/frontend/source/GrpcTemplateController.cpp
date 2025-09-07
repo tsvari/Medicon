@@ -101,8 +101,7 @@ void GrpcTemplateController::addActionBars(QMainWindow * mainWindow, QMenuBar * 
     }
 
     if(toolBar) {
-        m_mainToolBar = toolBar;
-        m_templateToolBar = new QToolBar("Template Tool Bar", m_mainToolBar);
+        m_templateToolBar = new QToolBar("Template Tool Bar", toolBar);
 
         m_templateToolBar->addAction(m_actionRefresh);
         m_templateToolBar->addSeparator();
@@ -118,6 +117,14 @@ void GrpcTemplateController::addActionBars(QMainWindow * mainWindow, QMenuBar * 
     if(statusBar) {
         connect(this, &GrpcTemplateController::showStatusMessage, statusBar, &QStatusBar::showMessage);
     }
+
+    //showMenuAndToolbar(false);
+}
+
+void GrpcTemplateController::showMenuAndToolbar(bool show)
+{
+    m_templateToolBar->setVisible(show);
+    m_templateMenu->menuAction()->setVisible(show);
 }
 
 void GrpcTemplateController::masterChanged(const QModelIndex & index)
@@ -193,4 +200,6 @@ JsonParameterFormatter & GrpcTemplateController::searchCriterias()
 {
     return m_searchCriterias;
 }
+
+
 

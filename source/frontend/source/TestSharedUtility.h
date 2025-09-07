@@ -429,6 +429,22 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model, QTableView * t
     {
     }
 
+    void addActionBars(QMainWindow * mainWindow, QMenuBar * menuBar, QToolBar * toolBar, QStatusBar * statusBar) override {
+        // Generate standard tempalte actions and in parent class
+        GrpcTemplateController::addActionBars(mainWindow, menuBar, toolBar, statusBar);
+
+        // Create new actions and connect to slots
+
+        // Add new actions to menu and/or toolbar
+        if(QMenu * menu = templateMenu()) {
+
+        }
+
+        if( QToolBar * toobar = templateToolBar()) {
+
+        }
+    }
+
     void modelData() override {
         //JsonParameterFormatter criterias = searchCriterias();
         // Dont need master object in thinscase
