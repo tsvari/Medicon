@@ -10,6 +10,8 @@
 #include <QDateTimeEdit>
 #include <QTextEdit>
 
+#include <QDebug>
+
 GrpcForm::GrpcForm(IBaseGrpcObjectWrapper * objectWrapper, QWidget *parent)
     : QWidget{parent}
     , m_objectWrapper(objectWrapper)
@@ -98,16 +100,6 @@ void GrpcForm::selectTab()
         widget->setCurrentWidget(parentWidget());
         //tabWidget->tabBar()->setStyleSheet("QTabBar::tab:selected { color: #00ff00; }");
     }
-}
-
-void GrpcForm::focusInEvent(QFocusEvent * event)
-{
-    emit focusIn();
-}
-
-void GrpcForm::focusOutEvent(QFocusEvent * event)
-{
-    emit focusOut();
 }
 
 QTabBar * GrpcForm::tabBar()

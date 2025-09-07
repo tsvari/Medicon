@@ -30,13 +30,8 @@ protected:
     virtual void initializeForm() = 0;
     IBaseGrpcObjectWrapper * objectWrapper() {return m_objectWrapper.get();}
 
-    void focusInEvent(QFocusEvent * event) override;
-    void focusOutEvent(QFocusEvent * event) override;
-
 signals:
     void contentChanged();
-    void focusIn();
-    void focusOut();
 
 private:
     void fillWidget(QWidget * widget, const DataInfo::Type & type, const QVariant & data);

@@ -420,7 +420,7 @@ class MasterTemplate : public GrpcTemplateController
 {
     Q_OBJECT
 
-public: explicit MasterTemplate(GrpcProxySortFilterModel * model, QTableView * tableView, GrpcForm * form, QObject *parent = nullptr) :
+public: explicit MasterTemplate(GrpcProxySortFilterModel * model, GrpcTableView * tableView, GrpcForm * form, QObject *parent = nullptr) :
         GrpcTemplateController(model,
                          tableView,
                          form,
@@ -462,7 +462,7 @@ class SlaveTemplate : public GrpcTemplateController
 {
     Q_OBJECT
 
-public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, QTableView * tableView, GrpcForm * form, QObject *parent = nullptr) :
+public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableView * tableView, GrpcForm * form, QObject *parent = nullptr) :
         GrpcTemplateController(proxyModel,
                          tableView,
                          form,

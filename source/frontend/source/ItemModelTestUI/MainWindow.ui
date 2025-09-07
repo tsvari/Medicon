@@ -31,7 +31,7 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QTableView" name="slaveTableView">
+      <widget class="GrpcTableView" name="slaveTableView">
        <property name="selectionMode">
         <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
        </property>
@@ -200,7 +200,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QTableView" name="masterTableView">
+   <widget class="GrpcTableView" name="masterTableView">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -314,20 +314,25 @@
   <customwidget>
    <class>MasterForm</class>
    <extends>QWidget</extends>
-   <header>C:\projects\Medicon\source\frontend\source\TestSharedUtility.h</header>
+   <header location="global">../TestSharedUtility.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>SlaveForm</class>
    <extends>QWidget</extends>
-   <header>C:\projects\Medicon\source\frontend\source\TestSharedUtility.h</header>
+   <header location="global">../TestSharedUtility.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>GrpcSearchForm</class>
    <extends>QWidget</extends>
-   <header>C:\projects\Medicon\source\frontend\source\GrpcSearchForm.h</header>
+   <header location="global">../GrpcSearchForm.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GrpcTableView</class>
+   <extends>QTableView</extends>
+   <header location="global">../GrpcTableView.h</header>
   </customwidget>
  </customwidgets>
  <resources>

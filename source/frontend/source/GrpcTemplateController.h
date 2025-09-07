@@ -18,11 +18,12 @@ class QMenu;
 class QToolBar;
 class QStatusBar;
 class QMainWindow;
+class GrpcTableView;
 class GrpcTemplateController : public QObject
 {
     Q_OBJECT
 public:
-    explicit GrpcTemplateController(GrpcProxySortFilterModel * proxyModel, QAbstractItemView  * tableView, GrpcForm * form, IBaseGrpcObjectWrapper * masterObjectWrapper, QObject *parent = nullptr);
+    explicit GrpcTemplateController(GrpcProxySortFilterModel * proxyModel, GrpcTableView  * tableView, GrpcForm * form, IBaseGrpcObjectWrapper * masterObjectWrapper, QObject *parent = nullptr);
     virtual ~GrpcTemplateController();
 
     void addSearchForm(GrpcSearchForm * searchForm);
