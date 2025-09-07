@@ -94,11 +94,19 @@ QVariant GrpcForm::widgetData(QWidget *widget, const DataInfo::Type & type)
     return QVariant();
 }
 
-void GrpcForm::selectTab()
+void GrpcForm::hideAllButThis()
 {
     if (QTabWidget * widget = tabWidget()) {
-        widget->setCurrentWidget(parentWidget());
-        //tabWidget->tabBar()->setStyleSheet("QTabBar::tab:selected { color: #00ff00; }");
+        int currentIndex = widget->indexOf(parentWidget());
+        if(currentIndex > -1) {
+            for(int it = 0; it < widget->count(); ++it) {
+                if(it != currentIndex) {
+                    widget->setTabVisible(it, false);
+                } else {
+                    widget->setTabVisible(it, true);
+                }
+            }
+        }
     }
 }
 
