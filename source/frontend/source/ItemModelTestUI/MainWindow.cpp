@@ -38,6 +38,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->levelCombo->setModelColumn(1);
     ui->levelCombo->setPlaceholderText("...");
     ui->levelCombo->setCurrentIndex(-1); // show nothing when start
+
+    // Tmp
+    ui->levelCombo->setFocus();
 }
 
 MainWindow::~MainWindow()

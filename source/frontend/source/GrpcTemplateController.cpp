@@ -12,11 +12,12 @@
 #include "GrpcObjectTableModel.h"
 #include "GrpcProxySortFilterModel.h"
 #include "GrpcSearchForm.h"
+#include "GrpcTableView.h"
 
 #include "GrpcDataContainer.hpp"
 #include "GrpcObjectWrapper.hpp"
 
-GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyModel, QAbstractItemView  * view, GrpcForm * form, IBaseGrpcObjectWrapper * masterObjectWrapper, QObject *parent)
+GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyModel, GrpcTableView  * view, GrpcForm * form, IBaseGrpcObjectWrapper * masterObjectWrapper, QObject *parent)
     : QObject{parent}
     , m_masterObjectWrapper(masterObjectWrapper)
 {
@@ -40,9 +41,12 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     connect(this, &GrpcTemplateController::populateModel, sourceModel, &GrpcObjectTableModel::setModelData);
     connect(view->selectionModel(), &QItemSelectionModel::currentChanged, this, &GrpcTemplateController::currentChanged);
     connect(sourceModel, &GrpcObjectTableModel::zerroCount, this, &GrpcTemplateController::clearForm);
+
     if(masterObjectWrapper) {
         connect(this, &GrpcTemplateController::masterRowChanged, this, &GrpcTemplateController::masterChanged);
     }
+
+
 }
 
 GrpcTemplateController::~GrpcTemplateController()
