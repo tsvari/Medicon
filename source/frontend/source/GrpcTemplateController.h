@@ -26,7 +26,7 @@ public:
     virtual ~GrpcTemplateController();
 
     void addSearchForm(GrpcSearchForm * searchForm);
-    void addActionBars(QMainWindow * mainWindow, QMenuBar * menuBar, QToolBar * toolBar, QStatusBar * statusBar);
+    virtual void addActionBars(QMainWindow * mainWindow, QMenuBar * menuBar, QToolBar * toolBar, QStatusBar * statusBar);
 
     enum State {Unselected = 0, Browsing, Edit, Insert};
 
@@ -59,14 +59,16 @@ protected:
     QVariant masterVariantObject();
     JsonParameterFormatter & searchCriterias();
 
+    QMenu * templateMenu(){return m_templateMenu;}
+    QToolBar * templateToolBar(){return m_templateToolBar;}
+
 private:
+    void showMenuAndToolbar(bool show);
+
     JsonParameterFormatter m_searchCriterias;
     std::unique_ptr<IBaseGrpcObjectWrapper> m_masterObjectWrapper;
     int m_currentRow = -1;
     State m_state = Unselected;
-
-    QMenuBar * m_mainMenuBar = nullptr;
-    QToolBar * m_mainToolBar = nullptr;
 
     QMenu * m_templateMenu = nullptr;
     QToolBar * m_templateToolBar = nullptr;
