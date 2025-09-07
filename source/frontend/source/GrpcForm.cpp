@@ -100,6 +100,16 @@ void GrpcForm::selectTab()
     }
 }
 
+void GrpcForm::focusInEvent(QFocusEvent * event)
+{
+    emit focusIn();
+}
+
+void GrpcForm::focusOutEvent(QFocusEvent * event)
+{
+    emit focusOut();
+}
+
 QTabBar * GrpcForm::tabBar()
 {
     if(QTabWidget * widget = tabWidget()) {
@@ -134,6 +144,7 @@ void GrpcForm::initilizeWidgets()
         QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
         Q_ASSERT(widget);
         m_formWidgets << widget;
+        widget->installEventFilter(this);
         // Connect content changes to GrpcTemplateController State
         if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
             connect(lineEdit, &QLineEdit::textEdited, this, &GrpcForm::contentChanged);

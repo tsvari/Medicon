@@ -15,6 +15,7 @@ public:
     virtual ~GrpcForm();
 
     QVariant object();
+    QTabWidget * tabWidget();
 
 public slots:
     // Can be overridden in a child class if needed
@@ -29,15 +30,19 @@ protected:
     virtual void initializeForm() = 0;
     IBaseGrpcObjectWrapper * objectWrapper() {return m_objectWrapper.get();}
 
+    void focusInEvent(QFocusEvent * event) override;
+    void focusOutEvent(QFocusEvent * event) override;
+
 signals:
     void contentChanged();
+    void focusIn();
+    void focusOut();
 
 private:
     void fillWidget(QWidget * widget, const DataInfo::Type & type, const QVariant & data);
     QVariant widgetData(QWidget * widget, const DataInfo::Type & type);
     void initilizeWidgets();
     QTabBar * tabBar();
-    QTabWidget * tabWidget();
     int tabIndex();
 
     QList<QWidget*> m_formWidgets;
