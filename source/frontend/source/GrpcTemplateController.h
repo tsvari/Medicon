@@ -35,7 +35,6 @@ signals:
     void rowChanged(const QModelIndex & index);
     void populateModel(std::shared_ptr<IBaseDataContainer> container);
     void masterRowChanged(const QModelIndex & index);
-    void clearForm();
 
     void showStatusMessage(const QString & message, int timeOut = 0);
 
@@ -49,6 +48,7 @@ public slots:
 
 private slots:
     void currentChanged(const QModelIndex & current, const QModelIndex & previous);
+    void formContentChanged();
 
     void refresh_all();
     void add_new_record();

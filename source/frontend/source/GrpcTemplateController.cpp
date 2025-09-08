@@ -34,8 +34,7 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     view->setModel(proxyModel);
 
     connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::fill);
-    connect(this, &GrpcTemplateController::clearForm, form, &GrpcForm::clear);
-    //connect(form, &GrpcForm::contentChanged, this, &GrpcTemplateController::updateState);
+    connect(form, &GrpcForm::formContentChanaged, this, &GrpcTemplateController::formContentChanged);
 
     connect(this, &GrpcTemplateController::startInsert, form, &GrpcForm::startInsert);
     connect(this, &GrpcTemplateController::startEdit, form, &GrpcForm::startEdit);
@@ -43,7 +42,7 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
 
     connect(this, &GrpcTemplateController::populateModel, sourceModel, &GrpcObjectTableModel::setModelData);
     connect(view->selectionModel(), &QItemSelectionModel::currentChanged, this, &GrpcTemplateController::currentChanged);
-    connect(sourceModel, &GrpcObjectTableModel::zerroCount, this, &GrpcTemplateController::clearForm);
+    connect(sourceModel, &GrpcObjectTableModel::zerroCount, form, &GrpcForm::clear);
 
     if(masterObjectWrapper) {
         connect(this, &GrpcTemplateController::masterRowChanged, this, &GrpcTemplateController::masterChanged);
@@ -166,6 +165,15 @@ void GrpcTemplateController::currentChanged(const QModelIndex & current, const Q
         m_currentRow = current.row();
         m_state = Browsing;
         updateState();
+    }
+}
+
+void GrpcTemplateController::formContentChanged()
+{
+    if(m_state == Browsing) {
+        m_state = Edit;
+        updateState();
+        emit startEdit();
     }
 }
 
