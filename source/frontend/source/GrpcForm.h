@@ -21,7 +21,9 @@ public slots:
     // Can be overridden in a child class if needed
     virtual void fill(const QModelIndex & index);
     virtual void clear();
+    virtual void makeReadonly(bool readOnly);
     virtual void fillObject();
+
     void hideAllButThis();
 
     void startInsert();
@@ -52,6 +54,7 @@ private:
     QIcon m_saveIcon;
 
     bool m_formFillingFinished = false;
+    bool m_readonly = false;
 };
 
 #endif // GRPCFORM_H

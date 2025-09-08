@@ -31,6 +31,7 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     sourceModel->initializeModel();
     form->initializeForm();
     form->initilizeWidgets();
+    form->makeReadonly(true);
     view->setModel(proxyModel);
 
     connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::fill);
@@ -42,7 +43,7 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
 
     connect(this, &GrpcTemplateController::populateModel, sourceModel, &GrpcObjectTableModel::setModelData);
     connect(view->selectionModel(), &QItemSelectionModel::currentChanged, this, &GrpcTemplateController::currentChanged);
-    connect(sourceModel, &GrpcObjectTableModel::zerroCount, form, &GrpcForm::clear);
+    connect(sourceModel, &GrpcObjectTableModel::zerroCount, form, &GrpcForm::makeReadonly);
 
     if(masterObjectWrapper) {
         connect(this, &GrpcTemplateController::masterRowChanged, this, &GrpcTemplateController::masterChanged);

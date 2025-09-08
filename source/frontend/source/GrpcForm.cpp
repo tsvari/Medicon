@@ -30,6 +30,7 @@ QVariant GrpcForm::object()
 
 void GrpcForm::fill(const QModelIndex & index)
 {
+    makeReadonly(false);
     m_formFillingFinished = false;
     const QVariant varData = index.data(GlobalRoles::VariantObjectRole);
     if(varData.isValid()) {
@@ -193,6 +194,39 @@ void GrpcForm::clear()
     m_formFillingFinished = false;
     // Clear all widgets
     m_formFillingFinished = true;
+}
+
+void GrpcForm::makeReadonly(bool readOnly)
+{
+    if(m_readonly == readOnly) {
+        return;
+    }
+    for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
+        QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
+        Q_ASSERT(widget);
+        // Connect content changes to GrpcTemplateController State
+        if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
+            lineEdit->setReadOnly(readOnly);
+        } else if(QComboBox * comboBox = qobject_cast<QComboBox*>(widget)) {
+            comboBox->setEnabled(!readOnly);
+        } else if(QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget)) {
+            checkBox->setEnabled(!readOnly);
+        } else if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(widget);
+                   QDateTimeEdit * dateTimeEdit = qobject_cast<QDateTimeEdit*>(widget)) {
+            if(dateEdit) {
+                dateEdit->setReadOnly(readOnly);
+            } else {
+                dateTimeEdit->setReadOnly(readOnly);
+            }
+        } else if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(widget)) {
+            timeEdit->setReadOnly(readOnly);
+        } else if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
+            textEdit->setReadOnly(readOnly);
+        } else {
+            // It's not known managed widget yet
+        }
+    }
+    m_readonly = readOnly;
 }
 
 void GrpcForm::fillWidget(QWidget * widget, const DataInfo::Type & type, const QVariant & data)

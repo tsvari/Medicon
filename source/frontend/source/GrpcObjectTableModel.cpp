@@ -101,6 +101,9 @@ void GrpcObjectTableModel::deleteObject(int row)
     removeRow(row);
     m_container->deleteObject(row);
     emit deleted(row);
+    if(m_container->count() == 0) {
+        emit zerroCount(true);
+    }
 }
 
 QVariant GrpcObjectTableModel::variantObject(int row)
@@ -114,7 +117,7 @@ void GrpcObjectTableModel::setModelData(std::shared_ptr<IBaseDataContainer> cont
 
     m_container->acquireData(container.get());
     if(m_container->count() == 0) {
-        emit zerroCount();
+        emit zerroCount(true);
     }
     m_container->initialize();
 
