@@ -65,6 +65,8 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     connect(view, &GrpcTableView::focusIn, form, &GrpcForm::hideAllButThis);
     connect(view, &GrpcTableView::focusIn, this, [this](){showMenuAndToolbar(true);});
     connect(view, &GrpcTableView::focusOut, this, [this](){showMenuAndToolbar(false);});
+    connect(form, &GrpcForm::focusIn, this, [this](){showMenuAndToolbar(true);});
+    connect(form, &GrpcForm::focusOut, this, [this](){showMenuAndToolbar(false);});
 }
 
 GrpcTemplateController::~GrpcTemplateController()
@@ -200,7 +202,7 @@ void GrpcTemplateController::updateState()
     case Unselected:
         m_actionRefresh->setEnabled(true);
 
-        m_actionAddNew->setEnabled(false);
+        m_actionAddNew->setEnabled(true);
         m_actionEdit->setEnabled(false);
         m_actionDelete->setEnabled(false);
         m_actionSave->setEnabled(false);

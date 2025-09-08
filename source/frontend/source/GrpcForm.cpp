@@ -9,6 +9,8 @@
 #include <QTimeEdit>
 #include <QDateTimeEdit>
 #include <QTextEdit>
+#include <QEvent>
+#include <QFocusEvent>
 
 #include <QDebug>
 
@@ -121,6 +123,19 @@ void GrpcForm::startEdit()
 void GrpcForm::finishSave()
 {
     tabBar()->setTabIcon(tabIndex(), QIcon());
+}
+
+bool GrpcForm::eventFilter(QObject *watched, QEvent *event)
+{
+    if (event->type() == QEvent::FocusIn) {
+        //QFocusEvent *focusEvent = static_cast<QFocusEvent*>(event);
+        emit focusIn();
+    } else if (event->type() == QEvent::FocusOut) {
+        emit focusOut();
+    }
+
+    // Pass the event to the next event filter or the watched object
+    return QWidget::eventFilter(watched, event);
 }
 
 void GrpcForm::contentChanged()
