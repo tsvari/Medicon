@@ -57,6 +57,11 @@ protected:
     // be sure to override it in the child
     virtual void modelData() = 0;
 
+    virtual bool refreshGrpc() {return true;}
+    virtual bool addNewGrpc() {return true;}
+    virtual bool editGrpc() {return true;}
+    virtual bool deleteGrpc() {return true;}
+
     QVariant masterVariantObject();
     JsonParameterFormatter & searchCriterias();
 

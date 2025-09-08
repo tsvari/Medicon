@@ -170,7 +170,9 @@ void GrpcTemplateController::updateState()
 
 void GrpcTemplateController::refresh_all()
 {
-
+    if(refreshGrpc()) {
+        // refresh means connect to server and request data based of search criterias
+    }
 }
 
 void GrpcTemplateController::add_new_record()
@@ -185,12 +187,23 @@ void GrpcTemplateController::edit_record()
 
 void GrpcTemplateController::delete_record()
 {
-
+    if(deleteGrpc()) {
+        // send Grpc object to server delete it and if success remove it from the model
+    }
 }
 
 void GrpcTemplateController::save_record()
 {
+    if(m_state == Edit) {
+        if(editGrpc()) {
+            // sent Grpc object to server to edit record and if success edit current object in the model
+        }
 
+    } else if(m_state == Insert) {
+        if(addNewGrpc()) {
+            // sent Grpc object to server to add it and if success add it to the model
+        }
+    }
 }
 
 QVariant GrpcTemplateController::masterVariantObject()
