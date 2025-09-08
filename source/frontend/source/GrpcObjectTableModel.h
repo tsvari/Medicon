@@ -41,7 +41,7 @@ signals:
     void updated(int row);
     void deleted(int row);
 
-    void zerroCount();
+    void zerroCount(bool isEmpty);
 
 public slots:
     void setModelData(std::shared_ptr<IBaseDataContainer> container);
