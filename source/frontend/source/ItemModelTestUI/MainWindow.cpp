@@ -39,8 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->levelCombo->setPlaceholderText("...");
     ui->levelCombo->setCurrentIndex(-1); // show nothing when start
 
-    // Tmp
-    ui->levelCombo->setFocus();
+    ui->masterTableView->setFocus();
 }
 
 MainWindow::~MainWindow()
@@ -64,12 +63,12 @@ void MainWindow::on_pushButton_clicked()
     //    }
     //}
 
-    ui->masterForm->fillObject();
+    //ui->masterForm->fillObject();
 
-    QVariant filledObject = ui->masterForm->object();
-    Q_ASSERT(filledObject.isValid());
+    //QVariant filledObject = ui->masterForm->object();
+    //Q_ASSERT(filledObject.isValid());
 
-    GprcTestDataObject object = filledObject.value<GprcTestDataObject>();
+    //GprcTestDataObject object = filledObject.value<GprcTestDataObject>();
 
 }
 

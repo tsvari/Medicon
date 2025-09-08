@@ -20,7 +20,8 @@ public:
         GrpcTemplateController * slave = nullptr;
     };
 
-signals:
+private slots:
+    void hideAllMenuToolbars(GrpcTemplateController * controller);
 
 private:
     QList<MasterSlave> m_masterSlaveList;

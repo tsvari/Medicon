@@ -61,12 +61,11 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     if(masterObjectWrapper) {
         connect(this, &GrpcTemplateController::masterRowChanged, this, &GrpcTemplateController::masterChanged);
     }
-
+    connect(this, &GrpcTemplateController::focusIn, this, [this, view](){
+        view->setFocus();
+    });
     connect(view, &GrpcTableView::focusIn, form, &GrpcForm::hideAllButThis);
-    connect(view, &GrpcTableView::focusIn, this, [this](){showMenuAndToolbar(true);});
-    connect(view, &GrpcTableView::focusOut, this, [this](){showMenuAndToolbar(false);});
-    connect(form, &GrpcForm::focusIn, this, [this](){showMenuAndToolbar(true);});
-    connect(form, &GrpcForm::focusOut, this, [this](){showMenuAndToolbar(false);});
+    connect(view, &GrpcTableView::focusIn, this, &GrpcTemplateController::showMenuAndToolbar);
 }
 
 GrpcTemplateController::~GrpcTemplateController()
@@ -143,14 +142,26 @@ void GrpcTemplateController::addActionBars(QMainWindow * mainWindow, QMenuBar * 
         connect(this, &GrpcTemplateController::showStatusMessage, statusBar, &QStatusBar::showMessage);
     }
 
-    showMenuAndToolbar(false);
+    hideMenuAndToolbar();
     updateState();
 }
 
-void GrpcTemplateController::showMenuAndToolbar(bool show)
+void GrpcTemplateController::showMenuAndToolbar()
 {
-    m_templateToolBar->setVisible(show);
-    m_templateMenu->menuAction()->setVisible(show);
+    emit hideOthers(this);
+    if(m_templateToolBar->isHidden() || m_templateMenu->isHidden()) {
+        m_templateToolBar->setVisible(true);
+        m_templateMenu->menuAction()->setVisible(true);
+    }
+}
+
+
+void GrpcTemplateController::hideMenuAndToolbar()
+{
+    if(m_templateToolBar->isVisible() || m_templateMenu->isVisible()) {
+        m_templateToolBar->setVisible(false);
+        m_templateMenu->menuAction()->setVisible(false);
+    }
 }
 
 void GrpcTemplateController::masterChanged(const QModelIndex & index)
@@ -174,6 +185,7 @@ void GrpcTemplateController::applySearchCriterias(const JsonParameterFormatter &
     m_state = Unselected;
     updateState();
 }
+
 
 void GrpcTemplateController::currentChanged(const QModelIndex & current, const QModelIndex & previous)
 {
