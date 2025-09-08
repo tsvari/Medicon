@@ -4,6 +4,7 @@
 GrpcTableView::GrpcTableView(QWidget * parent)
     : QTableView(parent)
 {
+    setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
 void GrpcTableView::focusInEvent(QFocusEvent * event)

@@ -35,7 +35,11 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
 
     connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::fill);
     connect(this, &GrpcTemplateController::clearForm, form, &GrpcForm::clear);
-    connect(form, &GrpcForm::contentChanged, this, &GrpcTemplateController::updateState);
+    //connect(form, &GrpcForm::contentChanged, this, &GrpcTemplateController::updateState);
+
+    connect(this, &GrpcTemplateController::startInsert, form, &GrpcForm::startInsert);
+    connect(this, &GrpcTemplateController::startEdit, form, &GrpcForm::startEdit);
+    connect(this, &GrpcTemplateController::finishSave, form, &GrpcForm::finishSave);
 
     connect(this, &GrpcTemplateController::populateModel, sourceModel, &GrpcObjectTableModel::setModelData);
     connect(view->selectionModel(), &QItemSelectionModel::currentChanged, this, &GrpcTemplateController::currentChanged);
@@ -124,6 +128,7 @@ void GrpcTemplateController::addActionBars(QMainWindow * mainWindow, QMenuBar * 
     }
 
     showMenuAndToolbar(false);
+    updateState();
 }
 
 void GrpcTemplateController::showMenuAndToolbar(bool show)
@@ -149,16 +154,18 @@ void GrpcTemplateController::applySearchCriterias(const JsonParameterFormatter &
 {
     m_searchCriterias = searchCriterias;
     modelData();
-    m_state = Unselected;
     m_currentRow = -1;
+    m_state = Unselected;
+    updateState();
 }
 
 void GrpcTemplateController::currentChanged(const QModelIndex & current, const QModelIndex & previous)
 {
     if(current.row() != previous.row()) {
         emit rowChanged(current);
-        m_state = Browsing;
         m_currentRow = current.row();
+        m_state = Browsing;
+        updateState();
     }
 }
 
@@ -166,6 +173,37 @@ void GrpcTemplateController::updateState()
 {
     // Recalculate State
     // Then update actions insert/update/save/delete
+    switch(m_state) {
+    case Unselected:
+        m_actionRefresh->setEnabled(true);
+
+        m_actionAddNew->setEnabled(false);
+        m_actionEdit->setEnabled(false);
+        m_actionDelete->setEnabled(false);
+        m_actionSave->setEnabled(false);
+        break;
+    case Browsing:
+        m_actionRefresh->setEnabled(true);
+        m_actionAddNew->setEnabled(true);
+        m_actionEdit->setEnabled(true);
+        m_actionDelete->setEnabled(true);
+        m_actionSave->setEnabled(false);
+        break;
+    case Edit:
+        m_actionRefresh->setEnabled(true);
+        m_actionAddNew->setEnabled(false);
+        m_actionEdit->setEnabled(false);
+        m_actionDelete->setEnabled(false);
+        m_actionSave->setEnabled(true);
+        break;
+    case Insert:
+        m_actionRefresh->setEnabled(true);
+        m_actionAddNew->setEnabled(false);
+        m_actionEdit->setEnabled(false);
+        m_actionDelete->setEnabled(false);
+        m_actionSave->setEnabled(true);
+        break;
+    }
 }
 
 void GrpcTemplateController::refresh_all()
@@ -177,12 +215,16 @@ void GrpcTemplateController::refresh_all()
 
 void GrpcTemplateController::add_new_record()
 {
-
+    m_state = Insert;
+    emit startInsert();
+    updateState();
 }
 
 void GrpcTemplateController::edit_record()
 {
-
+    m_state = Edit;
+    emit startEdit();
+    updateState();
 }
 
 void GrpcTemplateController::delete_record()
@@ -197,11 +239,17 @@ void GrpcTemplateController::save_record()
     if(m_state == Edit) {
         if(editGrpc()) {
             // sent Grpc object to server to edit record and if success edit current object in the model
+            m_state = Browsing;
+            updateState();
+            emit finishSave();
         }
 
     } else if(m_state == Insert) {
         if(addNewGrpc()) {
             // sent Grpc object to server to add it and if success add it to the model
+            m_state = Browsing;
+            updateState();
+            emit finishSave();
         }
     }
 }

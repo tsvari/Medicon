@@ -24,6 +24,10 @@ public slots:
     virtual void fillObject();
     void hideAllButThis();
 
+    void startInsert();
+    void startEdit();
+    void finishSave();
+
 protected:
     friend class GrpcTemplateController;
     // be sure to override it in the child class
