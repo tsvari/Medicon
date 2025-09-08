@@ -7,6 +7,7 @@
 
 #include "GrpcObjectWrapper.hpp"
 
+class QEvent;
 class GrpcForm : public QWidget
 {
     Q_OBJECT
@@ -36,8 +37,12 @@ protected:
     virtual void initializeForm() = 0;
     IBaseGrpcObjectWrapper * objectWrapper() {return m_objectWrapper.get();}
 
+    bool eventFilter(QObject *watched, QEvent * event) override;
+
 signals:
     void formContentChanaged();
+    void focusIn();
+    void focusOut();
 
 private slots:
     void contentChanged();
