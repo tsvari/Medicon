@@ -454,6 +454,14 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model, GrpcTableView 
         }
     }
 
+    void updateState() override {
+        // Calculate state for generic bar and menu
+        GrpcTemplateController::updateState();
+
+        // More enable/disable custom actions
+
+    }
+
     void modelData() override {
         //JsonParameterFormatter criterias = searchCriterias();
         // Dont need master object in thinscase

@@ -39,13 +39,6 @@ void GrpcForm::fill(const QModelIndex & index)
             fillWidget(m_formWidgets[i], type, m_objectWrapper->data(i));
         }
     }
-    //static bool first  = true;
-    //if(first) {
-    //    tabBar()->setTabIcon(tabIndex(), m_saveIcon);
-    //} else {
-    //    tabBar()->setTabIcon(tabIndex(), QIcon());
-    //}
-    //first = !first;
 }
 
 void GrpcForm::fillObject()
@@ -108,6 +101,22 @@ void GrpcForm::hideAllButThis()
             }
         }
     }
+}
+
+void GrpcForm::startInsert()
+{
+    clear();
+    tabBar()->setTabIcon(tabIndex(), m_saveIcon);
+}
+
+void GrpcForm::startEdit()
+{
+    tabBar()->setTabIcon(tabIndex(), m_saveIcon);
+}
+
+void GrpcForm::finishSave()
+{
+    tabBar()->setTabIcon(tabIndex(), QIcon());
 }
 
 QTabBar * GrpcForm::tabBar()

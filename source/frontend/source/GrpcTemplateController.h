@@ -39,13 +39,16 @@ signals:
 
     void showStatusMessage(const QString & message, int timeOut = 0);
 
+    void startInsert();
+    void startEdit();
+    void finishSave();
+
 public slots:
     virtual void masterChanged(const QModelIndex & index);
     void applySearchCriterias( const JsonParameterFormatter & searchCriterias);
 
 private slots:
     void currentChanged(const QModelIndex & current, const QModelIndex & previous);
-    void updateState();
 
     void refresh_all();
     void add_new_record();
@@ -61,6 +64,8 @@ protected:
     virtual bool addNewGrpc() {return true;}
     virtual bool editGrpc() {return true;}
     virtual bool deleteGrpc() {return true;}
+
+    virtual void updateState();
 
     QVariant masterVariantObject();
     JsonParameterFormatter & searchCriterias();
