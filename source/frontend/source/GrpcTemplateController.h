@@ -42,9 +42,14 @@ signals:
     void startEdit();
     void finishSave();
 
+    void hideOthers(GrpcTemplateController * controller);
+    void focusIn();
+
 public slots:
     virtual void masterChanged(const QModelIndex & index);
     void applySearchCriterias( const JsonParameterFormatter & searchCriterias);
+    void showMenuAndToolbar();
+    void hideMenuAndToolbar();
 
 private slots:
     void currentChanged(const QModelIndex & current, const QModelIndex & previous);
@@ -75,7 +80,6 @@ protected:
     QToolBar * templateToolBar(){return m_templateToolBar;}
 
 private:
-    void showMenuAndToolbar(bool show);
     void initActions();
 
     JsonParameterFormatter m_searchCriterias;

@@ -10,5 +10,21 @@ GrpcMasterSlaveController::GrpcMasterSlaveController(GrpcTemplateController * ma
 void GrpcMasterSlaveController::addMasterSlave(GrpcTemplateController * master, GrpcTemplateController * slave)
 {
     connect(master, &GrpcTemplateController::rowChanged, slave, &GrpcTemplateController::masterRowChanged);
+
+    connect(master, &GrpcTemplateController::hideOthers, this, &GrpcMasterSlaveController::hideAllMenuToolbars);
+    connect(slave, &GrpcTemplateController::hideOthers, this, &GrpcMasterSlaveController::hideAllMenuToolbars);
+
     m_masterSlaveList.push_back({master, slave});
+}
+
+void GrpcMasterSlaveController::hideAllMenuToolbars(GrpcTemplateController * controller)
+{
+    for(auto const & masterSlave: std::as_const(m_masterSlaveList)) {
+        if(masterSlave.master != controller) {
+            masterSlave.master->hideMenuAndToolbar();
+        }
+        if(masterSlave.slave != controller) {
+            masterSlave.slave->hideMenuAndToolbar();
+        }
+    }
 }
