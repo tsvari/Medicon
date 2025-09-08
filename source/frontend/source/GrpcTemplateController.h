@@ -71,10 +71,12 @@ protected:
     JsonParameterFormatter & searchCriterias();
 
     QMenu * templateMenu(){return m_templateMenu;}
+    QMenu * contextMenu(){return m_contextMenu;}
     QToolBar * templateToolBar(){return m_templateToolBar;}
 
 private:
     void showMenuAndToolbar(bool show);
+    void initActions();
 
     JsonParameterFormatter m_searchCriterias;
     std::unique_ptr<IBaseGrpcObjectWrapper> m_masterObjectWrapper;
@@ -82,6 +84,7 @@ private:
     State m_state = Unselected;
 
     QMenu * m_templateMenu = nullptr;
+    QMenu * m_contextMenu = nullptr;
     QToolBar * m_templateToolBar = nullptr;
 
     QAction * m_actionRefresh;
