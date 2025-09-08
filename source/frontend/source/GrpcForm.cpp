@@ -30,6 +30,7 @@ QVariant GrpcForm::object()
 
 void GrpcForm::fill(const QModelIndex & index)
 {
+    m_formFillingFinished = false;
     const QVariant varData = index.data(GlobalRoles::VariantObjectRole);
     if(varData.isValid()) {
         m_objectWrapper->setObject(varData);
@@ -39,6 +40,7 @@ void GrpcForm::fill(const QModelIndex & index)
             fillWidget(m_formWidgets[i], type, m_objectWrapper->data(i));
         }
     }
+    m_formFillingFinished = true;
 }
 
 void GrpcForm::fillObject()
@@ -119,6 +121,13 @@ void GrpcForm::finishSave()
     tabBar()->setTabIcon(tabIndex(), QIcon());
 }
 
+void GrpcForm::contentChanged()
+{
+    if(m_formFillingFinished) {
+        emit formContentChanaged();
+    }
+}
+
 QTabBar * GrpcForm::tabBar()
 {
     if(QTabWidget * widget = tabWidget()) {
@@ -180,7 +189,9 @@ void GrpcForm::initilizeWidgets()
 
 void GrpcForm::clear()
 {
-
+    m_formFillingFinished = false;
+    // Clear all widgets
+    m_formFillingFinished = true;
 }
 
 void GrpcForm::fillWidget(QWidget * widget, const DataInfo::Type & type, const QVariant & data)

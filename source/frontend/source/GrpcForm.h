@@ -35,6 +35,9 @@ protected:
     IBaseGrpcObjectWrapper * objectWrapper() {return m_objectWrapper.get();}
 
 signals:
+    void formContentChanaged();
+
+private slots:
     void contentChanged();
 
 private:
@@ -47,6 +50,8 @@ private:
     QList<QWidget*> m_formWidgets;
     std::unique_ptr<IBaseGrpcObjectWrapper> m_objectWrapper = nullptr;
     QIcon m_saveIcon;
+
+    bool m_formFillingFinished = true;
 };
 
 #endif // GRPCFORM_H
