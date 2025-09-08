@@ -5,6 +5,7 @@ GrpcTableView::GrpcTableView(QWidget * parent)
     : QTableView(parent)
 {
     setEditTriggers(QAbstractItemView::NoEditTriggers);
+    setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void GrpcTableView::focusInEvent(QFocusEvent * event)

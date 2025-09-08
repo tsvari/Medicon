@@ -452,6 +452,12 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model, GrpcTableView 
             toobar->addSeparator();
             toobar->addAction(m_testAction);
         }
+
+        // Change context menu if any
+        if(QMenu * menu = contextMenu()) {
+            menu->addSeparator();
+            menu->addAction(m_testAction);
+        }
     }
 
     void updateState() override {
