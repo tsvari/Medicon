@@ -51,7 +51,7 @@ private:
     std::unique_ptr<IBaseGrpcObjectWrapper> m_objectWrapper = nullptr;
     QIcon m_saveIcon;
 
-    bool m_formFillingFinished = true;
+    bool m_formFillingFinished = false;
 };
 
 #endif // GRPCFORM_H

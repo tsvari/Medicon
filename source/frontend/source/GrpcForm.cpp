@@ -114,6 +114,7 @@ void GrpcForm::startInsert()
 void GrpcForm::startEdit()
 {
     tabBar()->setTabIcon(tabIndex(), m_saveIcon);
+    m_formFillingFinished = true;
 }
 
 void GrpcForm::finishSave()
