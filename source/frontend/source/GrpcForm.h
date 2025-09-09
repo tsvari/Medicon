@@ -37,8 +37,11 @@ protected:
     virtual void initializeForm() = 0;
     IBaseGrpcObjectWrapper * objectWrapper() {return m_objectWrapper.get();}
 
+    bool eventFilter(QObject *watched, QEvent * event) override;
+
 signals:
     void formContentChanaged();
+    void formEscapeSignal();
 
 private slots:
     void contentChanged();
