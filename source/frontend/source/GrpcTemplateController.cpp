@@ -59,7 +59,9 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
 
     connect(this, &GrpcTemplateController::populateModel, sourceModel, &GrpcObjectTableModel::setModelData);
     connect(view->selectionModel(), &QItemSelectionModel::currentChanged, this, &GrpcTemplateController::currentChanged);
-    connect(sourceModel, &GrpcObjectTableModel::zerroCount, form, &GrpcForm::makeReadonly);
+    connect(sourceModel, &GrpcObjectTableModel::zerroCount, this, &GrpcTemplateController::makeFormReadonly);
+    connect(this, &GrpcTemplateController::makeFormReadonly, form, &GrpcForm::makeReadonly);
+    connect(sourceModel, &GrpcObjectTableModel::zerroCount, this, [this](bool) {m_currentRow = -1;});
 
     if(masterObjectWrapper) {
         connect(this, &GrpcTemplateController::masterRowChanged, this, &GrpcTemplateController::masterChanged);
@@ -258,6 +260,7 @@ void GrpcTemplateController::refresh_all()
 {
     if(refreshGrpc()) {
         // refresh means connect to server and request data based of search criterias
+        m_currentRow = -1;
     }
 }
 
@@ -265,6 +268,7 @@ void GrpcTemplateController::add_new_record()
 {
     m_state = Insert;
     emit startInsert();
+    emit makeFormReadonly(false);
     updateState();
 }
 
@@ -308,8 +312,10 @@ void GrpcTemplateController::escape()
         if(m_currentRow >= 0) {
             m_state = Browsing;
         } else {
-             m_state = Unselected;
+            m_state = Unselected;
+            emit makeFormReadonly(true);
         }
+        updateState();
         emit finishSave();
     }
 }

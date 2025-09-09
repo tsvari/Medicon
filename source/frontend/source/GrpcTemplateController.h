@@ -45,6 +45,8 @@ signals:
     void hideOthers(GrpcTemplateController * controller);
     void focusIn();
 
+    void makeFormReadonly(bool readOnly);
+
 public slots:
     virtual void masterChanged(const QModelIndex & index);
     void applySearchCriterias( const JsonParameterFormatter & searchCriterias);
