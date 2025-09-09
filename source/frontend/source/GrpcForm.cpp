@@ -2,6 +2,7 @@
 #include "GrpcObjectTableModel.h"
 #include "GrpcTemplateController.h"
 
+#include <QApplication>
 #include <QLineEdit>
 #include <QComboBox>
 #include <QCheckBox>
@@ -123,6 +124,18 @@ void GrpcForm::startEdit()
 void GrpcForm::finishSave()
 {
     tabBar()->setTabIcon(tabIndex(), QIcon());
+}
+
+bool GrpcForm::eventFilter(QObject *watched, QEvent *event)
+{
+    QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+    if (keyEvent->key() == Qt::Key_Escape) {
+        emit formEscapeSignal();
+        return true;
+    }
+    // Pass the event to the next event filter or the watched object
+   return QWidget::eventFilter(watched, event);
+
 }
 
 void GrpcForm::contentChanged()

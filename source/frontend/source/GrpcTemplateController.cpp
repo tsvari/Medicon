@@ -48,10 +48,10 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     view->setModel(proxyModel);
 
     view->addAction(m_actionEscape);
-    form->addAction(m_actionEscape);
 
     connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::fill);
     connect(form, &GrpcForm::formContentChanaged, this, &GrpcTemplateController::formContentChanged);
+    connect(form, &GrpcForm::formEscapeSignal, this, &GrpcTemplateController::escape);
 
     connect(this, &GrpcTemplateController::startInsert, form, &GrpcForm::startInsert);
     connect(this, &GrpcTemplateController::startEdit, form, &GrpcForm::startEdit);
