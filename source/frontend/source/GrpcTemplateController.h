@@ -60,6 +60,7 @@ private slots:
     void edit_record();
     void delete_record();
     void save_record();
+    void escape();
 
 protected:
     // be sure to override it in the child
@@ -96,6 +97,7 @@ private:
     QAction * m_actionEdit;
     QAction * m_actionDelete;
     QAction * m_actionSave;
+    QAction * m_actionEscape;
 };
 
 #endif // GRPCTEMPLATECONTROLLER_H

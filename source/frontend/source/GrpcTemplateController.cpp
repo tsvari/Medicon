@@ -47,6 +47,9 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     form->makeReadonly(true);
     view->setModel(proxyModel);
 
+    view->addAction(m_actionEscape);
+    form->addAction(m_actionEscape);
+
     connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::fill);
     connect(form, &GrpcForm::formContentChanaged, this, &GrpcTemplateController::formContentChanged);
 
@@ -109,6 +112,11 @@ void GrpcTemplateController::initActions()
     m_actionSave->setShortcut(QKeySequence("Ctrl+s"));
     m_actionSave->setStatusTip(tr("Save Changes"));
     connect(m_actionSave, &QAction::triggered, this, &GrpcTemplateController::save_record);
+
+    m_actionEscape = new QAction(tr("Escape Action"), this);
+    m_actionEscape->setShortcut(QKeySequence(Qt::Key_Escape));
+    connect(m_actionEscape, &QAction::triggered, this, &GrpcTemplateController::escape);
+    m_actionEscape->setShortcutContext(Qt::WidgetShortcut);
 }
 
 void GrpcTemplateController::addActionBars(QMainWindow * mainWindow, QMenuBar * menuBar, QToolBar * toolBar, QStatusBar * statusBar)
@@ -291,6 +299,18 @@ void GrpcTemplateController::save_record()
             updateState();
             emit finishSave();
         }
+    }
+}
+
+void GrpcTemplateController::escape()
+{
+    if(m_state == Insert || m_state == Edit) {
+        if(m_currentRow >= 0) {
+            m_state = Browsing;
+        } else {
+             m_state = Unselected;
+        }
+        emit finishSave();
     }
 }
 
