@@ -191,6 +191,9 @@ void GrpcTemplateController::currentChanged(const QModelIndex & current, const Q
 {
     if(current.row() != previous.row()) {
         emit rowChanged(current);
+        if(m_state != Browsing) {
+            emit finishSave();
+        }
         m_currentRow = current.row();
         m_state = Browsing;
         updateState();
