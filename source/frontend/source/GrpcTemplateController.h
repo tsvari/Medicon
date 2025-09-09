@@ -49,6 +49,10 @@ signals:
     void makeFormReadonly(bool readOnly);
     void prepareFormObject();
 
+    void addNewObject(const QVariant & data);
+    void updateObject(int row, const QVariant & data);
+    void deleteObject(int row);
+
 public slots:
     virtual void masterChanged(const QModelIndex & index);
     void applySearchCriterias( const JsonParameterFormatter & searchCriterias);
@@ -70,11 +74,13 @@ protected:
     // be sure to override it in the child
     virtual void modelData() = 0;
 
+    // Override in child class to expose changes on server
     virtual bool refreshGrpc() {return true;}
     virtual bool addNewGrpc(const QVariant & object) {return true;}
     virtual bool editGrpc(const QVariant & object) {return true;}
     virtual bool deleteGrpc(const QVariant & object) {return true;}
 
+    // Override in child class for custom states
     virtual void updateState();
 
     QVariant masterVariantObject();

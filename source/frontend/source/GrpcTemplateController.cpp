@@ -79,6 +79,10 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
             int i = 0;
         }
     });
+
+    connect(this, &GrpcTemplateController::addNewObject, sourceModel, &GrpcObjectTableModel::addNewObject);
+    connect(this, &GrpcTemplateController::updateObject, sourceModel, &GrpcObjectTableModel::updateObject);
+    connect(this, &GrpcTemplateController::deleteObject, sourceModel, &GrpcObjectTableModel::deleteObject);
 }
 
 GrpcTemplateController::~GrpcTemplateController()
@@ -292,6 +296,7 @@ void GrpcTemplateController::delete_record()
     emit prepareFormObject();
     if(deleteGrpc(m_formObject)) {
         // send Grpc object to server delete it and if success remove it from the model
+        emit deleteObject(m_currentRow);
     }
 }
 
@@ -301,6 +306,7 @@ void GrpcTemplateController::save_record()
         emit prepareFormObject();
         if(editGrpc(m_formObject)) {
             // sent Grpc object to server to edit record and if success edit current object in the model
+            emit updateObject(m_currentRow, m_formObject);
             m_state = Browsing;
             updateState();
             emit finishSave();
@@ -310,6 +316,7 @@ void GrpcTemplateController::save_record()
         emit prepareFormObject();
         if(addNewGrpc(m_formObject)) {
             // sent Grpc object to server to add it and if success add it to the model
+            emit addNewObject(m_formObject);
             m_state = Browsing;
             updateState();
             emit finishSave();
