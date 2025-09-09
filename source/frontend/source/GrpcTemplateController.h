@@ -2,6 +2,7 @@
 #define GRPCTEMPLATECONTROLLER_H
 
 #include <QObject>
+#include <QVariant>
 
 #include "JsonParameterFormatter.h"
 
@@ -46,6 +47,7 @@ signals:
     void focusIn();
 
     void makeFormReadonly(bool readOnly);
+    void prepareFormObject();
 
 public slots:
     virtual void masterChanged(const QModelIndex & index);
@@ -69,9 +71,9 @@ protected:
     virtual void modelData() = 0;
 
     virtual bool refreshGrpc() {return true;}
-    virtual bool addNewGrpc() {return true;}
-    virtual bool editGrpc() {return true;}
-    virtual bool deleteGrpc() {return true;}
+    virtual bool addNewGrpc(const QVariant & object) {return true;}
+    virtual bool editGrpc(const QVariant & object) {return true;}
+    virtual bool deleteGrpc(const QVariant & object) {return true;}
 
     virtual void updateState();
 
@@ -87,6 +89,8 @@ private:
 
     JsonParameterFormatter m_searchCriterias;
     std::unique_ptr<IBaseGrpcObjectWrapper> m_masterObjectWrapper;
+
+    QVariant m_formObject;
     int m_currentRow = -1;
     State m_state = Unselected;
 

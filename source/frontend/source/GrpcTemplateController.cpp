@@ -71,6 +71,14 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     });
     connect(view, &GrpcTableView::focusIn, form, &GrpcForm::hideAllButThis);
     connect(view, &GrpcTableView::focusIn, this, &GrpcTemplateController::showMenuAndToolbar);
+    connect(this, &GrpcTemplateController::prepareFormObject, this, [this, form]() {
+        form->fillObject();
+        m_formObject = form->object();
+        if(!m_formObject.isValid()) {
+            // throw exception ????
+            int i = 0;
+        }
+    });
 }
 
 GrpcTemplateController::~GrpcTemplateController()
@@ -281,7 +289,8 @@ void GrpcTemplateController::edit_record()
 
 void GrpcTemplateController::delete_record()
 {
-    if(deleteGrpc()) {
+    emit prepareFormObject();
+    if(deleteGrpc(m_formObject)) {
         // send Grpc object to server delete it and if success remove it from the model
     }
 }
@@ -289,7 +298,8 @@ void GrpcTemplateController::delete_record()
 void GrpcTemplateController::save_record()
 {
     if(m_state == Edit) {
-        if(editGrpc()) {
+        emit prepareFormObject();
+        if(editGrpc(m_formObject)) {
             // sent Grpc object to server to edit record and if success edit current object in the model
             m_state = Browsing;
             updateState();
@@ -297,7 +307,8 @@ void GrpcTemplateController::save_record()
         }
 
     } else if(m_state == Insert) {
-        if(addNewGrpc()) {
+        emit prepareFormObject();
+        if(addNewGrpc(m_formObject)) {
             // sent Grpc object to server to add it and if success add it to the model
             m_state = Browsing;
             updateState();
