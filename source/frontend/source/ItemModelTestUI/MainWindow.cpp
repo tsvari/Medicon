@@ -63,12 +63,12 @@ void MainWindow::on_pushButton_clicked()
     //    }
     //}
 
-    //ui->masterForm->fillObject();
+    ui->masterForm->fillObject();
 
-    //QVariant filledObject = ui->masterForm->object();
-    //Q_ASSERT(filledObject.isValid());
+    QVariant filledObject = ui->masterForm->object();
+    Q_ASSERT(filledObject.isValid());
 
-    //GprcTestDataObject object = filledObject.value<GprcTestDataObject>();
+    GprcTestDataObject object = filledObject.value<GprcTestDataObject>();
 
 }
 

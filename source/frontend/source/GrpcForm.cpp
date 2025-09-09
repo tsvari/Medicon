@@ -49,12 +49,14 @@ void GrpcForm::fill(const QModelIndex & index)
 
 void GrpcForm::fillObject()
 {
-    for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
-        QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
-        Q_ASSERT(widget);
-        QVariant data = widgetData(widget, m_objectWrapper->dataType(i));
-        Q_ASSERT(data.isValid());
-        m_objectWrapper->setData(i, data);
+    if(m_objectWrapper->hasObject()) {
+        for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
+            QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
+            Q_ASSERT(widget);
+            QVariant data = widgetData(widget, m_objectWrapper->dataType(i));
+            Q_ASSERT(data.isValid());
+            m_objectWrapper->setData(i, data);
+        }
     }
 }
 
