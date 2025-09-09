@@ -115,6 +115,9 @@ void GrpcForm::startInsert()
 {
     clear();
     tabBar()->setTabIcon(tabIndex(), m_saveIcon);
+    if(!m_formWidgets.empty()) {
+        m_formWidgets.at(0)->setFocus();
+    }
 }
 
 void GrpcForm::startEdit()
@@ -209,7 +212,31 @@ void GrpcForm::initilizeWidgets()
 void GrpcForm::clear()
 {
     m_formFillingFinished = false;
-    // Clear all widgets
+    for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
+        QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
+        Q_ASSERT(widget);
+        // Connect content changes to GrpcTemplateController State
+        if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
+            lineEdit->setText("");
+        } else if(QComboBox * comboBox = qobject_cast<QComboBox*>(widget)) {
+            comboBox->setCurrentIndex(-1);
+        } else if(QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget)) {
+            checkBox->setChecked(false);
+        } else if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(widget);
+            QDateTimeEdit * dateTimeEdit = qobject_cast<QDateTimeEdit*>(widget)) {
+            if(dateEdit) {
+                dateEdit->setDate(QDate::currentDate());
+            } else {
+                dateTimeEdit->setDateTime(QDateTime::currentDateTime());
+            }
+        } else if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(widget)) {
+            timeEdit->setTime(QTime(0,0,0,0));
+        } else if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
+            textEdit->setText("");
+        } else {
+            // It's not known managed widget yet
+        }
+    }
     m_formFillingFinished = true;
 }
 
