@@ -29,12 +29,13 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
+    QVariant variantObject(int row);
+
+public slots:
     void insertObject(int row, const QVariant & data);
     void addNewObject(const QVariant & data);
     void updateObject(int row, const QVariant & data);
     void deleteObject(int row);
-
-    QVariant variantObject(int row);
 
 signals:
     void inserted(int row);

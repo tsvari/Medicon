@@ -93,6 +93,7 @@ void GrpcObjectTableModel::addNewObject(const QVariant & data)
 void GrpcObjectTableModel::updateObject(int row, const QVariant &data)
 {
     m_container->updateObject(row, data);
+    emit dataChanged(index(row, 0), index(row, columnCount() - 1));
     emit updated(row);
 }
 
