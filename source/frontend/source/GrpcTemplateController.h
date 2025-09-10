@@ -20,6 +20,7 @@ class QToolBar;
 class QStatusBar;
 class QMainWindow;
 class GrpcTableView;
+class GrpcLoader;
 class GrpcTemplateController : public QObject
 {
     Q_OBJECT
@@ -103,6 +104,7 @@ private:
     QMenu * m_templateMenu = nullptr;
     QMenu * m_contextMenu = nullptr;
     QToolBar * m_templateToolBar = nullptr;
+    GrpcLoader * m_grpcLoader = nullptr;
 
     QAction * m_actionRefresh;
     QAction * m_actionAddNew;
