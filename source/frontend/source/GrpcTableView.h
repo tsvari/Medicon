@@ -12,10 +12,12 @@ public:
 signals:
     void focusIn();
     void focusOut();
+    void resizeToAdjustLoader();
 
 protected:
     void focusInEvent(QFocusEvent * event) override;
     void focusOutEvent(QFocusEvent * event) override;
+    void resizeEvent(QResizeEvent * event) override;
 };
 
 #endif // GRPCTABLEVIEW_H

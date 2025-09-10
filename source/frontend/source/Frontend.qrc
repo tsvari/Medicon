@@ -7,5 +7,6 @@
         <file>icons/add_new.png</file>
         <file>icons/exit.png</file>
         <file>icons/search.png</file>
+        <file>icons/loaderSmall.gif</file>
     </qresource>
 </RCC>
