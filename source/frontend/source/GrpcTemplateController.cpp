@@ -13,6 +13,7 @@
 #include "GrpcProxySortFilterModel.h"
 #include "GrpcSearchForm.h"
 #include "GrpcTableView.h"
+#include "GrpcThreadWorker.h"
 
 #include "GrpcDataContainer.hpp"
 #include "GrpcObjectWrapper.hpp"
@@ -48,6 +49,10 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     view->setModel(proxyModel);
 
     view->addAction(m_actionEscape);
+
+    m_grpcLoader = new GrpcLoader(":/icons/loaderSmall.gif", GrpcLoader::Center, view);
+    connect(view, &GrpcTableView::resizeToAdjustLoader, m_grpcLoader, &GrpcLoader::adjustToParentWidget);
+    m_grpcLoader->showLoader(false);
 
     connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::fill);
     connect(form, &GrpcForm::formContentChanaged, this, &GrpcTemplateController::formContentChanged);
@@ -271,8 +276,11 @@ void GrpcTemplateController::updateState()
 void GrpcTemplateController::refresh_all()
 {
     if(refreshGrpc()) {
-        // refresh means connect to server and request data based of search criterias
+        // refresh means connect to server and request data based on existing search criterias
+        modelData();
         m_currentRow = -1;
+        m_state = Unselected;
+        updateState();
     }
 }
 
