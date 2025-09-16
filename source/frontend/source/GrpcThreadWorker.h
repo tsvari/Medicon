@@ -64,18 +64,4 @@ private:
 };
 
 
-class GrpcThreadWorker : public QObject
-{
-    Q_OBJECT
-public:
-    explicit GrpcThreadWorker(QObject * parent = nullptr);
-
-    // Pure Virtual functions to load, add, edit, delete
-    // Make real implementations in classes derived from GrpcThreadWorker
-    virtual IBaseDataContainer * loadObjects() = 0;
-    virtual void addNewObject(const QVariant & promise) = 0;
-    virtual void editObject(const QVariant & promise) = 0;
-    virtual void deleteObject(const QVariant & promise) = 0;
-};
-
 #endif // GRPCTHREADWORKER_H

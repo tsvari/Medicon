@@ -27,7 +27,7 @@ class GrpcTemplateController : public QObject
 {
     Q_OBJECT
 public:
-    explicit GrpcTemplateController(GrpcProxySortFilterModel * proxyModel, GrpcThreadWorker * worker,
+    explicit GrpcTemplateController(GrpcProxySortFilterModel * proxyModel,
                                     GrpcTableView  * tableView, GrpcForm * form, IBaseGrpcObjectWrapper * masterObjectWrapper, QObject *parent = nullptr);
     virtual ~GrpcTemplateController();
 
@@ -57,6 +57,8 @@ signals:
     void updateObject(int row, const QVariant & data);
     void deleteObject(int row);
 
+    void startLoadingData();
+
 public slots:
     virtual void masterChanged(const QModelIndex & index);
     void applySearchCriterias( const JsonParameterFormatter & searchCriterias);
@@ -81,7 +83,10 @@ private slots:
 
 protected:
     // be sure to override it in the child
-    virtual void modelData() = 0;
+    virtual void workerModelData() = 0;
+    virtual void workerAddNewObject(const QVariant & promise) = 0;
+    virtual void workerEditObject(const QVariant & promise) = 0;
+    virtual void workerDeleteObject(const QVariant & promise) = 0;
 
     // Override in child class for custom states
     virtual void updateState();
@@ -115,8 +120,7 @@ private:
     QAction * m_actionSave;
     QAction * m_actionEscape;
 
-    GrpcThreadWorker * m_worker = nullptr;
-    QFutureWatcher<IBaseDataContainer *> m_watcherLoad;
+    QFutureWatcher<void> m_watcherLoad;
     QFutureWatcher<void> m_watcherAddNew;
     QFutureWatcher<void> m_watcherEdit;
     QFutureWatcher<void> m_watcherDelete;
