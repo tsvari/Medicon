@@ -7,6 +7,7 @@
 #include <QMenuBar>
 #include <QToolBar>
 #include <QStatusBar>
+#include <QtConcurrent/QtConcurrent>
 
 #include "GrpcForm.h"
 #include "GrpcObjectTableModel.h"
@@ -18,13 +19,18 @@
 #include "GrpcDataContainer.hpp"
 #include "GrpcObjectWrapper.hpp"
 
-GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyModel, GrpcTableView  * view, GrpcForm * form, IBaseGrpcObjectWrapper * masterObjectWrapper, QObject *parent)
+GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyModel, GrpcThreadWorker * worker,
+                                               GrpcTableView  * view, GrpcForm * form, IBaseGrpcObjectWrapper * masterObjectWrapper, QObject *parent)
     : QObject{parent}
     , m_masterObjectWrapper(masterObjectWrapper)
+    , m_worker(worker)
 {
     Q_ASSERT(proxyModel);
+    Q_ASSERT(worker);
     Q_ASSERT(view);
     Q_ASSERT(form);
+
+    m_worker->setParent(this);
 
     GrpcObjectTableModel * sourceModel = qobject_cast<GrpcObjectTableModel*>(proxyModel->sourceModel());
     Q_ASSERT(sourceModel);
@@ -81,13 +87,17 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
         m_formObject = form->object();
         if(!m_formObject.isValid()) {
             // throw exception ????
-            int i = 0;
         }
     });
 
     connect(this, &GrpcTemplateController::addNewObject, sourceModel, &GrpcObjectTableModel::addNewObject);
     connect(this, &GrpcTemplateController::updateObject, sourceModel, &GrpcObjectTableModel::updateObject);
     connect(this, &GrpcTemplateController::deleteObject, sourceModel, &GrpcObjectTableModel::deleteObject);
+
+    connect(&m_watcherLoad, &QFutureWatcher<IBaseDataContainer *>::finished, this, &GrpcTemplateController::handleRefreshGrpc);
+    connect(&m_watcherAddNew, &QFutureWatcher<bool>::finished, this, &GrpcTemplateController::handleAddNewGrpc);
+    connect(&m_watcherEdit, &QFutureWatcher<bool>::finished, this, &GrpcTemplateController::handleEditGrpc);
+    connect(&m_watcherDelete, &QFutureWatcher<bool>::finished, this, &GrpcTemplateController::handleDeleteGrpc);
 }
 
 GrpcTemplateController::~GrpcTemplateController()
@@ -275,13 +285,9 @@ void GrpcTemplateController::updateState()
 
 void GrpcTemplateController::refresh_all()
 {
-    if(refreshGrpc()) {
-        // refresh means connect to server and request data based on existing search criterias
-        modelData();
-        m_currentRow = -1;
-        m_state = Unselected;
-        updateState();
-    }
+    m_grpcLoader->showLoader(true);
+    QFuture<IBaseDataContainer *> future = QtConcurrent::run(&GrpcThreadWorker::loadObjects, m_worker);
+    m_watcherLoad.setFuture(future);
 }
 
 void GrpcTemplateController::add_new_record()
@@ -302,9 +308,66 @@ void GrpcTemplateController::edit_record()
 void GrpcTemplateController::delete_record()
 {
     emit prepareFormObject();
-    if(deleteGrpc(m_formObject)) {
+    m_grpcLoader->showLoader(true);
+    QFuture<void> future = QtConcurrent::run(&GrpcThreadWorker::deleteObject, m_worker, m_formObject);
+    m_watcherDelete.setFuture(future);
+}
+
+void GrpcTemplateController::handleRefreshGrpc()
+{
+    try {
+        IBaseDataContainer * result = m_watcherLoad.result();
+        // refresh means connect to server and request data based on existing search criterias
+        modelData();
+        //emit populateModel(std::make_shared<IBaseDataContainer>(*result));
+        m_currentRow = -1;
+        m_state = Unselected;
+        updateState();
+        m_grpcLoader->showLoader(false);
+    } catch (const QUnhandledException & e) {
+
+    }
+}
+
+void GrpcTemplateController::handleAddNewGrpc()
+{
+     try {
+
+        // sent Grpc object to server to add it and if success add it to the model
+        emit addNewObject(m_formObject);
+        m_state = Browsing;
+        updateState();
+        emit finishSave();
+        m_grpcLoader->showLoader(false);
+     } catch (const QUnhandledException & e) {
+
+     }
+}
+
+void GrpcTemplateController::handleEditGrpc()
+{
+    try {
+
+        // sent Grpc object to server to edit record and if success edit current object in the model
+        emit updateObject(m_currentRow, m_formObject);
+        m_state = Browsing;
+        updateState();
+        emit finishSave();
+        m_grpcLoader->showLoader(false);
+    } catch (const QUnhandledException & e) {
+
+    }
+}
+
+void GrpcTemplateController::handleDeleteGrpc()
+{
+    try {
+
         // send Grpc object to server delete it and if success remove it from the model
         emit deleteObject(m_currentRow);
+        m_grpcLoader->showLoader(false);
+    } catch (const QUnhandledException & e) {
+
     }
 }
 
@@ -312,23 +375,14 @@ void GrpcTemplateController::save_record()
 {
     if(m_state == Edit) {
         emit prepareFormObject();
-        if(editGrpc(m_formObject)) {
-            // sent Grpc object to server to edit record and if success edit current object in the model
-            emit updateObject(m_currentRow, m_formObject);
-            m_state = Browsing;
-            updateState();
-            emit finishSave();
-        }
-
+        m_grpcLoader->showLoader(true);
+        QFuture<void> future = QtConcurrent::run(&GrpcThreadWorker::editObject, m_worker, m_formObject);
+        m_watcherEdit.setFuture(future);
     } else if(m_state == Insert) {
         emit prepareFormObject();
-        if(addNewGrpc(m_formObject)) {
-            // sent Grpc object to server to add it and if success add it to the model
-            emit addNewObject(m_formObject);
-            m_state = Browsing;
-            updateState();
-            emit finishSave();
-        }
+        m_grpcLoader->showLoader(true);
+        QFuture<void> future = QtConcurrent::run(&GrpcThreadWorker::addNewObject, m_worker, m_formObject);
+        m_watcherAddNew.setFuture(future);
     }
 }
 
