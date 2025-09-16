@@ -9,6 +9,7 @@
 #include <QToolBar>
 #include <QMenuBar>
 #include <QMenu>
+#include <QThread>
 
 #include "GrpcObjectTableModel.h"
 #include "GrpcDataContainer.hpp"
@@ -16,6 +17,7 @@
 #include "GrpcForm.h"
 #include "GrpcProxySortFilterModel.h"
 #include "GrpcTemplateController.h"
+#include "GrpcThreadWorker.h"
 #include "include_frontend_util.h"
 
 template <typename TpT = QVariant>
@@ -419,12 +421,46 @@ static std::vector<GprcTestLevelObject> comboLevelData()
 }
 }
 
+class MasterWorker : public GrpcThreadWorker
+{
+    Q_OBJECT
+public:
+    explicit MasterWorker(QObject * parent = nullptr)
+        : GrpcThreadWorker(parent) {}
+
+    IBaseDataContainer * loadObjects() override {
+        QThread::msleep(1000);
+        return new GrpcDataContainer<GprcTestDataObject>(std::move(TestModelData::masterData()));
+    }
+    void addNewObject(const QVariant & promise) override { QThread::msleep(500);}
+    void editObject(const QVariant & promise) override { QThread::msleep(500);}
+    void deleteObject(const QVariant & promise) override { QThread::msleep(500);}
+};
+
+class SlaveWorker : public GrpcThreadWorker
+{
+    Q_OBJECT
+public:
+    explicit SlaveWorker(QObject * parent = nullptr)
+        : GrpcThreadWorker(parent) {}
+
+    IBaseDataContainer * loadObjects() override {
+        QThread::msleep(1000);
+        return new GrpcDataContainer<GprcTestSlaveObject>(std::move(TestModelData::slaveData()));
+    }
+    void addNewObject(const QVariant & promise) override {QThread::msleep(500);}
+    void editObject(const QVariant & promise) override {QThread::msleep(500);}
+    void deleteObject(const QVariant & promise) override {QThread::msleep(500);}
+};
+
 class MasterTemplate : public GrpcTemplateController
 {
     Q_OBJECT
 
-public: explicit MasterTemplate(GrpcProxySortFilterModel * model, GrpcTableView * tableView, GrpcForm * form, QObject *parent = nullptr) :
+public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
+                            GrpcTableView * tableView, GrpcForm * form, QObject *parent = nullptr) :
         GrpcTemplateController(model,
+                         new MasterWorker(),
                          tableView,
                          form,
                          nullptr,// It's master only
@@ -493,10 +529,11 @@ class SlaveTemplate : public GrpcTemplateController
 
 public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableView * tableView, GrpcForm * form, QObject *parent = nullptr) :
         GrpcTemplateController(proxyModel,
-                         tableView,
-                         form,
-                         new GrpcObjectWrapper<GprcTestDataObject>(),
-                         parent){}
+                                new SlaveWorker(),
+                                tableView,
+                                form,
+                                new GrpcObjectWrapper<GprcTestDataObject>(),
+                                parent){}
 
     void modelData() override {
         //JsonParameterFormatter criterias = searchCriterias();

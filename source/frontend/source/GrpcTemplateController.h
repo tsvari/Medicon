@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QVariant>
+#include <QFutureWatcher>
 
 #include "JsonParameterFormatter.h"
 
@@ -21,11 +22,13 @@ class QStatusBar;
 class QMainWindow;
 class GrpcTableView;
 class GrpcLoader;
+class GrpcThreadWorker;
 class GrpcTemplateController : public QObject
 {
     Q_OBJECT
 public:
-    explicit GrpcTemplateController(GrpcProxySortFilterModel * proxyModel, GrpcTableView  * tableView, GrpcForm * form, IBaseGrpcObjectWrapper * masterObjectWrapper, QObject *parent = nullptr);
+    explicit GrpcTemplateController(GrpcProxySortFilterModel * proxyModel, GrpcThreadWorker * worker,
+                                    GrpcTableView  * tableView, GrpcForm * form, IBaseGrpcObjectWrapper * masterObjectWrapper, QObject *parent = nullptr);
     virtual ~GrpcTemplateController();
 
     void addSearchForm(GrpcSearchForm * searchForm);
@@ -71,15 +74,14 @@ private slots:
     void save_record();
     void escape();
 
+    void handleRefreshGrpc();
+    void handleAddNewGrpc();
+    void handleEditGrpc();
+    void handleDeleteGrpc();
+
 protected:
     // be sure to override it in the child
     virtual void modelData() = 0;
-
-    // Override in child class to expose changes on server
-    virtual bool refreshGrpc() {return true;}
-    virtual bool addNewGrpc(const QVariant & object) {return true;}
-    virtual bool editGrpc(const QVariant & object) {return true;}
-    virtual bool deleteGrpc(const QVariant & object) {return true;}
 
     // Override in child class for custom states
     virtual void updateState();
@@ -112,6 +114,12 @@ private:
     QAction * m_actionDelete;
     QAction * m_actionSave;
     QAction * m_actionEscape;
+
+    GrpcThreadWorker * m_worker = nullptr;
+    QFutureWatcher<IBaseDataContainer *> m_watcherLoad;
+    QFutureWatcher<void> m_watcherAddNew;
+    QFutureWatcher<void> m_watcherEdit;
+    QFutureWatcher<void> m_watcherDelete;
 };
 
 #endif // GRPCTEMPLATECONTROLLER_H
