@@ -421,38 +421,6 @@ static std::vector<GprcTestLevelObject> comboLevelData()
 }
 }
 
-class MasterWorker : public GrpcThreadWorker
-{
-    Q_OBJECT
-public:
-    explicit MasterWorker(QObject * parent = nullptr)
-        : GrpcThreadWorker(parent) {}
-
-    IBaseDataContainer * loadObjects() override {
-        QThread::msleep(1000);
-        return new GrpcDataContainer<GprcTestDataObject>(std::move(TestModelData::masterData()));
-    }
-    void addNewObject(const QVariant & promise) override { QThread::msleep(500);}
-    void editObject(const QVariant & promise) override { QThread::msleep(500);}
-    void deleteObject(const QVariant & promise) override { QThread::msleep(500);}
-};
-
-class SlaveWorker : public GrpcThreadWorker
-{
-    Q_OBJECT
-public:
-    explicit SlaveWorker(QObject * parent = nullptr)
-        : GrpcThreadWorker(parent) {}
-
-    IBaseDataContainer * loadObjects() override {
-        QThread::msleep(1000);
-        return new GrpcDataContainer<GprcTestSlaveObject>(std::move(TestModelData::slaveData()));
-    }
-    void addNewObject(const QVariant & promise) override {QThread::msleep(500);}
-    void editObject(const QVariant & promise) override {QThread::msleep(500);}
-    void deleteObject(const QVariant & promise) override {QThread::msleep(500);}
-};
-
 class MasterTemplate : public GrpcTemplateController
 {
     Q_OBJECT
@@ -460,7 +428,6 @@ class MasterTemplate : public GrpcTemplateController
 public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
                             GrpcTableView * tableView, GrpcForm * form, QObject *parent = nullptr) :
         GrpcTemplateController(model,
-                         new MasterWorker(),
                          tableView,
                          form,
                          nullptr,// It's master only
@@ -504,16 +471,20 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
 
     }
 
-    void modelData() override {
+    void workerModelData() override {
         //JsonParameterFormatter criterias = searchCriterias();
         // Dont need master object in thinscase
-
+        QThread::msleep(500);
         emit populateModel(
             std::make_shared<GrpcDataContainer<GprcTestDataObject>>(
                 std::move(TestModelData::masterData())
                 )
             );
     }
+
+    void workerAddNewObject(const QVariant & promise) override {QThread::msleep(300);}
+    void workerEditObject(const QVariant & promise) override {QThread::msleep(300);}
+    void workerDeleteObject(const QVariant & promise) override {QThread::msleep(300);}
 private slots:
     void testSlot() {
 
@@ -529,14 +500,14 @@ class SlaveTemplate : public GrpcTemplateController
 
 public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableView * tableView, GrpcForm * form, QObject *parent = nullptr) :
         GrpcTemplateController(proxyModel,
-                                new SlaveWorker(),
                                 tableView,
                                 form,
                                 new GrpcObjectWrapper<GprcTestDataObject>(),
                                 parent){}
 
-    void modelData() override {
+    void workerModelData() override {
         //JsonParameterFormatter criterias = searchCriterias();
+        QThread::msleep(500);
         QVariant varObject = masterVariantObject();
         if(varObject.isValid()) {
             GprcTestDataObject masterObject = varObject.value<GprcTestDataObject>();
@@ -554,6 +525,9 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
                 );
         }
     }
+    void workerAddNewObject(const QVariant & promise) override {QThread::msleep(300);}
+    void workerEditObject(const QVariant & promise) override {QThread::msleep(300);}
+    void workerDeleteObject(const QVariant & promise) override {QThread::msleep(300);}
 };
 
 Q_DECLARE_METATYPE(GprcTestDataObject)
