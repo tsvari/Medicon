@@ -58,6 +58,7 @@ signals:
     void deleteObject(int row);
 
     void startLoadingData();
+    void warning(const QString & warningTitle, const QString & message);
 
 public slots:
     virtual void masterChanged(const QModelIndex & index);
@@ -91,7 +92,12 @@ protected:
     // Override in child class for custom states
     virtual void updateState();
 
+    // Check object before edit or insert
+    // By default it's valid
+    virtual std::optional<QStringList> checkObjectValidity() {return std::nullopt;}
+
     QVariant masterVariantObject();
+    QVariant & formObject() {return m_formObject;}
     JsonParameterFormatter & searchCriterias();
 
     QMenu * templateMenu(){return m_templateMenu;}

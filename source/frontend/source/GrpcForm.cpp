@@ -54,7 +54,7 @@ void GrpcForm::fillObject()
             QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
             Q_ASSERT(widget);
             QVariant data = widgetData(widget, m_objectWrapper->dataType(i));
-            Q_ASSERT(data.isValid());
+            //Q_ASSERT(data.isValid());
             m_objectWrapper->setData(i, data);
         }
     }
