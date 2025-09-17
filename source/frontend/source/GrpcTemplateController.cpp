@@ -64,6 +64,7 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     connect(this, &GrpcTemplateController::startInsert, form, &GrpcForm::startInsert);
     connect(this, &GrpcTemplateController::startEdit, form, &GrpcForm::startEdit);
     connect(this, &GrpcTemplateController::finishSave, form, &GrpcForm::finishSave);
+    connect(this, &GrpcTemplateController::clearForm, form, &GrpcForm::clear);
 
     connect(this, &GrpcTemplateController::populateModel, sourceModel, &GrpcObjectTableModel::setModelData);
     connect(view->selectionModel(), &QItemSelectionModel::currentChanged, this, &GrpcTemplateController::currentChanged);
@@ -99,6 +100,8 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     connect(&m_watcherEdit, &QFutureWatcher<bool>::finished, this, &GrpcTemplateController::handleEditGrpc);
     connect(&m_watcherDelete, &QFutureWatcher<bool>::finished, this, &GrpcTemplateController::handleDeleteGrpc);
     connect(this, &GrpcTemplateController::startLoadingData, this, [this]() {
+        emit finishSave();
+        emit clearForm();
         m_grpcLoader->showLoader(true);
         QFuture<void> future = QtConcurrent::run(&GrpcTemplateController::workerModelData, this);
         m_watcherLoad.setFuture(future);
