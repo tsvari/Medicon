@@ -1,11 +1,9 @@
 #ifndef GRPCTHREADWORKER_H
 #define GRPCTHREADWORKER_H
 
-#include <QObject>
 #include <QLabel>
 #include <QMovie>
 
-class IBaseDataContainer;
 class GrpcLoader : public QLabel
 {
     Q_OBJECT

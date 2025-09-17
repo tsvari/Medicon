@@ -8,6 +8,7 @@
 #include <QToolBar>
 #include <QStatusBar>
 #include <QtConcurrent/QtConcurrent>
+#include <QMessageBox>
 
 #include "GrpcForm.h"
 #include "GrpcObjectTableModel.h"
@@ -84,6 +85,9 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
         if(!m_formObject.isValid()) {
             // throw exception ????
         }
+    });
+    connect(this, &GrpcTemplateController::warning, this, [view](const QString & warningTitle, const QString & message) {
+        QMessageBox::warning(view,  warningTitle,  message);
     });
 
     connect(this, &GrpcTemplateController::addNewObject, sourceModel, &GrpcObjectTableModel::addNewObject);
@@ -303,8 +307,9 @@ void GrpcTemplateController::edit_record()
 void GrpcTemplateController::delete_record()
 {
     emit prepareFormObject();
+
     m_grpcLoader->showLoader(true);
-    QFuture<void> future = QtConcurrent::run(&GrpcTemplateController::workerDeleteObject, this, m_formObject);
+    QFuture<void> future = QtConcurrent::run(&GrpcTemplateController::workerDeleteObject, this, formObject());
     m_watcherDelete.setFuture(future);
 }
 
@@ -327,7 +332,7 @@ void GrpcTemplateController::handleAddNewGrpc()
      try {
 
         // sent Grpc object to server to add it and if success add it to the model
-        emit addNewObject(m_formObject);
+        emit addNewObject(formObject());
         m_state = Browsing;
         updateState();
         emit finishSave();
@@ -342,7 +347,7 @@ void GrpcTemplateController::handleEditGrpc()
     try {
 
         // sent Grpc object to server to edit record and if success edit current object in the model
-        emit updateObject(m_currentRow, m_formObject);
+        emit updateObject(m_currentRow, formObject());
         m_state = Browsing;
         updateState();
         emit finishSave();
@@ -365,16 +370,30 @@ void GrpcTemplateController::handleDeleteGrpc()
 
 void GrpcTemplateController::save_record()
 {
+    auto checkFormObject = [this] {
+        QStringList errors = checkObjectValidity().value();
+        if(errors.isEmpty()) {
+             return true;
+        }
+        QString fullWarningText = errors.join("\n");
+        emit warning(tr("Application warning "), fullWarningText);
+        return false;
+    };
+
     if(m_state == Edit) {
         emit prepareFormObject();
-        m_grpcLoader->showLoader(true);
-        QFuture<void> future = QtConcurrent::run(&GrpcTemplateController::workerEditObject, this, m_formObject);
-        m_watcherEdit.setFuture(future);
+        if(checkFormObject()) {
+            m_grpcLoader->showLoader(true);
+            QFuture<void> future = QtConcurrent::run(&GrpcTemplateController::workerEditObject, this, formObject());
+            m_watcherEdit.setFuture(future);
+        }
     } else if(m_state == Insert) {
         emit prepareFormObject();
-        m_grpcLoader->showLoader(true);
-        QFuture<void> future = QtConcurrent::run(&GrpcTemplateController::workerAddNewObject, this, m_formObject);
-        m_watcherAddNew.setFuture(future);
+        if(checkFormObject()) {
+            m_grpcLoader->showLoader(true);
+            QFuture<void> future = QtConcurrent::run(&GrpcTemplateController::workerAddNewObject, this, formObject());
+            m_watcherAddNew.setFuture(future);
+        }
     }
 }
 

@@ -482,9 +482,27 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
             );
     }
 
+    std::optional<QStringList> checkObjectValidity() override {
+        QStringList errors;
+        QVariant variantObject = formObject();
+        if(!variantObject.isValid()) {
+            errors << tr("Something is wrong with the form data!");
+        }
+        GprcTestDataObject nativeObject = variantObject.value<GprcTestDataObject>();
+
+        if(nativeObject.name().empty()) {
+            errors << tr("The 'Name' field must not be empty!");
+        }
+        if(nativeObject.height() <= 0) {
+            errors << tr("The 'Height' field must be greater than 0!");
+        }
+        return errors;
+    }
+
     void workerAddNewObject(const QVariant & promise) override {QThread::msleep(300);}
     void workerEditObject(const QVariant & promise) override {QThread::msleep(300);}
     void workerDeleteObject(const QVariant & promise) override {QThread::msleep(300);}
+
 private slots:
     void testSlot() {
 
@@ -525,6 +543,7 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
                 );
         }
     }
+
     void workerAddNewObject(const QVariant & promise) override {QThread::msleep(300);}
     void workerEditObject(const QVariant & promise) override {QThread::msleep(300);}
     void workerDeleteObject(const QVariant & promise) override {QThread::msleep(300);}
