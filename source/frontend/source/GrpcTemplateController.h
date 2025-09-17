@@ -59,6 +59,7 @@ signals:
 
     void startLoadingData();
     void warning(const QString & warningTitle, const QString & message);
+    void clearForm();
 
 public slots:
     virtual void masterChanged(const QModelIndex & index);
