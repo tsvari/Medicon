@@ -482,7 +482,7 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
             );
     }
 
-    std::optional<QStringList> checkObjectValidity() override {
+    QStringList checkObjectValidity() override {
         QStringList errors;
         QVariant variantObject = formObject();
         if(!variantObject.isValid()) {
