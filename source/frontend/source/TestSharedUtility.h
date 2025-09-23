@@ -10,6 +10,7 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QThread>
+#include <QRandomGenerator>
 
 #include "GrpcObjectTableModel.h"
 #include "GrpcDataContainer.hpp"
@@ -96,6 +97,12 @@ bool loose_vector_compare(const std::vector<std::variant<Types...>>& v1,
     }
 
     return true;
+}
+
+namespace {
+int32_t randomInt(int min, int max) {
+    return QRandomGenerator::global()->bounded(max - min + 1) + min;
+}
 }
 
 class GprcTestDataObject
@@ -484,11 +491,11 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
 
     QStringList checkObjectValidity() override {
         QStringList errors;
-        QVariant variantObject = formObject();
-        if(!variantObject.isValid()) {
+        QVariant masterFormObject = formObject();
+        if(!masterFormObject.isValid()) {
             errors << tr("Something is wrong with the form data!");
         }
-        GprcTestDataObject nativeObject = variantObject.value<GprcTestDataObject>();
+        GprcTestDataObject nativeObject = masterFormObject.value<GprcTestDataObject>();
 
         if(nativeObject.name().empty()) {
             errors << tr("The 'Name' field must not be empty!");
@@ -499,9 +506,21 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
         return errors;
     }
 
-    void workerAddNewObject(const QVariant & promise) override {QThread::msleep(300);}
-    void workerEditObject(const QVariant & promise) override {QThread::msleep(300);}
-    void workerDeleteObject(const QVariant & promise) override {QThread::msleep(300);}
+    QVariant workerAddNewObject(const QVariant & promise) override {
+        QThread::msleep(300);
+        QVariant variantObject = formObject();
+        GprcTestDataObject masterFormObject = variantObject.value<GprcTestDataObject>();
+        masterFormObject.set_uid(randomInt(1000, 100000));
+         return QVariant::fromValue<GprcTestDataObject>(masterFormObject);
+    }
+    QVariant workerEditObject(const QVariant & promise) override {
+        QThread::msleep(300);
+        return promise;
+    }
+    QVariant workerDeleteObject(const QVariant & promise) override {
+        QThread::msleep(300);
+         return promise;
+    }
 
 private slots:
     void testSlot() {
@@ -544,9 +563,28 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
         }
     }
 
-    void workerAddNewObject(const QVariant & promise) override {QThread::msleep(300);}
-    void workerEditObject(const QVariant & promise) override {QThread::msleep(300);}
-    void workerDeleteObject(const QVariant & promise) override {QThread::msleep(300);}
+    QVariant workerAddNewObject(const QVariant & promise) override {
+        QThread::msleep(300);
+        QVariant slaveFormObject = formObject();
+        GprcTestSlaveObject formObject = slaveFormObject.value<GprcTestSlaveObject>();
+        QVariant masterVarObject = masterVariantObject();
+        if(!masterVarObject.isValid()) {
+             // throw esception
+        }
+        GprcTestDataObject masterObject = masterVarObject.value<GprcTestDataObject>();
+        formObject.set_link_uid(masterObject.uid());
+        formObject.set_uid(randomInt(1000, 100000));
+
+        return QVariant::fromValue<GprcTestSlaveObject>(formObject);
+    }
+    QVariant workerEditObject(const QVariant & promise) override {
+        QThread::msleep(300);
+        return promise;
+    }
+    QVariant workerDeleteObject(const QVariant & promise) override {
+        QThread::msleep(300);
+        return promise;
+    }
 };
 
 Q_DECLARE_METATYPE(GprcTestDataObject)

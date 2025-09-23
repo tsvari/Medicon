@@ -86,9 +86,9 @@ private slots:
 protected:
     // be sure to override it in the child
     virtual void workerModelData() = 0;
-    virtual void workerAddNewObject(const QVariant & promise) = 0;
-    virtual void workerEditObject(const QVariant & promise) = 0;
-    virtual void workerDeleteObject(const QVariant & promise) = 0;
+    virtual QVariant workerAddNewObject(const QVariant & promise) = 0;
+    virtual QVariant workerEditObject(const QVariant & promise) = 0;
+    virtual QVariant workerDeleteObject(const QVariant & promise) = 0;
 
     // Override in child class for custom states
     virtual void updateState();
@@ -126,9 +126,9 @@ private:
     QAction * m_actionEscape;
 
     QFutureWatcher<void> m_watcherLoad;
-    QFutureWatcher<void> m_watcherAddNew;
-    QFutureWatcher<void> m_watcherEdit;
-    QFutureWatcher<void> m_watcherDelete;
+    QFutureWatcher<QVariant> m_watcherAddNew;
+    QFutureWatcher<QVariant> m_watcherEdit;
+    QFutureWatcher<QVariant> m_watcherDelete;
 };
 
 #endif // GRPCTEMPLATECONTROLLER_H
