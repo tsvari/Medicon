@@ -60,6 +60,7 @@ signals:
     void startLoadingData();
     void warning(const QString & warningTitle, const QString & message);
     void clearForm();
+    void clearViewSelection();
 
 public slots:
     virtual void masterChanged(const QModelIndex & index);
@@ -70,6 +71,7 @@ public slots:
 private slots:
     void currentChanged(const QModelIndex & current, const QModelIndex & previous);
     void formContentChanged();
+    void clearSelection();
 
     void refresh_all();
     void add_new_record();
