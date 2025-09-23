@@ -546,8 +546,8 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
         //JsonParameterFormatter criterias = searchCriterias();
         QThread::msleep(500);
         QVariant varObject = masterVariantObject();
-        if(varObject.isValid()) {
-            GprcTestDataObject masterObject = varObject.value<GprcTestDataObject>();
+        GprcTestDataObject masterObject = varObject.value<GprcTestDataObject>();
+        if(varObject.isValid() && masterObject.uid() > 0) {
             std::vector<GprcTestSlaveObject> filteredData,
                                              slaveData = TestModelData::slaveData();
 
@@ -555,6 +555,13 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
                 return ob.link_uid() == masterObject.uid();
             });
 
+            emit populateModel(
+                std::make_shared<GrpcDataContainer<GprcTestSlaveObject>>(
+                    std::move(filteredData)
+                    )
+                );
+        } else {
+            std::vector<GprcTestSlaveObject> filteredData;
             emit populateModel(
                 std::make_shared<GrpcDataContainer<GprcTestSlaveObject>>(
                     std::move(filteredData)

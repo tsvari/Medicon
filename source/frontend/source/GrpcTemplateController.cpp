@@ -106,7 +106,11 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     connect(view->selectionModel(), &QItemSelectionModel::currentChanged, this, &GrpcTemplateController::currentChanged);
     connect(sourceModel, &GrpcObjectTableModel::zerroCount, this, &GrpcTemplateController::makeFormReadonly);
     connect(this, &GrpcTemplateController::makeFormReadonly, form, &GrpcForm::makeReadonly);
-    connect(sourceModel, &GrpcObjectTableModel::zerroCount, this, [this](bool) {m_currentRow = -1;});
+    connect(sourceModel, &GrpcObjectTableModel::zerroCount, this, &GrpcTemplateController::clearSelection);
+    connect(this, &GrpcTemplateController::clearViewSelection, this, [this, view]() {
+        view->clearSelection();
+        view->setCurrentIndex(QModelIndex());
+    });
 
     if(masterObjectWrapper) {
         connect(this, &GrpcTemplateController::masterRowChanged, this, &GrpcTemplateController::masterChanged);
@@ -211,11 +215,8 @@ void GrpcTemplateController::masterChanged(const QModelIndex & index)
 {
     // Will only be called in the slave template
     // A template can be both a master and a slave at the same time
-    QVariant variantObject = index.data(GlobalRoles::VariantObjectRole);
-    if(variantObject.isValid()) {
-        m_masterObjectWrapper->setObject(variantObject);
-        emit startLoadingData();
-    }
+    m_masterObjectWrapper->setObject(index.data(GlobalRoles::VariantObjectRole));
+    emit startLoadingData();
 }
 
 void GrpcTemplateController::applySearchCriterias(const JsonParameterFormatter & searchCriterias)
@@ -227,6 +228,9 @@ void GrpcTemplateController::applySearchCriterias(const JsonParameterFormatter &
 
 void GrpcTemplateController::currentChanged(const QModelIndex & current, const QModelIndex & previous)
 {
+    if(!current.isValid()) {
+        return;
+    }
     if(current.row() != previous.row()) {
         emit rowChanged(current);
         if(m_state != Browsing) {
@@ -245,6 +249,16 @@ void GrpcTemplateController::formContentChanged()
         updateState();
         emit startEdit();
     }
+}
+
+void GrpcTemplateController::clearSelection()
+{
+    m_currentRow = -1;
+    m_state = Unselected;
+    updateState();
+    emit clearViewSelection();
+    emit clearForm();
+    emit rowChanged(QModelIndex());
 }
 
 void GrpcTemplateController::updateState()
@@ -317,8 +331,6 @@ void GrpcTemplateController::delete_record()
 void GrpcTemplateController::handleRefreshGrpc()
 {
     try {
-        workerModelData();
-
         m_currentRow = -1;
         m_state = Unselected;
         updateState();
@@ -363,7 +375,9 @@ void GrpcTemplateController::handleDeleteGrpc()
     try {
         QVariant object = m_watcherDelete.result();
         // send Grpc object to server delete it and if success remove it from the model
-        emit deleteObject(m_currentRow);
+        int row = m_currentRow;
+        clearSelection();
+        emit deleteObject(row);
         m_grpcLoader->showLoader(false);
     } catch (const QUnhandledException & e) {
 
