@@ -106,8 +106,6 @@ protected:
     QToolBar * templateToolBar(){return m_templateToolBar;}
 
 private:
-    void initActions();
-
     JsonParameterFormatter m_searchCriterias;
     std::unique_ptr<IBaseGrpcObjectWrapper> m_masterObjectWrapper;
 
