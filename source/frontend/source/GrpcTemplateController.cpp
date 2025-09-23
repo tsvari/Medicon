@@ -132,9 +132,9 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     connect(this, &GrpcTemplateController::deleteObject, sourceModel, &GrpcObjectTableModel::deleteObject);
 
     connect(&m_watcherLoad, &QFutureWatcher<IBaseDataContainer *>::finished, this, &GrpcTemplateController::handleRefreshGrpc);
-    connect(&m_watcherAddNew, &QFutureWatcher<bool>::finished, this, &GrpcTemplateController::handleAddNewGrpc);
-    connect(&m_watcherEdit, &QFutureWatcher<bool>::finished, this, &GrpcTemplateController::handleEditGrpc);
-    connect(&m_watcherDelete, &QFutureWatcher<bool>::finished, this, &GrpcTemplateController::handleDeleteGrpc);
+    connect(&m_watcherAddNew, &QFutureWatcher<QVariant>::finished, this, &GrpcTemplateController::handleAddNewGrpc);
+    connect(&m_watcherEdit, &QFutureWatcher<QVariant>::finished, this, &GrpcTemplateController::handleEditGrpc);
+    connect(&m_watcherDelete, &QFutureWatcher<QVariant>::finished, this, &GrpcTemplateController::handleDeleteGrpc);
     connect(this, &GrpcTemplateController::startLoadingData, this, [this]() {
         emit finishSave();
         emit clearForm();
@@ -310,7 +310,7 @@ void GrpcTemplateController::delete_record()
     emit prepareFormObject();
 
     m_grpcLoader->showLoader(true);
-    QFuture<void> future = QtConcurrent::run(&GrpcTemplateController::workerDeleteObject, this, formObject());
+    QFuture<QVariant> future = QtConcurrent::run(&GrpcTemplateController::workerDeleteObject, this, formObject());
     m_watcherDelete.setFuture(future);
 }
 
@@ -331,9 +331,9 @@ void GrpcTemplateController::handleRefreshGrpc()
 void GrpcTemplateController::handleAddNewGrpc()
 {
      try {
-
+        QVariant object = m_watcherAddNew.result();
         // sent Grpc object to server to add it and if success add it to the model
-        emit addNewObject(formObject());
+        emit addNewObject(object);
         m_state = Browsing;
         updateState();
         emit finishSave();
@@ -346,9 +346,9 @@ void GrpcTemplateController::handleAddNewGrpc()
 void GrpcTemplateController::handleEditGrpc()
 {
     try {
-
+        QVariant object = m_watcherEdit.result();
         // sent Grpc object to server to edit record and if success edit current object in the model
-        emit updateObject(m_currentRow, formObject());
+        emit updateObject(m_currentRow, object);
         m_state = Browsing;
         updateState();
         emit finishSave();
@@ -361,6 +361,7 @@ void GrpcTemplateController::handleEditGrpc()
 void GrpcTemplateController::handleDeleteGrpc()
 {
     try {
+        QVariant object = m_watcherDelete.result();
         // send Grpc object to server delete it and if success remove it from the model
         emit deleteObject(m_currentRow);
         m_grpcLoader->showLoader(false);
@@ -385,14 +386,14 @@ void GrpcTemplateController::save_record()
         emit prepareFormObject();
         if(checkFormObject()) {
             m_grpcLoader->showLoader(true);
-            QFuture<void> future = QtConcurrent::run(&GrpcTemplateController::workerEditObject, this, formObject());
+            QFuture<QVariant> future = QtConcurrent::run(&GrpcTemplateController::workerEditObject, this, formObject());
             m_watcherEdit.setFuture(future);
         }
     } else if(m_state == Insert) {
         emit prepareFormObject();
         if(checkFormObject()) {
             m_grpcLoader->showLoader(true);
-            QFuture<void> future = QtConcurrent::run(&GrpcTemplateController::workerAddNewObject, this, formObject());
+            QFuture<QVariant> future = QtConcurrent::run(&GrpcTemplateController::workerAddNewObject, this, formObject());
             m_watcherAddNew.setFuture(future);
         }
     }
