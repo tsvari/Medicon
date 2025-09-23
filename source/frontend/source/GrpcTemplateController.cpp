@@ -372,7 +372,7 @@ void GrpcTemplateController::handleDeleteGrpc()
 void GrpcTemplateController::save_record()
 {
     auto checkFormObject = [this] {
-        QStringList errors = checkObjectValidity().value();
+        QStringList errors = checkObjectValidity();
         if(errors.isEmpty()) {
              return true;
         }

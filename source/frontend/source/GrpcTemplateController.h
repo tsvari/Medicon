@@ -95,7 +95,7 @@ protected:
 
     // Check object before edit or insert
     // By default it's valid
-    virtual std::optional<QStringList> checkObjectValidity() {return std::nullopt;}
+    virtual QStringList checkObjectValidity() {return {};}
 
     QVariant masterVariantObject();
     QVariant & formObject() {return m_formObject;}
