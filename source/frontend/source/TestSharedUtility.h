@@ -105,10 +105,10 @@ int32_t randomInt(int min, int max) {
 }
 }
 
-class GprcTestDataObject
+class MasterObject
 {
 public:
-    ~GprcTestDataObject(){}
+    ~MasterObject(){}
     int32_t uid() const {return m_uid;}
     void set_uid(int32_t value) {m_uid = value;}
 
@@ -144,12 +144,12 @@ private:
     std::string m_level_name; // combo/edit text
 };
 
-class GprcTestSlaveObject
+class SlaveObject
 {
 public:
-    ~GprcTestSlaveObject(){}
-    GprcTestSlaveObject(){}
-    GprcTestSlaveObject(int32_t uid, int32_t link_uid, const std::string & phone)
+    ~SlaveObject(){}
+    SlaveObject(){}
+    SlaveObject(int32_t uid, int32_t link_uid, const std::string & phone)
         : m_uid(uid)
         , m_link_uid(link_uid)
         , m_phone(phone)
@@ -198,29 +198,29 @@ class GrpcTestObjectTableModel : public GrpcObjectTableModel
     Q_OBJECT
 
 public:
-    explicit GrpcTestObjectTableModel(std::vector<GprcTestDataObject> && data, QObject *parent = nullptr) :
-        GrpcObjectTableModel(new GrpcDataContainer<GprcTestDataObject>(std::move(data)), parent)
+    explicit GrpcTestObjectTableModel(std::vector<MasterObject> && data, QObject *parent = nullptr) :
+        GrpcObjectTableModel(new GrpcDataContainer<MasterObject>(std::move(data)), parent)
     {
         initializeModel();
         initializeContainer();
     }
 
     explicit GrpcTestObjectTableModel(QObject *parent = nullptr) :
-        GrpcObjectTableModel( new GrpcDataContainer<GprcTestDataObject>(), parent)
+        GrpcObjectTableModel( new GrpcDataContainer<MasterObject>(), parent)
     {
     }
 
     void initializeModel() override {
-        GrpcDataContainer<GprcTestDataObject> * container = dynamic_cast<GrpcDataContainer<GprcTestDataObject>*>(objectContainer());
+        GrpcDataContainer<MasterObject> * container = dynamic_cast<GrpcDataContainer<MasterObject>*>(objectContainer());
 
-        container->addProperty("Uid", DataInfo::String, &GprcTestDataObject::set_uid, &GprcTestDataObject::uid);
-        container->addProperty("Name", DataInfo::String, &GprcTestDataObject::set_name, &GprcTestDataObject::name);
-        container->addProperty("Date", DataInfo::Date, &GprcTestDataObject::set_date, &GprcTestDataObject::date);
-        container->addProperty("Height", DataInfo::Int, &GprcTestDataObject::set_height, &GprcTestDataObject::height);
-        container->addProperty("Salary", DataInfo::Double, &GprcTestDataObject::set_salary, &GprcTestDataObject::salary);
-        container->addProperty("Married", DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
-        container->addProperty("Level", DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
-        container->addProperty("Level Name", DataInfo::String, &GprcTestDataObject::set_level_name, &GprcTestDataObject::level_name);
+        container->addProperty("Uid", DataInfo::String, &MasterObject::set_uid, &MasterObject::uid);
+        container->addProperty("Name", DataInfo::String, &MasterObject::set_name, &MasterObject::name);
+        container->addProperty("Date", DataInfo::Date, &MasterObject::set_date, &MasterObject::date);
+        container->addProperty("Height", DataInfo::Int, &MasterObject::set_height, &MasterObject::height);
+        container->addProperty("Salary", DataInfo::Double, &MasterObject::set_salary, &MasterObject::salary);
+        container->addProperty("Married", DataInfo::Bool, &MasterObject::set_married, &MasterObject::married);
+        container->addProperty("Level", DataInfo::Int, &MasterObject::set_level, &MasterObject::level);
+        container->addProperty("Level Name", DataInfo::String, &MasterObject::set_level_name, &MasterObject::level_name);
     }
 };
 
@@ -229,24 +229,24 @@ class GrpcTestSlaveObjectTableModel : public GrpcObjectTableModel
     Q_OBJECT
 
 public:
-    explicit GrpcTestSlaveObjectTableModel(std::vector<GprcTestSlaveObject> && data, QObject *parent = nullptr) :
-        GrpcObjectTableModel(new GrpcDataContainer<GprcTestSlaveObject>(std::move(data)), parent)
+    explicit GrpcTestSlaveObjectTableModel(std::vector<SlaveObject> && data, QObject *parent = nullptr) :
+        GrpcObjectTableModel(new GrpcDataContainer<SlaveObject>(std::move(data)), parent)
     {
         initializeModel();
         initializeContainer();
     }
 
     explicit GrpcTestSlaveObjectTableModel(QObject *parent = nullptr) :
-        GrpcObjectTableModel(new GrpcDataContainer<GprcTestSlaveObject>(), parent)
+        GrpcObjectTableModel(new GrpcDataContainer<SlaveObject>(), parent)
     {
     }
 
     void initializeModel() override {
-        GrpcDataContainer<GprcTestSlaveObject> * container = dynamic_cast<GrpcDataContainer<GprcTestSlaveObject>*>(objectContainer());
+        GrpcDataContainer<SlaveObject> * container = dynamic_cast<GrpcDataContainer<SlaveObject>*>(objectContainer());
 
-        container->addProperty("Uid", DataInfo::Int, &GprcTestSlaveObject::set_uid, &GprcTestSlaveObject::uid);
-        container->addProperty("LinkUid", DataInfo::Int, &GprcTestSlaveObject::set_link_uid, &GprcTestSlaveObject::link_uid);
-        container->addProperty("Phone", DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
+        container->addProperty("Uid", DataInfo::Int, &SlaveObject::set_uid, &SlaveObject::uid);
+        container->addProperty("LinkUid", DataInfo::Int, &SlaveObject::set_link_uid, &SlaveObject::link_uid);
+        container->addProperty("Phone", DataInfo::String, &SlaveObject::set_phone, &SlaveObject::phone);
     }
 };
 
@@ -276,25 +276,25 @@ class MasterForm : public GrpcForm
 
 public:
     explicit MasterForm(QWidget *parent = nullptr)
-        : GrpcForm( new GrpcObjectWrapper<GprcTestDataObject>(), nullptr, parent){
+        : GrpcForm( new GrpcObjectWrapper<MasterObject>(), nullptr, parent){
     }
 
     void initializeForm() override {
-        GrpcObjectWrapper<GprcTestDataObject> * wrapper = dynamic_cast<GrpcObjectWrapper<GprcTestDataObject>*>(objectWrapper());
+        GrpcObjectWrapper<MasterObject> * wrapper = dynamic_cast<GrpcObjectWrapper<MasterObject>*>(objectWrapper());
 
-        //wrapper()->addProperty("Uid", DataInfo::String, &GprcTestDataObject::set_uid, &GprcTestDataObject::uid);
-        wrapper->addProperty("nameEdit", DataInfo::String, &GprcTestDataObject::set_name, &GprcTestDataObject::name);
-        wrapper->addProperty("dateEdit", DataInfo::Date, &GprcTestDataObject::set_date, &GprcTestDataObject::date);
-        wrapper->addProperty("heightEdit", DataInfo::Int, &GprcTestDataObject::set_height, &GprcTestDataObject::height);
-        wrapper->addProperty("salaryEdit", DataInfo::Double, &GprcTestDataObject::set_salary, &GprcTestDataObject::salary);
-        wrapper->addProperty("marriedCheckBox", DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
-        wrapper->addProperty("levelCombo", DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
-        //wrapper->addProperty("levelCombo", DataInfo::String, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
+        //wrapper()->addProperty("Uid", DataInfo::String, &MasterObject::set_uid, &MasterObject::uid);
+        wrapper->addProperty("nameEdit", DataInfo::String, &MasterObject::set_name, &MasterObject::name);
+        wrapper->addProperty("dateEdit", DataInfo::Date, &MasterObject::set_date, &MasterObject::date);
+        wrapper->addProperty("heightEdit", DataInfo::Int, &MasterObject::set_height, &MasterObject::height);
+        wrapper->addProperty("salaryEdit", DataInfo::Double, &MasterObject::set_salary, &MasterObject::salary);
+        wrapper->addProperty("marriedCheckBox", DataInfo::Bool, &MasterObject::set_married, &MasterObject::married);
+        wrapper->addProperty("levelCombo", DataInfo::Int, &MasterObject::set_level, &MasterObject::level);
+        //wrapper->addProperty("levelCombo", DataInfo::String, &MasterObject::set_level, &MasterObject::level);
     }
 
     QVariant defaultObject() override {
-        GprcTestDataObject object;
-        return QVariant::fromValue<GprcTestDataObject>(object);
+        MasterObject object;
+        return QVariant::fromValue<MasterObject>(object);
     }
 };
 
@@ -304,32 +304,32 @@ class SlaveForm : public GrpcForm
 
 public:
     explicit SlaveForm(QWidget *parent = nullptr) :
-        GrpcForm(new GrpcObjectWrapper<GprcTestSlaveObject>(), new GrpcObjectWrapper<GprcTestDataObject>(), parent){
+        GrpcForm(new GrpcObjectWrapper<SlaveObject>(), new GrpcObjectWrapper<MasterObject>(), parent){
 
     }
 
     void initializeForm() override {
-        GrpcObjectWrapper<GprcTestSlaveObject> * wrapper = dynamic_cast<GrpcObjectWrapper<GprcTestSlaveObject>*>(objectWrapper());
-        //wrapper->addProperty("Uid", DataInfo::Int, &GprcTestSlaveObject::set_uid, &GprcTestSlaveObject::uid);
-        //wrapper->addProperty("LinkUid", DataInfo::Int, &GprcTestSlaveObject::set_link_uid, &GprcTestSlaveObject::link_uid);
-        wrapper->addProperty("phoneEdit", DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
+        GrpcObjectWrapper<SlaveObject> * wrapper = dynamic_cast<GrpcObjectWrapper<SlaveObject>*>(objectWrapper());
+        //wrapper->addProperty("Uid", DataInfo::Int, &SlaveObject::set_uid, &SlaveObject::uid);
+        //wrapper->addProperty("LinkUid", DataInfo::Int, &SlaveObject::set_link_uid, &SlaveObject::link_uid);
+        wrapper->addProperty("phoneEdit", DataInfo::String, &SlaveObject::set_phone, &SlaveObject::phone);
     }
 
     QVariant defaultObject() override {
         QVariant varObject = masterVariantObject();
         Q_ASSERT(varObject.isValid());
 
-        GprcTestDataObject masterObject = varObject.value<GprcTestDataObject>();
+        MasterObject masterObject = varObject.value<MasterObject>();
 
-        GprcTestSlaveObject formObject;
+        SlaveObject formObject;
         formObject.set_link_uid(masterObject.uid());
-        return QVariant::fromValue<GprcTestSlaveObject>(formObject);
+        return QVariant::fromValue<SlaveObject>(formObject);
     }
 };
 
 namespace TestModelData {
-static std::vector<GprcTestDataObject> masterData() {
-    std::vector<GprcTestDataObject> objects;
+static std::vector<MasterObject> masterData() {
+    std::vector<MasterObject> objects;
 
     static int incr = 0;
     auto increament = [=]() {
@@ -337,7 +337,7 @@ static std::vector<GprcTestDataObject> masterData() {
         return (TimeFormatHelper::chronoNow().time_since_epoch().count() + incr);
     };
 
-    GprcTestDataObject obj1;
+    MasterObject obj1;
     obj1.set_uid(1);
     obj1.set_name("Givi");
     obj1.set_date(increament());
@@ -348,7 +348,7 @@ static std::vector<GprcTestDataObject> masterData() {
     obj1.set_level_name("Level2");
     objects.push_back(obj1);
 
-    GprcTestDataObject obj2;
+    MasterObject obj2;
     obj2.set_uid(2);
     obj2.set_name("Keto");
     obj2.set_date(increament());
@@ -359,7 +359,7 @@ static std::vector<GprcTestDataObject> masterData() {
     obj2.set_level_name("Level1");
     objects.push_back(obj2);
 
-    GprcTestDataObject obj3;
+    MasterObject obj3;
     obj3.set_uid(3);
     obj3.set_name("Vakho");
     obj3.set_date(increament());
@@ -370,7 +370,7 @@ static std::vector<GprcTestDataObject> masterData() {
     obj3.set_level_name("Level3");
     objects.push_back(obj3);
 
-    GprcTestDataObject obj4;
+    MasterObject obj4;
     obj4.set_uid(4);
     obj4.set_name("Elene");
     obj4.set_date(increament());
@@ -381,7 +381,7 @@ static std::vector<GprcTestDataObject> masterData() {
     obj4.set_level_name("Level5");
     objects.push_back(obj4);
 
-    GprcTestDataObject obj5;
+    MasterObject obj5;
     obj5.set_uid(5);
     obj5.set_name("Teona");
     obj5.set_date(increament());
@@ -392,7 +392,7 @@ static std::vector<GprcTestDataObject> masterData() {
     obj5.set_level_name("Level4");
     objects.push_back(obj5);
 
-    GprcTestDataObject obj6;
+    MasterObject obj6;
     obj6.set_uid(6);
     obj6.set_name("Tsio");
     obj6.set_date(increament());
@@ -406,9 +406,9 @@ static std::vector<GprcTestDataObject> masterData() {
     return objects;
 }
 
-static std::vector<GprcTestSlaveObject> slaveData()
+static std::vector<SlaveObject> slaveData()
 {
-    std::vector<GprcTestSlaveObject> objects {
+    std::vector<SlaveObject> objects {
         {1, 1, "123 334 5678"},
         {2, 1, "445 575 8778"},
         {3, 1, "453 464 3464"},
@@ -499,7 +499,7 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
         // Dont need master object in thinscase
         QThread::msleep(500);
         emit populateModel(
-            std::make_shared<GrpcDataContainer<GprcTestDataObject>>(
+            std::make_shared<GrpcDataContainer<MasterObject>>(
                 std::move(TestModelData::masterData())
                 )
             );
@@ -512,7 +512,7 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
             errors << tr("Something is wrong with the form data!");
             return errors;
         }
-        GprcTestDataObject nativeObject = masterFormObject.value<GprcTestDataObject>();
+        MasterObject nativeObject = masterFormObject.value<MasterObject>();
 
         if(nativeObject.name().empty()) {
             errors << tr("The 'Name' field must not be empty!");
@@ -526,9 +526,9 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
     QVariant workerAddNewObject(const QVariant & promise) override {
         QThread::msleep(300);
         QVariant variantObject = formObject();
-        GprcTestDataObject masterFormObject = variantObject.value<GprcTestDataObject>();
+        MasterObject masterFormObject = variantObject.value<MasterObject>();
         masterFormObject.set_uid(randomInt(1000, 100000));
-         return QVariant::fromValue<GprcTestDataObject>(masterFormObject);
+         return QVariant::fromValue<MasterObject>(masterFormObject);
     }
     QVariant workerEditObject(const QVariant & promise) override {
         QThread::msleep(300);
@@ -556,7 +556,7 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
         GrpcTemplateController(proxyModel,
                                 tableView,
                                 form,
-                                new GrpcObjectWrapper<GprcTestDataObject>(),
+                                new GrpcObjectWrapper<MasterObject>(),
                                 parent){}
 
     void workerModelData() override {
@@ -565,23 +565,23 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
 
         if(masterValid()) {
             QVariant varObject = masterVariantObject();
-            GprcTestDataObject masterObject = varObject.value<GprcTestDataObject>();
-            std::vector<GprcTestSlaveObject> filteredData,
+            MasterObject masterObject = varObject.value<MasterObject>();
+            std::vector<SlaveObject> filteredData,
                                              slaveData = TestModelData::slaveData();
 
-            std::copy_if(slaveData.begin(), slaveData.end(), std::back_inserter(filteredData), [masterObject](GprcTestSlaveObject & ob) {
+            std::copy_if(slaveData.begin(), slaveData.end(), std::back_inserter(filteredData), [masterObject](SlaveObject & ob) {
                 return ob.link_uid() == masterObject.uid();
             });
 
             emit populateModel(
-                std::make_shared<GrpcDataContainer<GprcTestSlaveObject>>(
+                std::make_shared<GrpcDataContainer<SlaveObject>>(
                     std::move(filteredData)
                     )
                 );
         } else {
-            std::vector<GprcTestSlaveObject> filteredData;
+            std::vector<SlaveObject> filteredData;
             emit populateModel(
-                std::make_shared<GrpcDataContainer<GprcTestSlaveObject>>(
+                std::make_shared<GrpcDataContainer<SlaveObject>>(
                     std::move(filteredData)
                     )
                 );
@@ -590,23 +590,23 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
 
     bool masterValid() override {
         QVariant varObject = masterVariantObject();
-        GprcTestDataObject masterObject = varObject.value<GprcTestDataObject>();
+        MasterObject masterObject = varObject.value<MasterObject>();
         return masterObject.uid() > 0;
     }
 
     QVariant workerAddNewObject(const QVariant & promise) override {
         QThread::msleep(300);
         QVariant slaveFormObject = formObject();
-        GprcTestSlaveObject formObject = slaveFormObject.value<GprcTestSlaveObject>();
+        SlaveObject formObject = slaveFormObject.value<SlaveObject>();
         QVariant masterVarObject = masterVariantObject();
         if(!masterVarObject.isValid()) {
              // throw esception
         }
-        GprcTestDataObject masterObject = masterVarObject.value<GprcTestDataObject>();
+        MasterObject masterObject = masterVarObject.value<MasterObject>();
         formObject.set_link_uid(masterObject.uid());
         formObject.set_uid(randomInt(1000, 100000));
 
-        return QVariant::fromValue<GprcTestSlaveObject>(formObject);
+        return QVariant::fromValue<SlaveObject>(formObject);
     }
     QVariant workerEditObject(const QVariant & promise) override {
         QThread::msleep(300);
@@ -618,6 +618,6 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
     }
 };
 
-Q_DECLARE_METATYPE(GprcTestDataObject)
+Q_DECLARE_METATYPE(MasterObject)
 
 #endif // TESTSHAREDUTILITY_H

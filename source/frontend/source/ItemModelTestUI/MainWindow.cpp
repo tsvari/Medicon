@@ -68,7 +68,7 @@ void MainWindow::on_pushButton_clicked()
     QVariant filledObject = ui->masterForm->object();
     Q_ASSERT(filledObject.isValid());
 
-    GprcTestDataObject object = filledObject.value<GprcTestDataObject>();
+    MasterObject object = filledObject.value<MasterObject>();
 
 }
 
