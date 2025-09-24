@@ -494,6 +494,7 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
         QVariant masterFormObject = formObject();
         if(!masterFormObject.isValid()) {
             errors << tr("Something is wrong with the form data!");
+            return errors;
         }
         GprcTestDataObject nativeObject = masterFormObject.value<GprcTestDataObject>();
 
@@ -545,9 +546,10 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
     void workerModelData() override {
         //JsonParameterFormatter criterias = searchCriterias();
         QThread::msleep(500);
-        QVariant varObject = masterVariantObject();
-        GprcTestDataObject masterObject = varObject.value<GprcTestDataObject>();
-        if(varObject.isValid() && masterObject.uid() > 0) {
+
+        if(masterValid()) {
+            QVariant varObject = masterVariantObject();
+            GprcTestDataObject masterObject = varObject.value<GprcTestDataObject>();
             std::vector<GprcTestSlaveObject> filteredData,
                                              slaveData = TestModelData::slaveData();
 
@@ -568,6 +570,12 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
                     )
                 );
         }
+    }
+
+    bool masterValid() override {
+        QVariant varObject = masterVariantObject();
+        GprcTestDataObject masterObject = varObject.value<GprcTestDataObject>();
+        return masterObject.uid() > 0;
     }
 
     QVariant workerAddNewObject(const QVariant & promise) override {

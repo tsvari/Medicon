@@ -99,6 +99,9 @@ protected:
     // By default it's valid
     virtual QStringList checkObjectValidity() {return {};}
 
+    // Reload in slave templates
+    virtual bool masterValid();
+
     QVariant masterVariantObject();
     QVariant & formObject() {return m_formObject;}
     JsonParameterFormatter & searchCriterias();
