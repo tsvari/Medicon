@@ -267,9 +267,18 @@ void GrpcTemplateController::updateState()
     // Then update actions insert/update/save/delete
     switch(m_state) {
     case Unselected:
-        m_actionRefresh->setEnabled(true);
-
-        m_actionAddNew->setEnabled(true);
+        if(!m_masterObjectWrapper) {
+            m_actionRefresh->setEnabled(true);
+            m_actionAddNew->setEnabled(true);
+        } else {
+            if(masterValid()) {
+                m_actionRefresh->setEnabled(true);
+                m_actionAddNew->setEnabled(true);
+            } else {
+                m_actionRefresh->setEnabled(false);
+                m_actionAddNew->setEnabled(false);
+            }
+        }
         m_actionEdit->setEnabled(false);
         m_actionDelete->setEnabled(false);
         m_actionSave->setEnabled(false);
@@ -296,6 +305,14 @@ void GrpcTemplateController::updateState()
         m_actionSave->setEnabled(true);
         break;
     }
+}
+
+bool GrpcTemplateController::masterValid()
+{
+    if(!m_masterObjectWrapper) {
+        return false;
+    }
+    return true;
 }
 
 void GrpcTemplateController::refresh_all()
