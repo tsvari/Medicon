@@ -276,7 +276,7 @@ class MasterForm : public GrpcForm
 
 public:
     explicit MasterForm(QWidget *parent = nullptr)
-        : GrpcForm( new GrpcObjectWrapper<GprcTestDataObject>(), parent){
+        : GrpcForm( new GrpcObjectWrapper<GprcTestDataObject>(), nullptr, parent){
     }
 
     void initializeForm() override {
@@ -304,7 +304,7 @@ class SlaveForm : public GrpcForm
 
 public:
     explicit SlaveForm(QWidget *parent = nullptr) :
-        GrpcForm(new GrpcObjectWrapper<GprcTestSlaveObject>(), parent){
+        GrpcForm(new GrpcObjectWrapper<GprcTestSlaveObject>(), new GrpcObjectWrapper<GprcTestDataObject>(), parent){
 
     }
 
@@ -316,8 +316,14 @@ public:
     }
 
     QVariant defaultObject() override {
-        GprcTestSlaveObject object;
-        return QVariant::fromValue<GprcTestSlaveObject>(object);
+        QVariant varObject = masterVariantObject();
+        Q_ASSERT(varObject.isValid());
+
+        GprcTestDataObject masterObject = varObject.value<GprcTestDataObject>();
+
+        GprcTestSlaveObject formObject;
+        formObject.set_link_uid(masterObject.uid());
+        return QVariant::fromValue<GprcTestSlaveObject>(formObject);
     }
 };
 

@@ -15,9 +15,10 @@
 
 #include <QDebug>
 
-GrpcForm::GrpcForm(IBaseGrpcObjectWrapper * objectWrapper, QWidget *parent)
+GrpcForm::GrpcForm(IBaseGrpcObjectWrapper * objectWrapper, IBaseGrpcObjectWrapper * masterObjectWrapper, QWidget *parent)
     : QWidget{parent}
     , m_objectWrapper(objectWrapper)
+    , m_masterObjectWrapper(masterObjectWrapper)
 {
     m_saveIcon = QIcon(":/icons/save.png");
 }
@@ -58,6 +59,12 @@ void GrpcForm::fillObject()
             m_objectWrapper->setData(i, data);
         }
     }
+}
+
+void GrpcForm::masterChanged(const QModelIndex &index)
+{
+    // Will only be called in the slave template form
+    m_masterObjectWrapper->setObject(index.data(GlobalRoles::VariantObjectRole));
 }
 
 QVariant GrpcForm::widgetData(QWidget *widget, const DataInfo::Type & type)
@@ -143,6 +150,14 @@ bool GrpcForm::eventFilter(QObject *watched, QEvent *event)
 
 }
 
+QVariant GrpcForm::masterVariantObject()
+{
+    if(m_masterObjectWrapper) {
+        return m_masterObjectWrapper->variantObject();
+    }
+    return QVariant();
+}
+
 void GrpcForm::contentChanged()
 {
     if(m_formFillingFinished) {
@@ -211,6 +226,9 @@ void GrpcForm::initilizeWidgets()
 
 void GrpcForm::clear()
 {
+    QVariant newObject =  defaultObject();
+    m_objectWrapper->setObject(newObject);
+
     m_formFillingFinished = false;
     for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
         QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
