@@ -35,6 +35,7 @@ protected:
     friend class GrpcTemplateController;
     // be sure to override it in the child class
     virtual void initializeForm() = 0;
+    virtual QVariant defaultObject() = 0;
     IBaseGrpcObjectWrapper * objectWrapper() {return m_objectWrapper.get();}
 
     bool eventFilter(QObject *watched, QEvent * event) override;

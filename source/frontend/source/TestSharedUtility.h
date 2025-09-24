@@ -291,6 +291,11 @@ public:
         wrapper->addProperty("levelCombo", DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
         //wrapper->addProperty("levelCombo", DataInfo::String, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
     }
+
+    QVariant defaultObject() override {
+        GprcTestDataObject object;
+        return QVariant::fromValue<GprcTestDataObject>(object);
+    }
 };
 
 class SlaveForm : public GrpcForm
@@ -308,6 +313,11 @@ public:
         //wrapper->addProperty("Uid", DataInfo::Int, &GprcTestSlaveObject::set_uid, &GprcTestSlaveObject::uid);
         //wrapper->addProperty("LinkUid", DataInfo::Int, &GprcTestSlaveObject::set_link_uid, &GprcTestSlaveObject::link_uid);
         wrapper->addProperty("phoneEdit", DataInfo::String, &GprcTestSlaveObject::set_phone, &GprcTestSlaveObject::phone);
+    }
+
+    QVariant defaultObject() override {
+        GprcTestSlaveObject object;
+        return QVariant::fromValue<GprcTestSlaveObject>(object);
     }
 };
 
