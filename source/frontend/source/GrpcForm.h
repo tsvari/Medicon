@@ -12,7 +12,7 @@ class GrpcForm : public QWidget
 {
     Q_OBJECT
 public:
-    explicit GrpcForm(IBaseGrpcObjectWrapper * objectWrapper, QWidget * parent = nullptr);
+    explicit GrpcForm(IBaseGrpcObjectWrapper * objectWrapper, IBaseGrpcObjectWrapper * masterObjectWrapper, QWidget * parent = nullptr);
     virtual ~GrpcForm();
 
     QVariant object();
@@ -24,6 +24,7 @@ public slots:
     virtual void clear();
     virtual void makeReadonly(bool readOnly);
     virtual void fillObject();
+    virtual void masterChanged(const QModelIndex & index);
 
     void hideAllButThis();
 
@@ -39,6 +40,7 @@ protected:
     IBaseGrpcObjectWrapper * objectWrapper() {return m_objectWrapper.get();}
 
     bool eventFilter(QObject *watched, QEvent * event) override;
+    QVariant masterVariantObject();
 
 signals:
     void formContentChanaged();
@@ -56,6 +58,7 @@ private:
 
     QList<QWidget*> m_formWidgets;
     std::unique_ptr<IBaseGrpcObjectWrapper> m_objectWrapper = nullptr;
+    std::unique_ptr<IBaseGrpcObjectWrapper> m_masterObjectWrapper = nullptr;
     QIcon m_saveIcon;
 
     bool m_formFillingFinished = false;

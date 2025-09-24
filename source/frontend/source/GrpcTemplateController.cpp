@@ -113,7 +113,8 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     });
 
     if(masterObjectWrapper) {
-        connect(this, &GrpcTemplateController::masterRowChanged, this, &GrpcTemplateController::masterChanged);
+        connect(this, &GrpcTemplateController::masterRowChanged, form, &GrpcForm::masterChanged);
+        connect(this, &GrpcTemplateController::masterRowChanged, this, &GrpcTemplateController::masterChanged);    
     }
     connect(this, &GrpcTemplateController::focusIn, this, [this, view](){
         view->setFocus();
