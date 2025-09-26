@@ -117,13 +117,10 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     connect(view, &GrpcTableView::focusIn, form, &GrpcForm::hideAllButThis);
     connect(view, &GrpcTableView::focusIn, this, &GrpcTemplateController::showMenuAndToolbar);
     connect(this, &GrpcTemplateController::warning, view, &GrpcTableView::showWarning);
-    connect(this, &GrpcTemplateController::prepareFormObject, this, [this, form]() {
-        form->fillObject();
-        m_formObject = form->object();
-        if(!m_formObject.isValid()) {
-            // throw exception ????
-        }
-    });
+
+    // Prepare form object and send to insert or edit to model
+    connect(this, &GrpcTemplateController::prepareFormObject, form, &GrpcForm::prepareObject);
+    connect(form, &GrpcForm::sendObject, this, &GrpcTemplateController::receiveFormObject);
 
     connect(this, &GrpcTemplateController::addNewObject, sourceModel, &GrpcObjectTableModel::addNewObject);
     connect(this, &GrpcTemplateController::updateObject, sourceModel, &GrpcObjectTableModel::updateObject);
@@ -392,6 +389,14 @@ void GrpcTemplateController::handleDeleteGrpc()
         m_grpcLoader->showLoader(false);
     } catch (const QUnhandledException & e) {
 
+    }
+}
+
+void GrpcTemplateController::receiveFormObject(const QVariant & object)
+{
+    m_formObject = object;
+    if(!m_formObject.isValid()) {
+        // throw exception ????
     }
 }
 
