@@ -108,10 +108,7 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     connect(sourceModel, &GrpcObjectTableModel::inserted, view, &GrpcTableView::select);
     connect(this, &GrpcTemplateController::makeFormReadonly, form, &GrpcForm::makeReadonly);
     connect(sourceModel, &GrpcObjectTableModel::zerroCount, this, &GrpcTemplateController::clearSelection);
-    connect(this, &GrpcTemplateController::clearViewSelection, this, [this, view]() {
-        view->clearSelection();
-        view->setCurrentIndex(QModelIndex());
-    });
+    connect(this, &GrpcTemplateController::clearViewSelection, view, &GrpcTableView::clearRowSelection);
 
     if(masterObjectWrapper) {
         connect(this, &GrpcTemplateController::masterRowChanged, form, &GrpcForm::masterChanged);

@@ -21,6 +21,12 @@ void GrpcTableView::select(int row)
     selectionModel()->select(indexToSelect, QItemSelectionModel::Select | QItemSelectionModel::Rows);
 }
 
+void GrpcTableView::clearRowSelection()
+{
+    clearSelection();
+    setCurrentIndex(QModelIndex());
+}
+
 void GrpcTableView::focusInEvent(QFocusEvent * event)
 {
     emit focusIn();
