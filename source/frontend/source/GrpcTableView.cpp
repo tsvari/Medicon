@@ -1,11 +1,17 @@
 #include "GrpcTableView.h"
 #include <QDebug>
+#include <QHeaderView>
 
 GrpcTableView::GrpcTableView(QWidget * parent)
     : QTableView(parent)
 {
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setContextMenuPolicy(Qt::CustomContextMenu);
+    setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContentsOnFirstShow);
+    setHorizontalScrollMode(ScrollPerPixel);
+    setVerticalScrollMode(ScrollPerPixel);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 }
 
 void GrpcTableView::focusInEvent(QFocusEvent * event)
