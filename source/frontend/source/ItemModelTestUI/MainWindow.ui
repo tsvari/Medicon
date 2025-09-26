@@ -204,10 +204,16 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>60</y>
+      <y>70</y>
       <width>361</width>
-      <height>541</height>
+      <height>481</height>
      </rect>
+    </property>
+    <property name="horizontalScrollBarPolicy">
+     <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+    </property>
+    <property name="sizeAdjustPolicy">
+     <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContentsOnFirstShow</enum>
     </property>
     <property name="selectionMode">
      <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
