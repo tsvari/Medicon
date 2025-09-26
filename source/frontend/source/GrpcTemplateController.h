@@ -84,6 +84,8 @@ private slots:
     void handleEditGrpc();
     void handleDeleteGrpc();
 
+    void receiveFormObject(const QVariant & object);
+
 protected:
     // be sure to override it in the child
     virtual void workerModelData() = 0;

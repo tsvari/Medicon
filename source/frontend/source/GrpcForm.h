@@ -27,6 +27,7 @@ public slots:
     virtual void masterChanged(const QModelIndex & index);
 
     void hideAllButThis();
+    void prepareObject();
 
     void startInsert();
     void startEdit();
@@ -45,6 +46,7 @@ protected:
 signals:
     void formContentChanaged();
     void formEscapeSignal();
+    void sendObject(const QVariant & object);
 
 private slots:
     void contentChanged();

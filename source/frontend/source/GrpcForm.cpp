@@ -118,6 +118,12 @@ void GrpcForm::hideAllButThis()
     }
 }
 
+void GrpcForm::prepareObject()
+{
+    fillObject();
+    emit sendObject(object());
+}
+
 void GrpcForm::startInsert()
 {
     clear();
