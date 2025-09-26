@@ -130,13 +130,6 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     connect(&m_watcherAddNew, &QFutureWatcher<QVariant>::finished, this, &GrpcTemplateController::handleAddNewGrpc);
     connect(&m_watcherEdit, &QFutureWatcher<QVariant>::finished, this, &GrpcTemplateController::handleEditGrpc);
     connect(&m_watcherDelete, &QFutureWatcher<QVariant>::finished, this, &GrpcTemplateController::handleDeleteGrpc);
-    connect(this, &GrpcTemplateController::startLoadingData, this, [this]() {
-        emit finishSave();
-        emit clearForm();
-        m_grpcLoader->showLoader(true);
-        QFuture<void> future = QtConcurrent::run(&GrpcTemplateController::workerModelData, this);
-        m_watcherLoad.setFuture(future);
-    });
 }
 
 GrpcTemplateController::~GrpcTemplateController()
@@ -207,13 +200,13 @@ void GrpcTemplateController::masterChanged(const QModelIndex & index)
     // Will only be called in the slave template
     // A template can be both a master and a slave at the same time
     m_masterObjectWrapper->setObject(index.data(GlobalRoles::VariantObjectRole));
-    emit startLoadingData();
+    startLoadingData();
 }
 
 void GrpcTemplateController::applySearchCriterias(const JsonParameterFormatter & searchCriterias)
 {
     m_searchCriterias = searchCriterias;
-    emit startLoadingData();
+    startLoadingData();
 }
 
 
@@ -306,10 +299,19 @@ bool GrpcTemplateController::masterValid()
     return true;
 }
 
+void GrpcTemplateController::startLoadingData()
+{
+    emit finishSave();
+    emit clearForm();
+    m_grpcLoader->showLoader(true);
+    QFuture<void> future = QtConcurrent::run(&GrpcTemplateController::workerModelData, this);
+    m_watcherLoad.setFuture(future);
+}
+
 void GrpcTemplateController::refresh_all()
 {
     // refresh means connect to server and request data based on existing search criterias
-    emit startLoadingData();
+    startLoadingData();
 }
 
 void GrpcTemplateController::add_new_record()
