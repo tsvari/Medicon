@@ -1,6 +1,7 @@
 #include "GrpcTableView.h"
 #include <QDebug>
 #include <QHeaderView>
+#include <QMessageBox>
 
 GrpcTableView::GrpcTableView(QWidget * parent)
     : QTableView(parent)
@@ -25,6 +26,11 @@ void GrpcTableView::clearRowSelection()
 {
     clearSelection();
     setCurrentIndex(QModelIndex());
+}
+
+void GrpcTableView::showWarning(const QString &warningTitle, const QString &message)
+{
+    QMessageBox::warning(this,  warningTitle,  message);
 }
 
 void GrpcTableView::focusInEvent(QFocusEvent * event)
