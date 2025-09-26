@@ -17,6 +17,7 @@ signals:
 public slots:
     void select(int row);
     void clearRowSelection();
+    void showWarning(const QString & warningTitle, const QString & message);
 
 protected:
     void focusInEvent(QFocusEvent * event) override;

@@ -8,7 +8,6 @@
 #include <QToolBar>
 #include <QStatusBar>
 #include <QtConcurrent/QtConcurrent>
-#include <QMessageBox>
 
 #include "GrpcForm.h"
 #include "GrpcObjectTableModel.h"
@@ -117,15 +116,13 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
 
     connect(view, &GrpcTableView::focusIn, form, &GrpcForm::hideAllButThis);
     connect(view, &GrpcTableView::focusIn, this, &GrpcTemplateController::showMenuAndToolbar);
+    connect(this, &GrpcTemplateController::warning, view, &GrpcTableView::showWarning);
     connect(this, &GrpcTemplateController::prepareFormObject, this, [this, form]() {
         form->fillObject();
         m_formObject = form->object();
         if(!m_formObject.isValid()) {
             // throw exception ????
         }
-    });
-    connect(this, &GrpcTemplateController::warning, this, [view](const QString & warningTitle, const QString & message) {
-        QMessageBox::warning(view,  warningTitle,  message);
     });
 
     connect(this, &GrpcTemplateController::addNewObject, sourceModel, &GrpcObjectTableModel::addNewObject);
