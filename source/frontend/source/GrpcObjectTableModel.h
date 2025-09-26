@@ -51,6 +51,8 @@ protected:
     friend class GrpcTemplateController;
     // be sure to override it in the child
     virtual void initializeModel() = 0;
+    // Make alignment virtual to change in child classes
+    QVariant alignment(int type) const;
     void initializeContainer();
     IBaseDataContainer * objectContainer() {return m_container.get();}
 
@@ -67,8 +69,6 @@ protected:
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
 private:
-    QVariant alignment(int type) const;
-
     std::unique_ptr<IBaseDataContainer> m_container; // delete or smart pointer
 };
 
