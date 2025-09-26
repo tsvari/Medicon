@@ -320,13 +320,13 @@
   <customwidget>
    <class>MasterForm</class>
    <extends>QWidget</extends>
-   <header location="global">../TestSharedUtility.h</header>
+   <header location="global">TestDataSource.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>SlaveForm</class>
    <extends>QWidget</extends>
-   <header location="global">../TestSharedUtility.h</header>
+   <header location="global">TestDataSource.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
