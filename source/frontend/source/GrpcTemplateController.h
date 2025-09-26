@@ -56,7 +56,6 @@ signals:
     void updateObject(int row, const QVariant & data);
     void deleteObject(int row);
 
-    void startLoadingData();
     void warning(const QString & warningTitle, const QString & message);
     void clearForm();
     void clearViewSelection();
@@ -102,6 +101,8 @@ protected:
 
     // Reload in slave templates
     virtual bool masterValid();
+
+    virtual void startLoadingData();
 
     QVariant masterVariantObject();
     QVariant & formObject() {return m_formObject;}
