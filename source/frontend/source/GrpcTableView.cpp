@@ -14,6 +14,13 @@ GrpcTableView::GrpcTableView(QWidget * parent)
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 }
 
+void GrpcTableView::select(int row)
+{
+    scrollToBottom();
+    QModelIndex indexToSelect = model()->index(row, 0);
+    selectionModel()->select(indexToSelect, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+}
+
 void GrpcTableView::focusInEvent(QFocusEvent * event)
 {
     emit focusIn();

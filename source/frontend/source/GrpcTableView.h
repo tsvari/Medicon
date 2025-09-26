@@ -14,6 +14,9 @@ signals:
     void focusOut();
     void resizeToAdjustLoader();
 
+public slots:
+    void select(int row);
+
 protected:
     void focusInEvent(QFocusEvent * event) override;
     void focusOutEvent(QFocusEvent * event) override;

@@ -105,6 +105,7 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     connect(this, &GrpcTemplateController::populateModel, sourceModel, &GrpcObjectTableModel::setModelData);
     connect(view->selectionModel(), &QItemSelectionModel::currentChanged, this, &GrpcTemplateController::currentChanged);
     connect(sourceModel, &GrpcObjectTableModel::zerroCount, this, &GrpcTemplateController::makeFormReadonly);
+    connect(sourceModel, &GrpcObjectTableModel::inserted, view, &GrpcTableView::select);
     connect(this, &GrpcTemplateController::makeFormReadonly, form, &GrpcForm::makeReadonly);
     connect(sourceModel, &GrpcObjectTableModel::zerroCount, this, &GrpcTemplateController::clearSelection);
     connect(this, &GrpcTemplateController::clearViewSelection, this, [this, view]() {
