@@ -37,8 +37,6 @@ set(HEADER_FILES
 
     ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.h
     ${FRONTEND_GRPC_DIR}/front_common.h
-
-
 )
 
 set(SOURCE_FILES
@@ -64,6 +62,9 @@ set(PROJECT_SOURCES
         MainWindow.cpp
         MainWindow.h
         MainWindow.ui
+
+        TestDataSource.h
+        TestDataSource.cpp
 )
 
 set(RESOURCE_FILES
