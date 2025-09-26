@@ -16,6 +16,7 @@ signals:
 
 public slots:
     void select(int row);
+    void clearRowSelection();
 
 protected:
     void focusInEvent(QFocusEvent * event) override;
