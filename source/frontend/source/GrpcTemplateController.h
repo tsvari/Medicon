@@ -48,7 +48,6 @@ signals:
     void finishSave();
 
     void hideOthers(GrpcTemplateController * controller);
-    void focusIn();
 
     void makeFormReadonly(bool readOnly);
     void prepareFormObject();

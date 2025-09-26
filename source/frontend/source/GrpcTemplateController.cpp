@@ -114,9 +114,7 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
         connect(this, &GrpcTemplateController::masterRowChanged, form, &GrpcForm::masterChanged);
         connect(this, &GrpcTemplateController::masterRowChanged, this, &GrpcTemplateController::masterChanged);    
     }
-    connect(this, &GrpcTemplateController::focusIn, this, [this, view](){
-        view->setFocus();
-    });
+
     connect(view, &GrpcTableView::focusIn, form, &GrpcForm::hideAllButThis);
     connect(view, &GrpcTableView::focusIn, this, &GrpcTemplateController::showMenuAndToolbar);
     connect(this, &GrpcTemplateController::prepareFormObject, this, [this, form]() {
