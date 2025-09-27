@@ -17,6 +17,8 @@ GrpcTableView::GrpcTableView(QWidget * parent)
 
 void GrpcTableView::select(int row)
 {
+    clearRowSelection();
+
     scrollToBottom();
     QModelIndex indexToSelect = model()->index(row, 0);
     selectionModel()->select(indexToSelect, QItemSelectionModel::Select | QItemSelectionModel::Rows);
