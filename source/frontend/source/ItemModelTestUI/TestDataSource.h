@@ -49,6 +49,9 @@ public:
     const std::string & level_name() const {return m_level_name;}
     void set_level_name(const std::string & value) {m_level_name = value;}
 
+    const std::string & married_name() const {return m_married_name;}
+    void set_married_name(const std::string & value) {m_married_name = value;}
+
 private:
     int32_t m_uid;
     std::string m_name;
@@ -56,6 +59,7 @@ private:
     int32_t m_height;
     double m_salary;
     bool m_married;
+    std::string m_married_name;
     int32_t m_level; // for combo list
     std::string m_level_name; // combo/edit text
 };
@@ -126,6 +130,7 @@ static std::vector<MasterObject> masterData() {
     obj1.set_height(168);
     obj1.set_salary(12.15);
     obj1.set_married(false);
+    obj1.set_married_name("No");
     obj1.set_level(2);
     obj1.set_level_name("Level2");
     objects.push_back(obj1);
@@ -137,6 +142,7 @@ static std::vector<MasterObject> masterData() {
     obj2.set_height(164);
     obj2.set_salary(30.557);
     obj2.set_married(true);
+    obj2.set_married_name("Yes");
     obj2.set_level(1);
     obj2.set_level_name("Level1");
     objects.push_back(obj2);
@@ -148,6 +154,7 @@ static std::vector<MasterObject> masterData() {
     obj3.set_height(175);
     obj3.set_salary(135000.567);
     obj3.set_married(true);
+    obj3.set_married_name("Yes");
     obj3.set_level(3);
     obj3.set_level_name("Level3");
     objects.push_back(obj3);
@@ -159,6 +166,7 @@ static std::vector<MasterObject> masterData() {
     obj4.set_height(155);
     obj4.set_salary(567);
     obj4.set_married(false);
+    obj4.set_married_name("No");
     obj4.set_level(5);
     obj4.set_level_name("Level5");
     objects.push_back(obj4);
@@ -170,6 +178,7 @@ static std::vector<MasterObject> masterData() {
     obj5.set_height(166);
     obj5.set_salary(5.123);
     obj5.set_married(true);
+    obj5.set_married_name("Yes");
     obj5.set_level(4);
     obj5.set_level_name("Level4");
     objects.push_back(obj5);
@@ -181,6 +190,7 @@ static std::vector<MasterObject> masterData() {
     obj6.set_height(166);
     obj6.set_salary(5.123);
     obj6.set_married(true);
+    obj6.set_married_name("Yes");
     obj6.set_level(4);
     obj6.set_level_name("Level4");
     objects.push_back(obj6);
@@ -252,6 +262,7 @@ public:
         container->addProperty("Height", DataInfo::Int, &MasterObject::set_height, &MasterObject::height);
         container->addProperty("Salary", DataInfo::Double, &MasterObject::set_salary, &MasterObject::salary);
         container->addProperty("Married", DataInfo::Bool, &MasterObject::set_married, &MasterObject::married);
+        container->addProperty("Married Name", DataInfo::String, &MasterObject::set_married_name, &MasterObject::married_name);
         container->addProperty("Level", DataInfo::Int, &MasterObject::set_level, &MasterObject::level);
         container->addProperty("Level Name", DataInfo::String, &MasterObject::set_level_name, &MasterObject::level_name);
     }
@@ -321,8 +332,10 @@ public:
         wrapper->addProperty("heightEdit", DataInfo::Int, &MasterObject::set_height, &MasterObject::height);
         wrapper->addProperty("salaryEdit", DataInfo::Double, &MasterObject::set_salary, &MasterObject::salary);
         wrapper->addProperty("marriedCheckBox", DataInfo::Bool, &MasterObject::set_married, &MasterObject::married);
+        wrapper->addProperty("marriedCheckBox", DataInfo::Bool, &MasterObject::set_married, &MasterObject::married);
         wrapper->addProperty("levelCombo", DataInfo::Int, &MasterObject::set_level, &MasterObject::level);
-        //wrapper->addProperty("levelCombo", DataInfo::String, &MasterObject::set_level, &MasterObject::level);
+        wrapper->addProperty("levelCombo", DataInfo::String, &MasterObject::set_level_name, &MasterObject::level_name, DataMask::ComboEditMask);
+        wrapper->addProperty("marriedCheckBox", DataInfo::String, &MasterObject::set_married_name, &MasterObject::married_name, DataMask::CheckBoxMask, "Yes", "No");
     }
 
     QVariant defaultObject() override {
@@ -441,6 +454,12 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
         }
         if(nativeObject.height() <= 0) {
             errors << tr("The 'Height' field must be greater than 0!");
+        }
+        if(nativeObject.level() > 5 || nativeObject.level() <=0 || nativeObject.level_name().empty()) {
+            errors << tr("Select a 'Level' from the combo list!");
+        }
+        if(nativeObject.salary() <= 0) {
+            errors << tr("Enter the correct 'Salary' amount!");
         }
         return errors;
     }

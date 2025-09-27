@@ -19,6 +19,14 @@ using GrpcVariantSet = std::variant<int32_t, std::string, int64_t, bool, double>
 template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
 template<class... Ts> overload(Ts...) -> overload<Ts...>;
 
+namespace DataMask {
+enum {
+    NoMask = 0,
+    ComboEditMask,
+    CheckBoxMask
+};
+}
+
 template<typename GrpcObject>
 class Property
 {
@@ -53,6 +61,9 @@ public:
         GrpcBoolGet,
         GrpcDoubleGet
         > getter;
+    int dataMask = DataMask::NoMask;
+    std::string trueData = "";
+    std::string falseData = "";
 };
 
 struct PropertyHolder
@@ -158,7 +169,6 @@ enum {
     VariantObjectRole = Qt::UserRole + 1000
     };
 }
-
 
 
 
