@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Master Template classes
     GrpcProxySortFilterModel * masterProxy = new GrpcProxySortFilterModel(
         new  GrpcTestObjectTableModel(ui->masterTableView),
-                                    {0, 5, 6}, // Uid and Level Uid
+                                    {0, 5, 7}, // Uid and Level Uid
                                     ui->masterTableView);
     MasterTemplate * masterTemplate = new MasterTemplate(masterProxy, ui->masterTableView, ui->masterForm, this);
     masterTemplate->addActionBars(this, ui->mainMenuBar, ui->mainToolBar, ui->mainStatusBAr);

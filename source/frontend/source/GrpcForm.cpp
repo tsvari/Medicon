@@ -41,6 +41,9 @@ void GrpcForm::fill(const QModelIndex & index)
         m_objectWrapper->setObject(varData);
         Q_ASSERT(m_formWidgets.count() == m_objectWrapper->propertyCount());
         for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
+            if(m_objectWrapper->dataMask(i) != DataMask::NoMask) {
+                continue;
+            }
             DataInfo::Type type = m_objectWrapper->dataType(i);
             fillWidget(m_formWidgets[i], type, m_objectWrapper->data(i));
         }
@@ -52,9 +55,24 @@ void GrpcForm::fillObject()
 {
     if(m_objectWrapper->hasObject()) {
         for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
+            QVariant data ;
             QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
             Q_ASSERT(widget);
-            QVariant data = widgetData(widget, m_objectWrapper->dataType(i));
+            if(m_objectWrapper->dataMask(i) == DataMask::ComboEditMask) {
+                QComboBox * comboEdit = qobject_cast<QComboBox*>(widget);
+                Q_ASSERT(comboEdit);
+                data = comboEdit->currentText();
+            } else if(m_objectWrapper->dataMask(i) == DataMask::CheckBoxMask) {
+                QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget);
+                Q_ASSERT(checkBox);
+                if(checkBox->isChecked()) {
+                    data = m_objectWrapper->trueData(i);
+                } else {
+                    data = m_objectWrapper->falseData(i);
+                }
+            } else {
+                data = widgetData(widget, m_objectWrapper->dataType(i));
+            }
             //Q_ASSERT(data.isValid());
             m_objectWrapper->setData(i, data);
         }
@@ -322,7 +340,8 @@ void GrpcForm::fillWidget(QWidget * widget, const DataInfo::Type & type, const Q
     }
     if(QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget)) {
         // Check type should be suitable
-        Q_ASSERT(type == DataInfo::Bool && data.typeId() == QMetaType::Bool);
+        Q_ASSERT((type == DataInfo::Bool && data.typeId() == QMetaType::Bool) ||
+                 type == DataInfo::String );
         checkBox->setChecked(data.toBool());
     }
     if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(widget);

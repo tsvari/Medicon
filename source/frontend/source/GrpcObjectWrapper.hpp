@@ -23,6 +23,10 @@ struct IBaseGrpcObjectWrapper
 
     virtual void setObject(const QVariant & data) = 0;
     virtual bool hasObject() = 0;
+
+    virtual int dataMask(int col) = 0;
+    virtual QVariant trueData(int col) = 0;
+    virtual QVariant falseData(int col) = 0;
 };
 
 
@@ -53,6 +57,18 @@ public:
 
     QVariant propertyWidgetName(int col) override {
         return FrontConverter::to_str(m_properties[col].name);
+    }
+
+    int dataMask(int col) override {
+        return m_properties[col].dataMask;
+    }
+
+    QVariant trueData(int col) override {
+        return FrontConverter::to_str(m_properties[col].trueData);
+    }
+
+    QVariant falseData(int col) override {
+        return FrontConverter::to_str(m_properties[col].falseData);
     }
 
     int propertyCount() override {
@@ -160,13 +176,19 @@ public:
     void addProperty(const char * name,
                      DataInfo::Type type,
                      GrpcStrSet setter,
-                     GrpcStrGet getter)
+                     GrpcStrGet getter,
+                     int dataMask = DataMask::NoMask,
+                     const std::string & trueData = "",
+                     const std::string & falseData = "")
     {
         Property<GrpcObject> property;
         property.name = name;
         property.type = type;
         property.setter = setter;
         property.getter = getter;
+        property.dataMask = dataMask;
+        property.trueData = trueData;
+        property.falseData = falseData;
         m_properties.push_back(property);
     }
 
@@ -180,13 +202,19 @@ public:
     void addProperty(const char * name,
                      DataInfo::Type type,
                      Grpc64Set setter,
-                     Grpc64Get getter)
+                     Grpc64Get getter,
+                     int dataMask = DataMask::NoMask,
+                     const std::string & trueData = "",
+                     const std::string & falseData = "")
     {
         Property<GrpcObject> property;
         property.name = name;
         property.type = type;
         property.setter = setter;
         property.getter = getter;
+        property.dataMask = dataMask;
+        property.trueData = trueData;
+        property.falseData = falseData;
         m_properties.push_back(property);
     }
 
@@ -200,13 +228,19 @@ public:
     void addProperty(const char * name,
                      DataInfo::Type type,
                      Grpc32Set setter,
-                     Grpc32Get getter)
+                     Grpc32Get getter,
+                     int dataMask = DataMask::NoMask,
+                     const std::string & trueData = "",
+                     const std::string & falseData = "")
     {
         Property<GrpcObject> property;
         property.name = name;
         property.type = type;
         property.setter = setter;
         property.getter = getter;
+        property.dataMask = dataMask;
+        property.trueData = trueData;
+        property.falseData = falseData;
         m_properties.push_back(property);
     }
 
@@ -220,13 +254,19 @@ public:
     void addProperty(const char * name,
                      DataInfo::Type type,
                      GrpcBoolSet setter,
-                     GrpcBoolGet getter)
+                     GrpcBoolGet getter,
+                     int dataMask = DataMask::NoMask,
+                     const std::string & trueData = "",
+                     const std::string & falseData = "")
     {
         Property<GrpcObject> property;
         property.name = name;
         property.type = type;
         property.setter = setter;
         property.getter = getter;
+        property.dataMask = dataMask;
+        property.trueData = trueData;
+        property.falseData = falseData;
         m_properties.push_back(property);
     }
 
@@ -240,13 +280,19 @@ public:
     void addProperty(const char * name,
                      DataInfo::Type type,
                      GrpcDoubleSet setter,
-                     GrpcDoubleGet getter)
+                     GrpcDoubleGet getter,
+                     int dataMask = DataMask::NoMask,
+                     const std::string & trueData = "",
+                     const std::string & falseData = "")
     {
         Property<GrpcObject> property;
         property.name = name;
         property.type = type;
         property.setter = setter;
         property.getter = getter;
+        property.dataMask = dataMask;
+        property.trueData = trueData;
+        property.falseData = falseData;
         m_properties.push_back(property);
     }
 
