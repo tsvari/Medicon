@@ -426,7 +426,10 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
     void workerModelData() override {
         //JsonParameterFormatter criterias = searchCriterias();
         // Dont need master object in thinscase
+
+        // Simulating waiting for a response from the server
         QThread::msleep(500);
+
         std::vector<MasterObject> dataSource = TestModelData::masterData();
         std::vector<MasterObject>  dataSource2 = TestModelData::masterData();
         std::copy(dataSource2.begin(), dataSource2.end(), std::back_inserter(dataSource));
@@ -465,18 +468,29 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
     }
 
     QVariant workerAddNewObject(const QVariant & promise) override {
+        // Simulating waiting for a response from the server
         QThread::msleep(300);
+
         QVariant variantObject = formObject();
         MasterObject masterFormObject = variantObject.value<MasterObject>();
+
+        // We send the object to the server and, if there are no exceptions, return it to the game
         masterFormObject.set_uid(randomInt(1000, 100000));
+
         return QVariant::fromValue<MasterObject>(masterFormObject);
     }
     QVariant workerEditObject(const QVariant & promise) override {
+        // Simulating waiting for a response from the server
         QThread::msleep(300);
+
+        // We send the object to the server and, if there are no exceptions, return it to the game
         return promise;
     }
     QVariant workerDeleteObject(const QVariant & promise) override {
+        // Simulating waiting for a response from the server
         QThread::msleep(300);
+
+        // We send the object to the server and, if there are no exceptions, return it to the game
         return promise;
     }
 
@@ -502,6 +516,8 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
 
     void workerModelData() override {
         //JsonParameterFormatter criterias = searchCriterias();
+
+        // Simulating waiting for a response from the server
         QThread::msleep(500);
 
         if(masterValid()) {
@@ -536,7 +552,9 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
     }
 
     QVariant workerAddNewObject(const QVariant & promise) override {
+        // Simulating waiting for a response from the server
         QThread::msleep(300);
+
         QVariant slaveFormObject = formObject();
         SlaveObject formObject = slaveFormObject.value<SlaveObject>();
         QVariant masterVarObject = masterVariantObject();
@@ -547,14 +565,21 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
         formObject.set_link_uid(masterObject.uid());
         formObject.set_uid(randomInt(1000, 100000));
 
+        // We send the object to the server and, if there are no exceptions, return it to the game
         return QVariant::fromValue<SlaveObject>(formObject);
     }
     QVariant workerEditObject(const QVariant & promise) override {
+        // Simulating waiting for a response from the server
         QThread::msleep(300);
+
+        // We send the object to the server and, if there are no exceptions, return it to the game
         return promise;
     }
     QVariant workerDeleteObject(const QVariant & promise) override {
+        // Simulating waiting for a response from the server
         QThread::msleep(300);
+
+        // We send the object to the server and, if there are no exceptions, return it to the game
         return promise;
     }
 };
