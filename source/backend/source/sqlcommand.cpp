@@ -33,7 +33,7 @@ void SqlCommand::addDataInfo(const char * paramName, bool paramValue)
     m_applet.AddDataInfo(paramName, paramValue);
 }
 
-void SqlCommand::addDataInfo(const char * paramName, const std::chrono::sys_seconds paramValue, DataInfo::Type nType)
+void SqlCommand::addDataInfo(const char * paramName, const std::chrono::milliseconds paramValue, DataInfo::Type nType)
 {
     m_applet.AddDataInfo(paramName, paramValue, nType);
 }

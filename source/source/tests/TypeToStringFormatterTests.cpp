@@ -7,7 +7,7 @@
 
 TEST(FormaterTest, TimeFormatHelperTests)
 {
-    std::chrono::sys_seconds sysSecs;
+    std::chrono::milliseconds sysSecs;
     std::string input = "0-0-0 10:11:12";
     EXPECT_THROW(TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime), std::invalid_argument);
 
@@ -98,7 +98,7 @@ TEST(TypeToStringFormatterTests, AddAllTypesExceptDateTime)
 TEST(TypeToStringFormatterTests, TypeToStringFormatterTests)
 {
     TypeToStringFormatter formatter;
-    std::chrono::sys_seconds currentTime = TimeFormatHelper::stringTochronoSysSec("2007-01-20 11:22:33", DataInfo::DateTime);
+    std::chrono::milliseconds currentTime = TimeFormatHelper::stringTochronoSysSec("2007-01-20 11:22:33", DataInfo::DateTime);
 
     std::vector paramNameList = {"DateTime", "DateTimeNoSec", "Date", "Time"};
     formatter.AddDataInfo(paramNameList[0], currentTime, DataInfo::DateTime);

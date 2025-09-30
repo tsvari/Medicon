@@ -108,7 +108,7 @@ QVariant GrpcForm::widgetData(QWidget *widget, const DataInfo::Type & type)
         } else {
             dateTime = dateTimeEdit->dateTime();
         }
-        return dateTime.toMSecsSinceEpoch();
+        return dateTime.toSecsSinceEpoch();
     }
     if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(widget)) {
         QDateTime dateTime(QDate::currentDate(), timeEdit->time());
@@ -350,7 +350,7 @@ void GrpcForm::fillWidget(QWidget * widget, const DataInfo::Type & type, const Q
         Q_ASSERT(type == DataInfo::DateTime || type == DataInfo::DateTimeNoSec || type == DataInfo::Date);
         // Use by need DateTime or Date only
         // if DateTimeNoSec change format
-        QDateTime dateTime = QDateTime::fromSecsSinceEpoch(data.toLongLong());
+        QDateTime dateTime = QDateTime::fromMSecsSinceEpoch(data.toLongLong());
         if(dateEdit) {
             dateEdit->setDateTime(dateTime);
         } else {

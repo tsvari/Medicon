@@ -13,7 +13,7 @@
 TEST(SqlCommandTests, VoidTest)
 {
     std::string input = "2007-01-20 10:11:12";
-    std::chrono::sys_seconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
+    std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SQLApplet::InitPathToApplets(ALL_BACKEND_TEST_APPDATA_PATH);
     SqlConnection::InitAllConnections(SA_PostgreSQL_Client, "host", "user", "pass");

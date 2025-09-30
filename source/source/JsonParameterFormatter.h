@@ -20,7 +20,7 @@ public:
     void AddDataInfo(const char * paramName, double paramValue);
     void AddDataInfo(const char * paramName, bool paramValue);
 
-    void AddDataInfo(const char * paramName,  std::chrono::sys_seconds paramValue, DataInfo::Type nType);
+    void AddDataInfo(const char * paramName,  std::chrono::milliseconds paramValue, DataInfo::Type nType);
     void AddDataInfo(const char * paramName,  const char * paramValue, DataInfo::Type nType);
 };
 

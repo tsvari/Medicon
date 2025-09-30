@@ -47,7 +47,7 @@ TEST(AppletTests, SqlTest)
 {
 
     std::string input = "2007-01-20 10:11:12";
-    std::chrono::sys_seconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
+    std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SQLApplet applet("test.xml");
     applet.AddDataInfo("Money", 122.123);
@@ -67,7 +67,7 @@ TEST(AppletTests, SqlHybridDataTest)
 {
 
     std::string input = "2007-01-20 10:11:12";
-    std::chrono::sys_seconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
+    std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SQLApplet applet("test.xml", {{"Money", "122.123000"}, {"Height", "175"}});
     applet.AddDataInfo("BirthTime", sysSecs, DataInfo::Time);
@@ -86,7 +86,7 @@ TEST(AppletTests, SqlOnliInnerDataTest)
 {
 
     std::string input = "2007-01-20 10:11:12";
-    std::chrono::sys_seconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
+    std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     // Data without quotes
     SQLApplet applet("test.xml",{{"Money", "122.123000"},
