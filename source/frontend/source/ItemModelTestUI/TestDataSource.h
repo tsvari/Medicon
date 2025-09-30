@@ -120,7 +120,7 @@ static std::vector<MasterObject> masterData() {
     static int incr = 0;
     auto increament = [=]() {
         incr += 11111;
-        return (TimeFormatHelper::chronoNow().time_since_epoch().count() + incr);
+        return (TimeFormatHelper::chronoNow().count() + incr);
     };
 
     MasterObject obj1;

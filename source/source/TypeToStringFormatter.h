@@ -12,10 +12,10 @@ const char * FORMATER_ERR_WRONG_KEY_PARAMETER_NAME = "Wrong name for provided pa
 const char * FORMATER_ERR_WRONG_TYPE = "The system does not support this type!";
 } // namespace
 namespace TimeFormatHelper {
-std::string chronoSysSecToString(const std::chrono::sys_seconds dateTimeInSecs, DataInfo::Type nType);
+std::string chronoSysSecToString(const std::chrono::milliseconds dateTimeInSecs, DataInfo::Type nType);
 std::string chronoSysSecToString(int64_t dateTimeInSecs, DataInfo::Type nType);
-std::chrono::sys_seconds stringTochronoSysSec(const std::string & formattedDateTime, DataInfo::Type nType);
-std::chrono::sys_seconds chronoNow();
+std::chrono::milliseconds stringTochronoSysSec(const std::string & formattedDateTime, DataInfo::Type nType);
+std::chrono::milliseconds chronoNow();
 std::string generateUniqueString();
 } // namespace
 
@@ -27,14 +27,14 @@ public:
     TypeToStringFormatter(){}
 
     void AddDataInfo(const char * paramName, FormatterDataType & paramValue);
-    void AddDataInfo(const char * paramName,  std::chrono::sys_seconds paramValue, DataInfo::Type nType);
+    void AddDataInfo(const char * paramName,  std::chrono::milliseconds paramValue, DataInfo::Type nType);
     void AddDataInfo(const char * paramName,  const char * paramValue, DataInfo::Type nType);
     map<string, string> formattedParamValueList() const;
 
     string value(const char * paramName);
     DataInfo dataInfo(const char * paramName);
     // To reuse for local output
-    std::chrono::sys_seconds toTime(const char * paramName);
+    std::chrono::milliseconds toTime(const char * paramName);
 
     vector<DataInfo> & dataInfoList(){return dataList;}
 

@@ -5,19 +5,20 @@
 #include <random>
 
 namespace TimeFormatHelper{
-std::string chronoSysSecToString(const std::chrono::sys_seconds dateTimeInSecs, DataInfo::Type nType)
+std::string chronoSysSecToString(const std::chrono::milliseconds dateTimeInSecs, DataInfo::Type nType)
 {
+    std::chrono::sys_seconds dts = floor<std::chrono::seconds>(std::chrono::sys_time<std::chrono::milliseconds>{dateTimeInSecs});
     string formattedString;
      try {
         switch (nType) {
             case DataInfo::DateTime:
-                return std::format("{:%Y-%m-%d %H:%M:%S}", dateTimeInSecs);
+                return std::format("{:%Y-%m-%d %H:%M:%S}", dts);
             case DataInfo::DateTimeNoSec:
-                return std::format("{:%Y-%m-%d %H:%M}", dateTimeInSecs);
+                return std::format("{:%Y-%m-%d %H:%M}", dts);
             case DataInfo::Date:
-                return std::format("{:%Y-%m-%d}", dateTimeInSecs);
+                return std::format("{:%Y-%m-%d}", dts);
             case DataInfo::Time:
-                return std::format("{:%H:%M:%S}", dateTimeInSecs);
+                return std::format("{:%H:%M:%S}", dts);
             default:
                 throw std::invalid_argument(FORMATER_ERR_WRONG_DATE_TYME_TYPE);
         }
@@ -29,14 +30,14 @@ std::string chronoSysSecToString(const std::chrono::sys_seconds dateTimeInSecs, 
 
 std::string chronoSysSecToString(int64_t dateTimeInSecs, DataInfo::Type nType)
 {
-    std::chrono::seconds duration(dateTimeInSecs);
-    std::chrono::sys_seconds timePoint(duration);
+    //std::chrono::seconds duration(dateTimeInSecs);
+    std::chrono::milliseconds timePoint{dateTimeInSecs};
     return chronoSysSecToString(timePoint, nType);
 }
 
-std::chrono::sys_seconds stringTochronoSysSec(const string & formattedDateTime, DataInfo::Type nType)
+std::chrono::milliseconds stringTochronoSysSec(const string & formattedDateTime, DataInfo::Type nType)
 {
-    std::chrono::sys_seconds dateTimeInSecs;
+    std::chrono::sys_time<std::chrono::milliseconds> dateTimeInSecs;
     std::istringstream ss(formattedDateTime);
 
     switch (nType) {
@@ -60,12 +61,12 @@ std::chrono::sys_seconds stringTochronoSysSec(const string & formattedDateTime, 
         throw std::invalid_argument(FORMATER_ERR_STRING_FORMAT);
     }
 
-    return dateTimeInSecs;
+    return dateTimeInSecs.time_since_epoch();
 }
 
-std::chrono::sys_seconds chronoNow()
+std::chrono::milliseconds chronoNow()
 {
-    return std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now());
+    return duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());;
 }
 
 std::string generateUniqueString() {
@@ -116,7 +117,7 @@ void TypeToStringFormatter::AddDataInfo(const char * paramName, FormatterDataTyp
     dataList.push_back(info);
 }
 
-void TypeToStringFormatter::AddDataInfo(const char * paramName, std::chrono::sys_seconds paramValue, DataInfo::Type nType)
+void TypeToStringFormatter::AddDataInfo(const char * paramName, std::chrono::milliseconds paramValue, DataInfo::Type nType)
 {
     DataInfo info;
     info.param = paramName;
@@ -132,7 +133,7 @@ void TypeToStringFormatter::AddDataInfo(const char *paramName, const char *param
     info.param = paramName;
     info.type = nType;
     // Check validity of provided value
-    std::chrono::sys_seconds sysSecs = TimeFormatHelper::stringTochronoSysSec(paramValue, nType);
+    std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(paramValue, nType);
     info.value = TimeFormatHelper::chronoSysSecToString(sysSecs, nType);
 
     dataList.push_back(info);
@@ -169,7 +170,7 @@ DataInfo TypeToStringFormatter::dataInfo(const char *paramName)
     return *it;
 }
 
-std::chrono::sys_seconds TypeToStringFormatter::toTime(const char * paramName)
+std::chrono::milliseconds TypeToStringFormatter::toTime(const char * paramName)
 {
     auto it = std::find_if(dataList.begin(), dataList.end(),
                            [&](const DataInfo & info) { return info.param == paramName; });

@@ -70,7 +70,7 @@ void SQLApplet::AddDataInfo(const char * paramName, bool paramValue)
     m_formatter.AddDataInfo(paramName, data);
 }
 
-void SQLApplet::AddDataInfo(const char * paramName, const std::chrono::sys_seconds paramValue, DataInfo::Type nType)
+void SQLApplet::AddDataInfo(const char * paramName, const std::chrono::milliseconds paramValue, DataInfo::Type nType)
 {
     m_formatter.AddDataInfo(paramName, paramValue, nType);
 }
