@@ -14,7 +14,8 @@ add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")
 set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVER_MODE PRE_TEST)
 include(GoogleTest)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 qt_standard_project_setup()
 
@@ -39,19 +40,17 @@ set(HEADER_FILES
     ${INCLUDE_DIR}/TypeToStringFormatter.h
     ${INCLUDE_DIR}/JsonParameterFormatter.h
 
-    ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.pb.h
-    ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.h
-
-
     ${FRONTEND_INCLUDE_DIR}/include_frontend_util.h
     ${FRONTEND_INCLUDE_DIR}/GrpcObjectTableModel.h
     ${FRONTEND_INCLUDE_DIR}/GrpcDataContainer.hpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcProxySortFilterModel.h
     ${FRONTEND_INCLUDE_DIR}/GrpcForm.h
     ${FRONTEND_INCLUDE_DIR}/GrpcTemplateController.h
     ${FRONTEND_INCLUDE_DIR}/GrpcMasterSlaveController.h
     ${FRONTEND_INCLUDE_DIR}/GrpcObjectWrapper.hpp
     ${FRONTEND_INCLUDE_DIR}/GrpcSearchForm.h
     ${FRONTEND_INCLUDE_DIR}/GrpcTableView.h
+    ${FRONTEND_INCLUDE_DIR}/GrpcThreadWorker.h
 
 
     ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.h
@@ -64,16 +63,15 @@ set(SOURCE_FILES
     ${INCLUDE_DIR}/TypeToStringFormatter.cpp
     ${INCLUDE_DIR}/JsonParameterFormatter.cpp
 
-    ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.pb.cc
-    ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.cc
-
     ${FRONTEND_INCLUDE_DIR}/include_frontend_util.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcObjectTableModel.cpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcProxySortFilterModel.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcForm.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcTemplateController.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcMasterSlaveController.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcSearchForm.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcTableView.cpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcThreadWorker.cpp
 
     ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.cpp
     ${FRONTEND_GRPC_DIR}/company_client.hpp
@@ -83,8 +81,8 @@ add_executable(FrontendTestProject
     ${HEADER_FILES}
     ${SOURCE_FILES}
 
-    GrpcDataContainerTests.cpp
     GrpcObjectTableModelTests.cpp
+    GrpcDataContainerTests.cpp
     GrpcObjectWrapperTests.cpp
 )
 
@@ -108,4 +106,7 @@ target_link_libraries(FrontendTestProject
     Qt6::Gui
 )
 
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_finalize_executable(FrontendTestProject)
+endif()
 

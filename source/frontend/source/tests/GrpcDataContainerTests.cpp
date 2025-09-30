@@ -10,6 +10,50 @@
 using ::testing::ElementsAre;
 using ::testing::Pointwise;
 
+class GprcTestDataObject
+{
+public:
+    ~GprcTestDataObject(){}
+    int32_t uid() const {return m_uid;}
+    void set_uid(int32_t value) {m_uid = value;}
+
+    const std::string & name() const {return m_name;}
+    void set_name(const std::string & value) {m_name = value;}
+
+    int64_t date() const {return m_date;}
+    void set_date(int64_t value) {m_date = value;}
+
+    int32_t height() const {return m_height;}
+    void set_height(int32_t value) {m_height = value;}
+
+    double salary() const {return m_salary;}
+    void set_salary(double value) {m_salary = value;}
+
+    bool married() const {return m_married;}
+    void set_married(bool value) {m_married = value;}
+
+    int32_t level() const {return m_level;}
+    void set_level(int32_t value) {m_level = value;}
+
+    const std::string & level_name() const {return m_level_name;}
+    void set_level_name(const std::string & value) {m_level_name = value;}
+
+    const std::string & married_name() const {return m_married_name;}
+    void set_married_name(const std::string & value) {m_married_name = value;}
+
+private:
+    int32_t m_uid;
+    std::string m_name;
+    int64_t m_date;
+    int32_t m_height;
+    double m_salary;
+    bool m_married;
+    std::string m_married_name;
+    int32_t m_level; // for combo list
+    std::string m_level_name; // combo/edit text
+};
+
+
 namespace {
 void compareObjects (const GprcTestDataObject & left, const GprcTestDataObject & right) {
     EXPECT_EQ(left.name(), right.name());
