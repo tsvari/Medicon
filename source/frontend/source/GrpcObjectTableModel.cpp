@@ -49,7 +49,8 @@ QVariant GrpcObjectTableModel::data(const QModelIndex & index, int role) const
     }
 
     if(role == Qt::DisplayRole) {
-        return m_container->data(index.row(), index.column());
+        return FrontConverter::to_qvariant_by_type(m_container->nativeData(index.row(), index.column()),
+                                                   m_container->dataType(index.column()));
     } else if (role == GlobalRoles::VariantObjectRole) {
         return m_container->variantObject(index.row());
     } else if(role == Qt::TextAlignmentRole) {

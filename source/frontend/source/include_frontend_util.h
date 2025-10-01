@@ -162,6 +162,7 @@ std::string to_str(const QString & source);
 std::string to_str(const QVariant & source);
 
 QVariant to_qvariant_get(GrpcVariantGet varData);
+QVariant to_qvariant_by_type(const GrpcVariantGet & varData, DataInfo::Type type);
 }
 
 namespace GlobalRoles {
