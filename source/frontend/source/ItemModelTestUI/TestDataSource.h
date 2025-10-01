@@ -176,7 +176,7 @@ static std::vector<MasterObject> masterData() {
     obj5.set_name("Teona");
     obj5.set_date(increament());
     obj5.set_height(166);
-    obj5.set_salary(5.123);
+    obj5.set_salary(5.12);
     obj5.set_married(true);
     obj5.set_married_name("Yes");
     obj5.set_level(4);

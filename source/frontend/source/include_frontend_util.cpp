@@ -3,6 +3,8 @@
 #include <QVariant>
 #include <chrono>
 #include <format>
+#include <iostream>
+#include <locale>
 
 namespace FrontConverter {
 QString to_str(const std::string & source) {
@@ -31,13 +33,32 @@ QVariant to_qvariant_get(GrpcVariantGet varData) {
     }
 }
 
+std::string to_locale_string(
+    double value,
+    int decimals = -1,                          // -1 means "full precision"
+    const std::locale& loc = std::locale("")    // system/user locale
+    ) {
+    std::ostringstream oss;
+    oss.imbue(loc);
+
+    if (decimals >= 0) {
+        // Fixed number of decimal places
+        oss << std::fixed << std::setprecision(decimals);
+    } else {
+        // Enough precision for exact round-trip
+        oss << std::setprecision(std::numeric_limits<double>::max_digits10);
+    }
+
+    oss << value;
+    return oss.str();
+}
+
 QVariant to_qvariant_by_type(const GrpcVariantGet & varData, DataInfo::Type type) {
     const QVariant & qVariantData = to_qvariant_get(varData);
     std::string retData;
     switch(type) {
     case DataInfo::Double:
-        // temporary
-        return qVariantData;
+        return QString::fromStdString(to_locale_string(qVariantData.toDouble(), 3));
     case DataInfo::DateTime:
     case DataInfo::DateTimeNoSec:
     case DataInfo::Date:
