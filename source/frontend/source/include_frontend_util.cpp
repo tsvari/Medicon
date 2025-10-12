@@ -1,6 +1,7 @@
 #include "include_frontend_util.h"
 
 #include <QVariant>
+#include <QLocale>
 #include <chrono>
 #include <format>
 #include <iostream>
@@ -55,6 +56,11 @@ std::string to_locale_string(
 
 QVariant to_qvariant_by_type(const GrpcVariantGet & varData, DataInfo::Type type) {
     const QVariant & qVariantData = to_qvariant_get(varData);
+    return to_qvariant_by_type(qVariantData, type);
+}
+
+QVariant to_qvariant_by_type(const QVariant & qVariantData, DataInfo::Type type)
+{
     std::string retData;
     switch(type) {
     case DataInfo::Double:
@@ -87,6 +93,11 @@ QVariant to_qvariant_by_type(const GrpcVariantGet & varData, DataInfo::Type type
     default:
         return qVariantData;
     }
+}
+
+double to_locale_double(const QString & strValue)
+{
+    return QLocale::system().toDouble(strValue);
 }
 
 }
