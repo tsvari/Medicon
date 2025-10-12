@@ -87,20 +87,19 @@ void GrpcForm::masterChanged(const QModelIndex &index)
 
 QVariant GrpcForm::widgetData(QWidget *widget, const DataInfo::Type & type)
 {
-    if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
+    if(QLineEdit * doubleLineEdit = qobject_cast<QLineEdit*>(widget); type == DataInfo::Double) {
+        return FrontConverter::to_locale_double(doubleLineEdit->text());
+    } else if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
         return lineEdit->text();
-    }
-    if(QComboBox * comboEdit = qobject_cast<QComboBox*>(widget)) {
+    } else if(QComboBox * comboEdit = qobject_cast<QComboBox*>(widget)) {
         if(GrpcObjectTableModel * model = qobject_cast<GrpcObjectTableModel*>(comboEdit->model())) {
             return model->data(model->index(comboEdit->currentIndex(), 0));
         } else {
             return comboEdit->itemData(comboEdit->currentIndex(), Qt::DisplayRole);
         }
-    }
-    if(QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget)) {
+    } else if(QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget)) {
         return checkBox->isChecked();
-    }
-    if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(widget);
+    } else if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(widget);
         QDateTimeEdit * dateTimeEdit = qobject_cast<QDateTimeEdit*>(widget)) {
         QDateTime dateTime;
         if(dateEdit) {
@@ -109,12 +108,10 @@ QVariant GrpcForm::widgetData(QWidget *widget, const DataInfo::Type & type)
             dateTime = dateTimeEdit->dateTime();
         }
         return dateTime.toSecsSinceEpoch();
-    }
-    if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(widget)) {
+    } else if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(widget)) {
         QDateTime dateTime(QDate::currentDate(), timeEdit->time());
         return dateTime.toMSecsSinceEpoch();
-    }
-    if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
+    } else if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
         return textEdit->toPlainText();
     }
     return QVariant();
@@ -222,24 +219,95 @@ void GrpcForm::initilizeWidgets()
     for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
         QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
         Q_ASSERT(widget);
-        m_formWidgets << widget;
+
+        const DataInfo::Type & type = m_objectWrapper->dataType(i);
+        QLocale systemLocale = QLocale::system();
+
         widget->installEventFilter(this);
-        // Connect content changes to GrpcTemplateController State
-        if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
-            connect(lineEdit, &QLineEdit::textEdited, this, &GrpcForm::contentChanged);
-        } else if(QComboBox * comboBox = qobject_cast<QComboBox*>(widget)) {
+        m_formWidgets << widget;
+
+        if(QComboBox * comboBox = qobject_cast<QComboBox*>(widget)) {
             connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),this, &GrpcForm::contentChanged);
+        } else if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
+            if(type == DataInfo::Double) {
+                connect(lineEdit, &QLineEdit::textEdited, this, &GrpcForm::contentChanged);
+                // Set validator
+                auto * validator = new QDoubleValidator(this);
+                validator->setLocale(QLocale::system());
+                lineEdit->setValidator(validator);
+                connect(lineEdit, &QLineEdit::editingFinished, lineEdit, [type, systemLocale, lineEdit]() {
+                    bool ok;
+                    double doublVal = systemLocale.toDouble(lineEdit->text(), &ok);
+                    if (ok) {
+                        QString strValue = FrontConverter::to_qvariant_by_type(QVariant::fromValue(doublVal), type).toString();
+                        lineEdit->setText(strValue);
+                    } else {
+                        lineEdit->selectAll();
+                        lineEdit->setFocus();
+                    }
+                });
+            } else if(type == DataInfo::Int || type == DataInfo::Int64) {
+                connect(lineEdit, &QLineEdit::textEdited, this, &GrpcForm::contentChanged);
+                auto * validator = new QIntValidator(this);
+                validator->setLocale(QLocale::system());
+                lineEdit->setValidator(validator);
+                connect(lineEdit, &QLineEdit::editingFinished, lineEdit, [systemLocale, lineEdit]() {
+                    bool ok;
+                    int intVal = systemLocale.toInt(lineEdit->text(), &ok);
+                    if (ok) {
+                        lineEdit->setText(QString::number(intVal));
+                    } else {
+                        lineEdit->selectAll();
+                        lineEdit->setFocus();
+                    }
+                });
+            } else if(type == DataInfo::String) {
+                connect(lineEdit, &QLineEdit::textEdited, this, &GrpcForm::contentChanged);
+                // Allow only letters, numbers, underscores, spaces, and dashes (Unicode aware)
+                QRegularExpression safeBase("^[\\p{L}\\p{N}_\\s-]*$",
+                                            QRegularExpression::UseUnicodePropertiesOption);
+                lineEdit->setValidator(new QRegularExpressionValidator(safeBase, this));
+
+                connect(lineEdit, &QLineEdit::textEdited, lineEdit, [lineEdit]() {
+                    static const QRegularExpression forbiddenPatterns(
+                        R"((--|;|'|"|/\*|\*/|\\|#))",
+                        QRegularExpression::UseUnicodePropertiesOption);
+                    QString clean, text = lineEdit->text();
+                    clean = text;
+                    clean.remove(forbiddenPatterns);
+
+                    // If something was removed, update the text quietly
+                    if (clean != text) {
+                        int cursor = lineEdit->cursorPosition();
+                        lineEdit->setText(clean);
+                        //lineEdit->setCursorPosition(std::min(cursor - 1, clean.length()));
+                    }
+                });
+            }
         } else if(QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget)) {
             connect(checkBox, &QCheckBox::checkStateChanged, this, &GrpcForm::contentChanged);
-        } else if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(widget);
-            QDateTimeEdit * dateTimeEdit = qobject_cast<QDateTimeEdit*>(widget)) {
-            if(dateEdit) {
+        } else if(QDateTimeEdit * dateTimeEdit = qobject_cast<QDateTimeEdit*>(widget)) {
+            if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(dateTimeEdit)) {
                 connect(dateEdit, &QDateEdit::dateChanged, this, &GrpcForm::contentChanged);
+                dateEdit->setDisplayFormat(systemLocale.dateFormat(QLocale::ShortFormat));
+            } else if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(dateTimeEdit)) {
+                connect(timeEdit, &QTimeEdit::timeChanged, this, &GrpcForm::contentChanged);
+                timeEdit->setDisplayFormat(systemLocale.timeFormat(QLocale::ShortFormat));
             } else {
-                connect(dateTimeEdit, &QDateTimeEdit::dateTimeChanged, this, &GrpcForm::contentChanged);
+                if(type == DataInfo::DateTime) {
+                    connect(dateTimeEdit, &QDateTimeEdit::dateTimeChanged, this, &GrpcForm::contentChanged);
+                    // DataInfo::DateTime requires secconds
+                    // So add hardcoded seconds to the format
+                    QString fmt = systemLocale.dateTimeFormat(QLocale::ShortFormat);
+                    if (!fmt.contains("s")) {
+                        fmt.replace("mm", "mm:ss");
+                    }
+                    dateTimeEdit->setDisplayFormat(fmt);
+                } else if(type == DataInfo::DateTimeNoSec) {
+                    connect(dateTimeEdit, &QDateTimeEdit::dateTimeChanged, this, &GrpcForm::contentChanged);
+                    dateTimeEdit->setDisplayFormat(systemLocale.dateTimeFormat(QLocale::ShortFormat));
+                }
             }
-        } else if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(widget)) {
-            connect(timeEdit, &QTimeEdit::timeChanged, this, &GrpcForm::contentChanged);
         } else if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
             connect(textEdit, &QTextEdit::textChanged, this, &GrpcForm::contentChanged);
         } else {
@@ -258,21 +326,20 @@ void GrpcForm::clear()
         QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
         Q_ASSERT(widget);
         // Connect content changes to GrpcTemplateController State
-        if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
-            lineEdit->setText("");
-        } else if(QComboBox * comboBox = qobject_cast<QComboBox*>(widget)) {
+        if(QComboBox * comboBox = qobject_cast<QComboBox*>(widget)) {
             comboBox->setCurrentIndex(-1);
+        } else if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
+            lineEdit->setText("");
         } else if(QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget)) {
             checkBox->setChecked(false);
-        } else if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(widget);
-            QDateTimeEdit * dateTimeEdit = qobject_cast<QDateTimeEdit*>(widget)) {
-            if(dateEdit) {
+        } else if(QDateTimeEdit * dateTimeEdit = qobject_cast<QDateTimeEdit*>(widget)) {
+            if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(dateTimeEdit)) {
                 dateEdit->setDate(QDate::currentDate());
+            } else if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(dateTimeEdit)) {
+                timeEdit->setTime(QTime::currentTime());
             } else {
                 dateTimeEdit->setDateTime(QDateTime::currentDateTime());
             }
-        } else if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(widget)) {
-            timeEdit->setTime(QTime(0,0,0,0));
         } else if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
             textEdit->setText("");
         } else {
@@ -291,21 +358,20 @@ void GrpcForm::makeReadonly(bool readOnly)
         QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
         Q_ASSERT(widget);
         // Connect content changes to GrpcTemplateController State
-        if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
-            lineEdit->setReadOnly(readOnly);
-        } else if(QComboBox * comboBox = qobject_cast<QComboBox*>(widget)) {
+        if(QComboBox * comboBox = qobject_cast<QComboBox*>(widget)) {
             comboBox->setEnabled(!readOnly);
+        } else if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
+            lineEdit->setReadOnly(readOnly);
         } else if(QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget)) {
             checkBox->setEnabled(!readOnly);
-        } else if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(widget);
-                   QDateTimeEdit * dateTimeEdit = qobject_cast<QDateTimeEdit*>(widget)) {
-            if(dateEdit) {
+        } else if(QDateTimeEdit * dateTimeEdit = qobject_cast<QDateTimeEdit*>(widget)) {
+            if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(dateTimeEdit)) {
                 dateEdit->setReadOnly(readOnly);
+            } else if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(dateTimeEdit)) {
+                timeEdit->setReadOnly(readOnly);
             } else {
                 dateTimeEdit->setReadOnly(readOnly);
             }
-        } else if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(widget)) {
-            timeEdit->setReadOnly(readOnly);
         } else if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
             textEdit->setReadOnly(readOnly);
         } else {
@@ -318,14 +384,6 @@ void GrpcForm::makeReadonly(bool readOnly)
 void GrpcForm::fillWidget(QWidget * widget, const DataInfo::Type & type, const QVariant & data)
 {
     Q_ASSERT(data.isValid());
-    if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
-        // Check type should be suitable
-        Q_ASSERT(type == DataInfo::Double ||
-                 type == DataInfo::String ||
-                 type == DataInfo::Int ||
-                 type == DataInfo::Int64);
-        lineEdit->setText(data.toString());
-    }
     if(QComboBox * comboEdit = qobject_cast<QComboBox*>(widget)) {
         // Check type should be suitable
         Q_ASSERT(type == DataInfo::String ||
@@ -337,33 +395,31 @@ void GrpcForm::fillWidget(QWidget * widget, const DataInfo::Type & type, const Q
                 comboEdit->setCurrentIndex(foundIndexList.at(0).row());
             }
         }
-    }
-    if(QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget)) {
+    } else if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
+        if(type == DataInfo::Double) {
+            lineEdit->setText(FrontConverter::to_qvariant_by_type(data, type).toString());
+        } else {
+            // Check type should be suitable
+            Q_ASSERT(type == DataInfo::String ||
+                     type == DataInfo::Int ||
+                     type == DataInfo::Int64);
+            lineEdit->setText(data.toString());
+        }
+    } else if(QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget)) {
         // Check type should be suitable
         Q_ASSERT((type == DataInfo::Bool && data.typeId() == QMetaType::Bool) ||
                  type == DataInfo::String );
         checkBox->setChecked(data.toBool());
-    }
-    if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(widget)) {
-        // Check type should be suitable
-        Q_ASSERT(type == DataInfo::Time);
+    } else if(QDateTimeEdit * dateTimeEdit = qobject_cast<QDateTimeEdit*>(widget)) {
         QDateTime dateTime = QDateTime::fromMSecsSinceEpoch(data.toLongLong());
-        timeEdit->setTime(dateTime.time());
-    } else if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(widget);
-        QDateTimeEdit * dateTimeEdit = qobject_cast<QDateTimeEdit*>(widget)) {
-        // Check type should be suitable
-        Q_ASSERT(type == DataInfo::DateTime || type == DataInfo::DateTimeNoSec || type == DataInfo::Date);
-        // Use by need DateTime or Date only
-        // if DateTimeNoSec change format
-        QDateTime dateTime = QDateTime::fromMSecsSinceEpoch(data.toLongLong());
-        if(dateEdit) {
-            dateEdit->setDateTime(dateTime);
+        if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(dateTimeEdit)) {
+            dateEdit->setDate(dateTime.date());
+        } else if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(dateTimeEdit)) {
+            timeEdit->setTime(dateTime.time());
         } else {
             dateTimeEdit->setDateTime(dateTime);
         }
-        //https://forum.qt.io/topic/90945/time-zone-other-than-utc-and-local-in-qdatetimeedit/7
-    }
-    if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
+    } else if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
         // Check type should be suitable
         Q_ASSERT(type == DataInfo::String);
         textEdit->setText(data.toString());
