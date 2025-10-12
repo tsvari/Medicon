@@ -344,7 +344,12 @@ void GrpcForm::fillWidget(QWidget * widget, const DataInfo::Type & type, const Q
                  type == DataInfo::String );
         checkBox->setChecked(data.toBool());
     }
-    if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(widget);
+    if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(widget)) {
+        // Check type should be suitable
+        Q_ASSERT(type == DataInfo::Time);
+        QDateTime dateTime = QDateTime::fromMSecsSinceEpoch(data.toLongLong());
+        timeEdit->setTime(dateTime.time());
+    } else if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(widget);
         QDateTimeEdit * dateTimeEdit = qobject_cast<QDateTimeEdit*>(widget)) {
         // Check type should be suitable
         Q_ASSERT(type == DataInfo::DateTime || type == DataInfo::DateTimeNoSec || type == DataInfo::Date);
@@ -356,10 +361,7 @@ void GrpcForm::fillWidget(QWidget * widget, const DataInfo::Type & type, const Q
         } else {
             dateTimeEdit->setDateTime(dateTime);
         }
-    }
-    if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(widget)) {
-        // Check type should be suitable
-        Q_ASSERT(type == DataInfo::Time);
+        //https://forum.qt.io/topic/90945/time-zone-other-than-utc-and-local-in-qdatetimeedit/7
     }
     if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
         // Check type should be suitable

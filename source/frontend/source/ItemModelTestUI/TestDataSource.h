@@ -34,6 +34,15 @@ public:
     int64_t date() const {return m_date;}
     void set_date(int64_t value) {m_date = value;}
 
+    int64_t time() const {return m_time;}
+    void set_time(int64_t value) {m_time = value;}
+
+    int64_t date_time() const {return m_date_time;}
+    void set_date_time(int64_t value) {m_date_time = value;}
+
+    int64_t date_time_no_sec() const {return m_date_time_no_sec;}
+    void set_date_time_no_sec(int64_t value) {m_date_time_no_sec = value;}
+
     int32_t height() const {return m_height;}
     void set_height(int32_t value) {m_height = value;}
 
@@ -56,6 +65,9 @@ private:
     int32_t m_uid;
     std::string m_name;
     int64_t m_date;
+    int64_t m_time;
+    int64_t m_date_time;
+    int64_t m_date_time_no_sec;
     int32_t m_height;
     double m_salary;
     bool m_married;
@@ -116,17 +128,22 @@ private:
 namespace TestModelData {
 static std::vector<MasterObject> masterData() {
     std::vector<MasterObject> objects;
-
+    auto currentDateTime = [=]() {
+        return TimeFormatHelper::chronoNow().count();
+    };
     static int incr = 0;
-    auto increament = [=]() {
+    auto increament = [currentDateTime]() {
         incr += 11111;
-        return (TimeFormatHelper::chronoNow().count() + incr);
+        return (currentDateTime() + incr);
     };
 
     MasterObject obj1;
     obj1.set_uid(1);
     obj1.set_name("Givi");
     obj1.set_date(increament());
+    obj1.set_time(increament());
+    obj1.set_date_time(increament());
+    obj1.set_date_time_no_sec(increament());
     obj1.set_height(168);
     obj1.set_salary(12.15);
     obj1.set_married(false);
@@ -139,6 +156,9 @@ static std::vector<MasterObject> masterData() {
     obj2.set_uid(2);
     obj2.set_name("Keto");
     obj2.set_date(increament());
+    obj2.set_time(increament());
+    obj2.set_date_time(increament());
+    obj2.set_date_time_no_sec(increament());
     obj2.set_height(164);
     obj2.set_salary(30.557);
     obj2.set_married(true);
@@ -151,6 +171,9 @@ static std::vector<MasterObject> masterData() {
     obj3.set_uid(3);
     obj3.set_name("Vakho");
     obj3.set_date(increament());
+    obj3.set_time(increament());
+    obj3.set_date_time(increament());
+    obj3.set_date_time_no_sec(increament());
     obj3.set_height(175);
     obj3.set_salary(135000.567);
     obj3.set_married(true);
@@ -163,6 +186,9 @@ static std::vector<MasterObject> masterData() {
     obj4.set_uid(4);
     obj4.set_name("Elene");
     obj4.set_date(increament());
+    obj4.set_time(increament());
+    obj4.set_date_time(increament());
+    obj4.set_date_time_no_sec(increament());
     obj4.set_height(155);
     obj4.set_salary(567);
     obj4.set_married(false);
@@ -175,6 +201,9 @@ static std::vector<MasterObject> masterData() {
     obj5.set_uid(5);
     obj5.set_name("Teona");
     obj5.set_date(increament());
+    obj5.set_time(increament());
+    obj5.set_date_time(increament());
+    obj5.set_date_time_no_sec(increament());
     obj5.set_height(166);
     obj5.set_salary(5.12);
     obj5.set_married(true);
@@ -187,6 +216,9 @@ static std::vector<MasterObject> masterData() {
     obj6.set_uid(6);
     obj6.set_name("Tsio");
     obj6.set_date(increament());
+    obj6.set_time(increament());
+    obj6.set_date_time(increament());
+    obj6.set_date_time_no_sec(increament());
     obj6.set_height(166);
     obj6.set_salary(5.123);
     obj6.set_married(true);
@@ -259,6 +291,9 @@ public:
         container->addProperty("Uid", DataInfo::String, &MasterObject::set_uid, &MasterObject::uid);
         container->addProperty("Name", DataInfo::String, &MasterObject::set_name, &MasterObject::name);
         container->addProperty("Date", DataInfo::Date, &MasterObject::set_date, &MasterObject::date);
+        container->addProperty("Time", DataInfo::Time, &MasterObject::set_time, &MasterObject::time);
+        container->addProperty("DateTime", DataInfo::DateTime, &MasterObject::set_date_time, &MasterObject::date_time);
+        container->addProperty("DateTimeNosec", DataInfo::DateTimeNoSec, &MasterObject::set_date_time_no_sec, &MasterObject::date_time_no_sec);
         container->addProperty("Height", DataInfo::Int, &MasterObject::set_height, &MasterObject::height);
         container->addProperty("Salary", DataInfo::Double, &MasterObject::set_salary, &MasterObject::salary);
         container->addProperty("Married", DataInfo::Bool, &MasterObject::set_married, &MasterObject::married);
@@ -329,6 +364,9 @@ public:
         //wrapper()->addProperty("Uid", DataInfo::String, &MasterObject::set_uid, &MasterObject::uid);
         wrapper->addProperty("nameEdit", DataInfo::String, &MasterObject::set_name, &MasterObject::name);
         wrapper->addProperty("dateEdit", DataInfo::Date, &MasterObject::set_date, &MasterObject::date);
+        wrapper->addProperty("timeEdit", DataInfo::Time, &MasterObject::set_time, &MasterObject::time);
+        wrapper->addProperty("dateTimeEdit", DataInfo::DateTime, &MasterObject::set_date_time, &MasterObject::date_time);
+        wrapper->addProperty("dateTimeEditNoSec", DataInfo::DateTimeNoSec, &MasterObject::set_date_time_no_sec, &MasterObject::date_time_no_sec);
         wrapper->addProperty("heightEdit", DataInfo::Int, &MasterObject::set_height, &MasterObject::height);
         wrapper->addProperty("salaryEdit", DataInfo::Double, &MasterObject::set_salary, &MasterObject::salary);
         wrapper->addProperty("marriedCheckBox", DataInfo::Bool, &MasterObject::set_married, &MasterObject::married);
