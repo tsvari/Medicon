@@ -20,7 +20,7 @@
       <x>370</x>
       <y>10</y>
       <width>581</width>
-      <height>511</height>
+      <height>551</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -50,7 +50,7 @@
          <string>Master from</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="1" column="0">
+         <item row="0" column="0">
           <widget class="MasterForm" name="masterForm" native="true">
            <widget class="QComboBox" name="levelCombo">
             <property name="geometry">
@@ -90,7 +90,7 @@
              <rect>
               <x>10</x>
               <y>60</y>
-              <width>211</width>
+              <width>121</width>
               <height>29</height>
              </rect>
             </property>
@@ -101,8 +101,8 @@
            <widget class="QCheckBox" name="marriedCheckBox">
             <property name="geometry">
              <rect>
-              <x>300</x>
-              <y>60</y>
+              <x>230</x>
+              <y>160</y>
               <width>93</width>
               <height>26</height>
              </rect>
@@ -115,7 +115,7 @@
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>110</y>
+              <y>160</y>
               <width>141</width>
               <height>28</height>
              </rect>
@@ -124,10 +124,43 @@
            <widget class="QLineEdit" name="heightEdit">
             <property name="geometry">
              <rect>
-              <x>180</x>
-              <y>110</y>
+              <x>160</x>
+              <y>160</y>
               <width>51</width>
               <height>28</height>
+             </rect>
+            </property>
+           </widget>
+           <widget class="QDateTimeEdit" name="dateTimeEdit">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>110</y>
+              <width>161</width>
+              <height>29</height>
+             </rect>
+            </property>
+            <property name="displayFormat">
+             <string>M/d/yyyy hh:mm:ss AP</string>
+            </property>
+           </widget>
+           <widget class="QTimeEdit" name="timeEdit">
+            <property name="geometry">
+             <rect>
+              <x>140</x>
+              <y>60</y>
+              <width>91</width>
+              <height>29</height>
+             </rect>
+            </property>
+           </widget>
+           <widget class="QDateTimeEdit" name="dateTimeEditNoSec">
+            <property name="geometry">
+             <rect>
+              <x>190</x>
+              <y>110</y>
+              <width>194</width>
+              <height>29</height>
              </rect>
             </property>
            </widget>

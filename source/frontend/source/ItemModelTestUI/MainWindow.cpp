@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Master Template classes
     GrpcProxySortFilterModel * masterProxy = new GrpcProxySortFilterModel(
         new  GrpcTestObjectTableModel(ui->masterTableView),
-                                    {0, 5, 7}, // Uid and Level Uid
+                                    {0, 8, 10}, // Uid, Married Uid and Level Uid
                                     ui->masterTableView);
     MasterTemplate * masterTemplate = new MasterTemplate(masterProxy, ui->masterTableView, ui->masterForm, this);
     masterTemplate->addActionBars(this, ui->mainMenuBar, ui->mainToolBar, ui->mainStatusBAr);
@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Slave Template classes
     GrpcProxySortFilterModel * slaveProxy = new GrpcProxySortFilterModel(
         new GrpcTestSlaveObjectTableModel(ui->slaveTableView),
-                                        {0, 1},
+                                        {0, 1}, // Uid and LinkUid to master
                                         ui->slaveTableView);
     SlaveTemplate * slaveTemplate = new SlaveTemplate(slaveProxy, ui->slaveTableView, ui->slaveForm, this);
     slaveTemplate->addActionBars(this, ui->mainMenuBar, ui->mainToolBar, ui->mainStatusBAr);
