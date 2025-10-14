@@ -153,9 +153,9 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
         );
     EXPECT_THAT(actualRow1, ElementsAre("1",
                                     "Givi",
-                                    FrontConverter::to_qvariant_by_type(current.toSecsSinceEpoch(), DataInfo::Date),
+                                    FrontConverter::to_qvariant_get_by_type(current.toSecsSinceEpoch(), DataInfo::Date),
                                     "168",
-                                    FrontConverter::to_qvariant_by_type(12.15, DataInfo::Double),
+                                    FrontConverter::to_qvariant_get_by_type(12.15, DataInfo::Double),
                                     "false", "No",
                                     "2", "Level2"));
 
@@ -167,9 +167,9 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
 
     EXPECT_THAT(actualRow2, ElementsAre("2",
                                         "Keto",
-                                        FrontConverter::to_qvariant_by_type(current.toSecsSinceEpoch(), DataInfo::Date),
+                                        FrontConverter::to_qvariant_get_by_type(current.toSecsSinceEpoch(), DataInfo::Date),
                                         "164",
-                                        FrontConverter::to_qvariant_by_type(30.557, DataInfo::Double),
+                                        FrontConverter::to_qvariant_get_by_type(30.557, DataInfo::Double),
                                         "true", "Yes",
                                         "1", "Level1"));
 
@@ -194,9 +194,9 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
         );
     EXPECT_THAT(actualRowInserted, ElementsAre("3",
                                        "Vakho",
-                                        FrontConverter::to_qvariant_by_type(current.toSecsSinceEpoch(), DataInfo::Date),
+                                        FrontConverter::to_qvariant_get_by_type(current.toSecsSinceEpoch(), DataInfo::Date),
                                         "175",
-                                        FrontConverter::to_qvariant_by_type(135000.567, DataInfo::Double),
+                                        FrontConverter::to_qvariant_get_by_type(135000.567, DataInfo::Double),
                                         "true", "Yes", "3", "Level3"));
 
     GprcTestDataObject obj4;
@@ -220,9 +220,9 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
         );
     EXPECT_THAT(actualRowAdded, ElementsAre("4",
                                             "Elene",
-                                            FrontConverter::to_qvariant_by_type(current.toSecsSinceEpoch(), DataInfo::Date),
+                                            FrontConverter::to_qvariant_get_by_type(current.toSecsSinceEpoch(), DataInfo::Date),
                                             "155",
-                                            FrontConverter::to_qvariant_by_type(567, DataInfo::Double),
+                                            FrontConverter::to_qvariant_get_by_type(567, DataInfo::Double),
                                             "false", "No", "5", "Level5"));
 
     // Check names only first column
@@ -254,9 +254,9 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
         );
     EXPECT_THAT(actualRowUpdated, ElementsAre("5",
                                             "Teona",
-                                            FrontConverter::to_qvariant_by_type(current.toSecsSinceEpoch(), DataInfo::Date),
+                                            FrontConverter::to_qvariant_get_by_type(current.toSecsSinceEpoch(), DataInfo::Date),
                                             "166",
-                                            FrontConverter::to_qvariant_by_type(5.123, DataInfo::Double),
+                                            FrontConverter::to_qvariant_get_by_type(5.123, DataInfo::Double),
                                             "true", "Yes", "4", "Level4"));
 
 
