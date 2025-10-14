@@ -87,15 +87,17 @@ void GrpcForm::masterChanged(const QModelIndex &index)
 
 QVariant GrpcForm::widgetData(QWidget *widget, const DataInfo::Type & type)
 {
-    if(QLineEdit * doubleLineEdit = qobject_cast<QLineEdit*>(widget); type == DataInfo::Double) {
-        return FrontConverter::to_locale_double(doubleLineEdit->text());
-    } else if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
-        return lineEdit->text();
-    } else if(QComboBox * comboEdit = qobject_cast<QComboBox*>(widget)) {
+    if(QComboBox * comboEdit = qobject_cast<QComboBox*>(widget)) {
         if(GrpcObjectTableModel * model = qobject_cast<GrpcObjectTableModel*>(comboEdit->model())) {
             return model->data(model->index(comboEdit->currentIndex(), 0));
         } else {
             return comboEdit->itemData(comboEdit->currentIndex(), Qt::DisplayRole);
+        }
+    } else if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
+        if(type == DataInfo::Double) {
+            return FrontConverter::to_locale_double(lineEdit->text());
+        } else {
+            return lineEdit->text();
         }
     } else if(QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget)) {
         return checkBox->isChecked();
