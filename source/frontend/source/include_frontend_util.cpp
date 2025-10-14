@@ -54,7 +54,7 @@ std::string to_locale_string(
     return oss.str();
 }
 
-QVariant to_qvariant_by_type(const GrpcVariantGet & varData, DataInfo::Type type) {
+QVariant to_qvariant_get_by_type(const GrpcVariantGet & varData, DataInfo::Type type) {
     const QVariant & qVariantData = to_qvariant_get(varData);
     return to_qvariant_by_type(qVariantData, type);
 }
