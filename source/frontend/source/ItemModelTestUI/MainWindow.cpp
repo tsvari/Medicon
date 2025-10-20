@@ -5,6 +5,10 @@
 #include "GrpcTemplateController.h"
 #include "GrpcMasterSlaveController.h"
 
+#include "easyloggingpp/src/easylogging++.h"
+
+INITIALIZE_EASYLOGGINGPP
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)

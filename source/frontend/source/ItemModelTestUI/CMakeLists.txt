@@ -22,6 +22,8 @@ set(HEADER_FILES
     ${INCLUDE_DIR}/TypeToStringFormatter.h
     ${INCLUDE_DIR}/JsonParameterFormatter.h
 
+    ${THIRD_PARTY_INCLUDE_DIR}/easyloggingpp/src/easylogging++.h
+
     ${FRONTEND_INCLUDE_DIR}/include_frontend_util.h
     ${FRONTEND_INCLUDE_DIR}/GrpcObjectTableModel.h
     ${FRONTEND_INCLUDE_DIR}/GrpcDataContainer.hpp
@@ -43,6 +45,8 @@ set(SOURCE_FILES
     ${INCLUDE_DIR}/include_util.cpp
     ${INCLUDE_DIR}/TypeToStringFormatter.cpp
     ${INCLUDE_DIR}/JsonParameterFormatter.cpp
+
+    ${THIRD_PARTY_INCLUDE_DIR}/easyloggingpp/src/easylogging++.cc
 
     ${FRONTEND_INCLUDE_DIR}/include_frontend_util.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcObjectTableModel.cpp
