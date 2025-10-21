@@ -42,10 +42,13 @@ public:
     explicit GrpcViewNavigator(QWidget * parent = nullptr);
 
     int currentPage() {return m_currentPage;}
-    void clearPages();
 
 public slots:
+    void clearPages();
     void addPages(int count);
+    void selectPage(int page);
+    // The number of pages may change during navigation; this may also affect the current page
+    void synchronize(int count);
 
 private slots:
     void prev();
@@ -69,7 +72,7 @@ private:
     QHBoxLayout * m_buttonLayout;
     QVector<QPushButton *> m_buttons;
 
-    int m_allPages = 0;
+    int m_pages = 0;
     int m_currentPage = -1;
 };
 
