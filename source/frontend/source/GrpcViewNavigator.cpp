@@ -32,6 +32,7 @@ const char * styleSheet ="QPushButton {"
 GrpcViewNavigator::GrpcViewNavigator(QWidget * parent)
     : QWidget(parent)
 {
+    Q_ASSERT(ScrollButtonHelper::maxPages > 0);
     m_scrollArea = new QScrollArea(this);
     m_scrollArea->setWidgetResizable(true);
     m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -97,7 +98,7 @@ void GrpcViewNavigator::addPages(int count)
 {
     Q_ASSERT(count > 0);
 
-    m_allPages = count;
+    m_pages = count;
     clearAllButtons();
     m_currentPage = 1;
     addPages(1, std::min(ScrollButtonHelper::maxPages, count), count);
@@ -120,7 +121,7 @@ void GrpcViewNavigator::prev()
             }
             addButton(ScrollButtonHelper::PrevButton, from - 1, ScrollButtonHelper::prevButtonText);
         }
-        addPages(from, to, m_allPages);
+        addPages(from, to, m_pages);
     }
 }
 
@@ -135,27 +136,26 @@ void GrpcViewNavigator::next()
             firstButton->setChecked();
         }
         addButton(ScrollButtonHelper::PrevButton, num - 1, ScrollButtonHelper::prevButtonText);
-        addPages(num, std::min(num + ScrollButtonHelper::maxPages - 1, m_allPages), m_allPages);
+        addPages(num, std::min(num + ScrollButtonHelper::maxPages - 1, m_pages), m_pages);
     }
 }
 
 void GrpcViewNavigator::first()
 {
-    if(ScrollableButton * button = qobject_cast<ScrollableButton*>(sender())) {
-        clearAllButtons();
-        addPages(1, ScrollButtonHelper::maxPages, m_allPages);
-    }
+    clearAllButtons();
+    addPages(1, std::min(ScrollButtonHelper::maxPages, m_pages), m_pages);
 }
 
 void GrpcViewNavigator::last()
 {
-    if(ScrollableButton * button = qobject_cast<ScrollableButton*>(sender())) {
-        clearAllButtons();
+    clearAllButtons();
 
+    if(m_pages > ScrollButtonHelper::maxPages) {
         addButton(ScrollButtonHelper::FirstButton, 1, "1");
-        addButton(ScrollButtonHelper::PrevButton, m_allPages - ScrollButtonHelper::maxPages - 1, ScrollButtonHelper::prevButtonText);
-
-        addPages(m_allPages - ScrollButtonHelper::maxPages + 1, m_allPages, m_allPages);
+        addButton(ScrollButtonHelper::PrevButton, m_pages - ScrollButtonHelper::maxPages, ScrollButtonHelper::prevButtonText);
+        addPages(m_pages - ScrollButtonHelper::maxPages + 1, m_pages, m_pages);
+    } else {
+        addPages(1, std::min(ScrollButtonHelper::maxPages, m_pages), m_pages);
     }
 }
 
@@ -203,8 +203,65 @@ void GrpcViewNavigator::clearAllButtons()
 void GrpcViewNavigator::clearPages()
 {
     clearAllButtons();
-    m_allPages = 0;
+    m_pages = 0;
     m_currentPage = -1;
+}
+
+void GrpcViewNavigator::synchronize(int count)
+{
+    if(count <= 1) {
+        m_currentPage = 1;
+        addPages(count);
+        return;
+    }
+
+    if(m_pages > count) {
+        m_pages = count;
+        if(m_currentPage >= count) {
+            // The current page no longer exists
+            // Make last-page current and select
+            while(m_currentPage != count) {
+                m_currentPage --;
+            }
+            last();
+        } else {
+            selectPage(m_currentPage);
+        }
+    } else {
+        m_pages = count;
+        selectPage(m_currentPage);
+    }
+}
+
+void GrpcViewNavigator::selectPage(int page)
+{
+    Q_ASSERT(m_pages >= page);
+    // Recalculate, make visible possible buttons then select page
+    int groupCount = static_cast<int>(std::ceil(static_cast<double>(m_pages) / ScrollButtonHelper::maxPages));
+    int group = 0;
+    int from = 1;
+    int to = 1;
+    for(; group < groupCount; ++group) {
+        from = ScrollButtonHelper::maxPages * group + 1;
+        to = from + ScrollButtonHelper::maxPages - 1;
+        if(page >= from && page <= to) {
+            group++;
+            break;
+        }
+    }
+    m_currentPage = page;
+    if(groupCount == group) {
+        // Last page
+        last();
+    } else if(group < groupCount){
+        // Requires buttons First ad Prev
+        clearAllButtons();
+        if(group > 1) {
+            addButton(ScrollButtonHelper::FirstButton, 1, "1");
+            addButton(ScrollButtonHelper::PrevButton, from - 1, ScrollButtonHelper::prevButtonText);
+        }
+        addPages(from, to, m_pages);
+    }
 }
 
 ScrollableButton::ScrollableButton(ScrollButtonHelper::Type type, int numInQueue, const QString & text, QWidget * parent)

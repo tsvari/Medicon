@@ -44,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->levelCombo->setCurrentIndex(-1); // show nothing when start
 
     ui->masterTableView->setFocus();
+
+    ui->navigatorMaster->addPages(56);
 }
 
 MainWindow::~MainWindow()
