@@ -35,6 +35,7 @@ set(HEADER_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcSearchForm.h
     ${FRONTEND_INCLUDE_DIR}/GrpcTableView.h
     ${FRONTEND_INCLUDE_DIR}/GrpcThreadWorker.h
+    ${FRONTEND_INCLUDE_DIR}/GrpcViewNavigator.h
 
 
     ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.h
@@ -57,6 +58,7 @@ set(SOURCE_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcSearchForm.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcTableView.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcThreadWorker.cpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcViewNavigator.cpp
 
     ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.cpp
 )
