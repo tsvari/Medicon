@@ -53,8 +53,8 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
             applet.AddDataInfo("COMPANY_TYPE", (int)company->company_type());
             applet.AddDataInfo("NAME", company->name().c_str());
             applet.AddDataInfo("ADDRESS", company->address().c_str());
-            applet.AddDataInfo("REG_DATE", std::chrono::sys_seconds(std::chrono::seconds(company->reg_date())), DataInfo::Date);
-            applet.AddDataInfo("JOINT_DATE", std::chrono::sys_seconds(std::chrono::seconds(company->joint_date())), DataInfo::Date);
+            applet.AddDataInfo("REG_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->reg_date())), DataInfo::Date);
+            applet.AddDataInfo("JOINT_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->joint_date())), DataInfo::Date);
             applet.AddDataInfo("LICENSE", company->license().c_str());
             applet.parse();
             // To log if eror
@@ -117,8 +117,8 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
             applet.AddDataInfo("COMPANY_TYPE", (int)company->company_type());
             applet.AddDataInfo("NAME", company->name().c_str());
             applet.AddDataInfo("ADDRESS", company->address().c_str());
-            applet.AddDataInfo("REG_DATE", std::chrono::sys_seconds(std::chrono::seconds(company->reg_date())), DataInfo::Date);
-            applet.AddDataInfo("JOINT_DATE", std::chrono::sys_seconds(std::chrono::seconds(company->joint_date())), DataInfo::Date);
+            applet.AddDataInfo("REG_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->reg_date())), DataInfo::Date);
+            applet.AddDataInfo("JOINT_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->joint_date())), DataInfo::Date);
             applet.AddDataInfo("LICENSE", company->license().c_str());
             applet.parse();
             // To log if eror
@@ -236,16 +236,16 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
                 string strRegDate = cmd.Field("REG_DATE").asString().GetMultiByteChars();
                 string strJointDate = cmd.Field("JOINT_DATE").asString().GetMultiByteChars();
 
-                std::chrono::sys_seconds secRegDate = TimeFormatHelper::stringTochronoSysSec(strRegDate, DataInfo::Date);
-                std::chrono::sys_seconds secJointDate = TimeFormatHelper::stringTochronoSysSec(strJointDate, DataInfo::Date);
+                std::chrono::milliseconds secRegDate = TimeFormatHelper::stringTochronoSysSec(strRegDate, DataInfo::Date);
+                std::chrono::milliseconds secJointDate = TimeFormatHelper::stringTochronoSysSec(strJointDate, DataInfo::Date);
 
                 cp->set_uid(cmd.Field("UID").asString().GetMultiByteChars());
                 cp->set_server_uid(cmd.Field("SERVER_UID"));
                 cp->set_company_type(cmd.Field("COMPANY_TYPE"));
                 cp->set_name(cmd.Field("NAME").asString().GetMultiByteChars());
                 cp->set_address(address.GetMultiByteChars());
-                cp->set_reg_date(secRegDate.time_since_epoch().count());
-                cp->set_joint_date(secJointDate.time_since_epoch().count());
+                cp->set_reg_date(secRegDate.count());
+                cp->set_joint_date(secJointDate.count());
                 cp->set_license(license.GetMultiByteChars());
                 cp->set_logo(cmd.Field("LOGO").asString().GetMultiByteChars());
             }
@@ -288,16 +288,16 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
                 string strRegDate = cmd.Field("REG_DATE").asString().GetMultiByteChars();
                 string strJointDate = cmd.Field("JOINT_DATE").asString().GetMultiByteChars();
 
-                std::chrono::sys_seconds secRegDate = TimeFormatHelper::stringTochronoSysSec(strRegDate, DataInfo::Date);
-                std::chrono::sys_seconds secJointDate = TimeFormatHelper::stringTochronoSysSec(strJointDate, DataInfo::Date);
+                std::chrono::milliseconds secRegDate = TimeFormatHelper::stringTochronoSysSec(strRegDate, DataInfo::Date);
+                std::chrono::milliseconds secJointDate = TimeFormatHelper::stringTochronoSysSec(strJointDate, DataInfo::Date);
 
                 response->set_uid(cmd.Field("UID").asString().GetMultiByteChars());
                 response->set_server_uid(cmd.Field("SERVER_UID"));
                 response->set_company_type(cmd.Field("COMPANY_TYPE"));
                 response->set_name(cmd.Field("NAME").asString().GetMultiByteChars());
                 response->set_address(address.GetMultiByteChars());
-                response->set_reg_date(secRegDate.time_since_epoch().count());
-                response->set_joint_date(secJointDate.time_since_epoch().count());
+                response->set_reg_date(secRegDate.count());
+                response->set_joint_date(secJointDate.count());
                 response->set_license(license.GetMultiByteChars());
                 SAString  blobString = cmd.Field("LOGO").asBLob();
                 response->set_logo(SaBinary::toStdString(blobString));
