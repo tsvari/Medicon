@@ -11,6 +11,7 @@
 
 #include <QDateTime>
 #include "GrpcObjectTableModel.h"
+#include "GrpcDataContainer.hpp"
 //using FrontConverter::to_str;
 //using CommonUtil::sqlRowOffset;
 
