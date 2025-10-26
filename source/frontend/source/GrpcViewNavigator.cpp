@@ -207,20 +207,20 @@ void GrpcViewNavigator::clearPages()
     m_currentPage = -1;
 }
 
-void GrpcViewNavigator::synchronize(int count)
+void GrpcViewNavigator::synchronizeByPages(int pageCount)
 {
-    if(count <= 1) {
+    if(pageCount <= 1) {
         m_currentPage = 1;
-        addPages(count);
+        addPages(pageCount);
         return;
     }
 
-    if(m_pages > count) {
-        m_pages = count;
-        if(m_currentPage >= count) {
+    if(m_pages > pageCount) {
+        m_pages = pageCount;
+        if(m_currentPage >= pageCount) {
             // The current page no longer exists
             // Make last-page current and select
-            while(m_currentPage != count) {
+            while(m_currentPage != pageCount) {
                 m_currentPage --;
             }
             last();
@@ -228,9 +228,15 @@ void GrpcViewNavigator::synchronize(int count)
             selectPage(m_currentPage);
         }
     } else {
-        m_pages = count;
+        m_pages = pageCount;
         selectPage(m_currentPage);
     }
+}
+
+void GrpcViewNavigator::synchronizeByRecords(int rowCount)
+{
+    int pageCount = static_cast<int>(std::ceil(static_cast<double>(rowCount) / ScrollButtonHelper::maxPages));
+    synchronizeByPages(pageCount);
 }
 
 void GrpcViewNavigator::selectPage(int page)
