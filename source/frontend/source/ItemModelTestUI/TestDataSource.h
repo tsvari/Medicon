@@ -20,6 +20,9 @@
 #include "GrpcTemplateController.h"
 #include "GrpcThreadWorker.h"
 #include "TestSharedUtility.h"
+#include "include_frontend_util.h"
+
+using CommonUtil::sqlRowOffset;
 
 class MasterObject
 {
@@ -126,7 +129,7 @@ private:
 };
 
 namespace TestModelData {
-static std::vector<MasterObject> masterData() {
+static std::vector<MasterObject> masterData(int & nameInt) {
     std::vector<MasterObject> objects;
     auto currentDateTime = [=]() {
         return TimeFormatHelper::chronoNow().count();
@@ -139,7 +142,8 @@ static std::vector<MasterObject> masterData() {
 
     MasterObject obj1;
     obj1.set_uid(1);
-    obj1.set_name("Givi");
+    //obj1.set_name("Givi");
+    obj1.set_name(std::to_string(++nameInt));
     obj1.set_date(increament());
     obj1.set_time(increament());
     obj1.set_date_time(increament());
@@ -154,7 +158,8 @@ static std::vector<MasterObject> masterData() {
 
     MasterObject obj2;
     obj2.set_uid(2);
-    obj2.set_name("Keto");
+    //obj2.set_name("Keto");
+    obj2.set_name(std::to_string(++nameInt));
     obj2.set_date(increament());
     obj2.set_time(increament());
     obj2.set_date_time(increament());
@@ -169,7 +174,8 @@ static std::vector<MasterObject> masterData() {
 
     MasterObject obj3;
     obj3.set_uid(3);
-    obj3.set_name("Vakho");
+    //obj3.set_name("Vakho");
+    obj3.set_name(std::to_string(++nameInt));
     obj3.set_date(increament());
     obj3.set_time(increament());
     obj3.set_date_time(increament());
@@ -184,7 +190,8 @@ static std::vector<MasterObject> masterData() {
 
     MasterObject obj4;
     obj4.set_uid(4);
-    obj4.set_name("Elene");
+    //obj4.set_name("Elene");
+    obj4.set_name(std::to_string(++nameInt));
     obj4.set_date(increament());
     obj4.set_time(increament());
     obj4.set_date_time(increament());
@@ -199,7 +206,8 @@ static std::vector<MasterObject> masterData() {
 
     MasterObject obj5;
     obj5.set_uid(5);
-    obj5.set_name("Teona");
+    //obj5.set_name("Teona");
+    obj5.set_name(std::to_string(++nameInt));
     obj5.set_date(increament());
     obj5.set_time(increament());
     obj5.set_date_time(increament());
@@ -214,7 +222,8 @@ static std::vector<MasterObject> masterData() {
 
     MasterObject obj6;
     obj6.set_uid(6);
-    obj6.set_name("Tsio");
+    //obj6.set_name("Tsio");
+    obj6.set_name(std::to_string(++nameInt));
     obj6.set_date(increament());
     obj6.set_time(increament());
     obj6.set_date_time(increament());
@@ -462,21 +471,35 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
     }
 
     void workerModelData() override {
-        //JsonParameterFormatter criterias = searchCriterias();
+        JsonParameterFormatter criterias = searchCriterias();
         // Dont need master object in thinscase
 
         // Simulating waiting for a response from the server
         QThread::msleep(500);
 
-        std::vector<MasterObject> dataSource = TestModelData::masterData();
-        std::vector<MasterObject>  dataSource2 = TestModelData::masterData();
-        std::copy(dataSource2.begin(), dataSource2.end(), std::back_inserter(dataSource));
-        std::copy(dataSource2.begin(), dataSource2.end(), std::back_inserter(dataSource));
-        std::copy(dataSource2.begin(), dataSource2.end(), std::back_inserter(dataSource));
+        std::vector<MasterObject> dataSource;
+        int nameInt = 0;
+        for(int i = 0; i < 100; i++) {
+            std::vector<MasterObject>  dataSource2 = TestModelData::masterData(nameInt);
+            std::copy(dataSource2.begin(), dataSource2.end(), std::back_inserter(dataSource));
+        }
 
+        // run count request to server
+        int recordCount = dataSource.size();
+
+        // Calculate offset (where from start)
+        int ofset = sqlRowOffset(currentNavigatorPage(), maxPages(), recordCount);
+
+        // Init navigator
+        emit navigatorRecordCount(recordCount);
+
+        // Send data request to server and get data source
+        std::vector<MasterObject> filteredDataSource(dataSource.begin() + ofset, dataSource.begin() + std::min(ofset + maxPages(), recordCount));
+
+        // Populate model
         emit populateModel(
             std::make_shared<GrpcDataContainer<MasterObject>>(
-                std::move(dataSource)
+                std::move(filteredDataSource)
                 )
             );
     }

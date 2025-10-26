@@ -23,6 +23,7 @@ class QMainWindow;
 class GrpcTableView;
 class GrpcLoader;
 class GrpcThreadWorker;
+class GrpcViewNavigator;
 class GrpcTemplateController : public QObject
 {
     Q_OBJECT
@@ -32,6 +33,7 @@ public:
     virtual ~GrpcTemplateController();
 
     void addSearchForm(GrpcSearchForm * searchForm);
+    void addNavigator(GrpcViewNavigator * navigator);
     virtual void addActionBars(QMainWindow * mainWindow, QMenuBar * menuBar, QToolBar * toolBar, QStatusBar * statusBar);
 
     enum State {Unselected = 0, Browsing, Edit, Insert};
@@ -59,6 +61,8 @@ signals:
     void warning(const QString & warningTitle, const QString & message);
     void clearForm();
     void clearViewSelection();
+
+    void navigatorRecordCount(int count);
 
 public slots:
     virtual void masterChanged(const QModelIndex & index);
@@ -112,6 +116,9 @@ protected:
     QMenu * contextMenu(){return m_contextMenu;}
     QToolBar * templateToolBar(){return m_templateToolBar;}
 
+    int currentNavigatorPage(){return m_currentPage;}
+    int maxPages(){return m_maxPages;}
+
 private:
     JsonParameterFormatter m_searchCriterias;
     std::unique_ptr<IBaseGrpcObjectWrapper> m_masterObjectWrapper;
@@ -136,6 +143,9 @@ private:
     QFutureWatcher<QVariant> m_watcherAddNew;
     QFutureWatcher<QVariant> m_watcherEdit;
     QFutureWatcher<QVariant> m_watcherDelete;
+
+    int m_currentPage = -1;
+    int m_maxPages = 0;
 };
 
 #endif // GRPCTEMPLATECONTROLLER_H
