@@ -43,9 +43,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui->levelCombo->setPlaceholderText("...");
     ui->levelCombo->setCurrentIndex(-1); // show nothing when start
 
+    masterTemplate->addNavigator(ui->navigatorMaster);
+
     ui->masterTableView->setFocus();
 
-    ui->navigatorMaster->addPages(56);
+    // Temporarly
+    ui->navigatorMaster->addPages(1);
+    ui->navigatorMaster->selectPage(1);
 }
 
 MainWindow::~MainWindow()

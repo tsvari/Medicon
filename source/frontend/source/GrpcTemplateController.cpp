@@ -15,6 +15,7 @@
 #include "GrpcSearchForm.h"
 #include "GrpcTableView.h"
 #include "GrpcThreadWorker.h"
+#include "GrpcViewNavigator.h"
 
 #include "GrpcDataContainer.hpp"
 #include "GrpcObjectWrapper.hpp"
@@ -140,6 +141,18 @@ void GrpcTemplateController::addSearchForm(GrpcSearchForm * searchForm)
 {
     Q_ASSERT(searchForm);
     connect(searchForm, &GrpcSearchForm::startSearch, this, &GrpcTemplateController::applySearchCriterias);
+}
+
+void GrpcTemplateController::addNavigator(GrpcViewNavigator * navigator)
+{
+    Q_ASSERT(navigator);
+    m_currentPage = 1;
+    m_maxPages = navigator->maxPages();
+    connect(this, &GrpcTemplateController::navigatorRecordCount, navigator, &GrpcViewNavigator::synchronizeByRecords);
+    connect(navigator, &GrpcViewNavigator::pageSelected, this, [this](int page) {
+        m_currentPage = page;
+        startLoadingData();
+    });
 }
 
 void GrpcTemplateController::addActionBars(QMainWindow * mainWindow, QMenuBar * menuBar, QToolBar * toolBar, QStatusBar * statusBar)
