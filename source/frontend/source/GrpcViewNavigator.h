@@ -42,13 +42,15 @@ public:
     explicit GrpcViewNavigator(QWidget * parent = nullptr);
 
     int currentPage() {return m_currentPage;}
+    int maxPages() {return ScrollButtonHelper::maxPages;}
 
 public slots:
     void clearPages();
     void addPages(int count);
     void selectPage(int page);
     // The number of pages may change during navigation; this may also affect the current page
-    void synchronize(int count);
+    void synchronizeByPages(int pageCount);
+    void synchronizeByRecords(int rowCount);
 
 private slots:
     void prev();
