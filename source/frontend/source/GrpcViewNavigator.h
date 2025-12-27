@@ -5,12 +5,12 @@
 #include <QVector>
 
 namespace ScrollButtonHelper {
-extern const char * prevButtonText;
-extern const char * nextButtonText;
+extern const char * leftHiddenButtonText;
+extern const char * rightHiddenButtonText;
 extern const int maxPages;
 extern const char * styleSheet;
 
-enum Type{NumberButton, PrevButton, NextButton, LastButton, FirstButton,};
+enum Type{NumberButton, LeftHiddenButton, RightHiddenButton, LastButton, FirstButton,};
 }
 
 class GrpcViewNavigator;
@@ -53,8 +53,8 @@ public slots:
     void synchronizeByRecords(int rowCount);
 
 private slots:
-    void prev();
-    void next();
+    void leftHidden();
+    void rightHidden();
     void first();
     void last();
     void setPageCurrent(int page) {m_currentPage = page;}
