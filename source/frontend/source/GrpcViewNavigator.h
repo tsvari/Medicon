@@ -7,10 +7,12 @@
 namespace ScrollButtonHelper {
 extern const char * leftHiddenButtonText;
 extern const char * rightHiddenButtonText;
+extern const char *  prevButtonText;
+extern const char *  nextButtonText;
 extern const int maxPages;
 extern const char * styleSheet;
 
-enum Type{NumberButton, LeftHiddenButton, RightHiddenButton, LastButton, FirstButton,};
+enum Type{NumberButton, LeftHiddenButton, RightHiddenButton, LastButton, FirstButton, PrevButton, NextButton};
 }
 
 class GrpcViewNavigator;
@@ -30,6 +32,7 @@ signals:
 
 private:
     int m_numInQueue;
+    int m_type;
 };
 
 class QScrollArea;
@@ -55,6 +58,8 @@ public slots:
 private slots:
     void leftHidden();
     void rightHidden();
+    void prev();
+    void next();
     void first();
     void last();
     void setPageCurrent(int page) {m_currentPage = page;}
@@ -63,7 +68,7 @@ signals:
     void pageSelected(int page);
 
 private:
-    ScrollableButton * addButton(ScrollButtonHelper::Type type, int numInQueue, const QString & text);
+    ScrollableButton * addButton(ScrollButtonHelper::Type type, int numInQueue, const QString & text, int position = -1);
     void addPages(int from, int to, int last);
     void clearAllButtons();
 

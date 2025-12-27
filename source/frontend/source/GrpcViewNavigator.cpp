@@ -10,6 +10,8 @@
 namespace ScrollButtonHelper {
 const char * leftHiddenButtonText = "...";
 const char * rightHiddenButtonText = "...";
+const char * prevButtonText = "<<";
+const char * nextButtonText = ">>";
 const int maxPages = 20;
 const char * styleSheet ="QPushButton {"
                          "    border: 1px solid #aaa;"
@@ -74,6 +76,10 @@ void GrpcViewNavigator::addPages(int from, int to, int last)
     // Temporarily disable updates and layout recalculation
     m_containerWidget->setUpdatesEnabled(false);
 
+    if(m_currentPage > 1) {
+        addButton(ScrollButtonHelper::PrevButton, -1, ScrollButtonHelper::prevButtonText, 0);
+    }
+
     ScrollableButton * button;
     int i = from;
     for (; i <= to; ++i) {
@@ -90,6 +96,10 @@ void GrpcViewNavigator::addPages(int from, int to, int last)
             button->setChecked();
         }
     }
+    if(m_currentPage < last) {
+        addButton(ScrollButtonHelper::NextButton, -1, ScrollButtonHelper::nextButtonText);
+    }
+
     m_containerWidget->setUpdatesEnabled(true);
     m_containerWidget->updateGeometry();  // Recalculate layout once
 }
@@ -107,9 +117,8 @@ void GrpcViewNavigator::addPages(int count)
 void GrpcViewNavigator::leftHidden()
 {
     if(ScrollableButton * button = qobject_cast<ScrollableButton*>(sender())) {
-        int num = button->queueNumber();
         clearAllButtons();
-        int from = num - ScrollButtonHelper::maxPages + 1;
+        int from = button->queueNumber() - ScrollButtonHelper::maxPages + 1;
         if(from <= 0) {
             from = 1;
         }
@@ -128,16 +137,30 @@ void GrpcViewNavigator::leftHidden()
 void GrpcViewNavigator::rightHidden()
 {
     if(ScrollableButton * button = qobject_cast<ScrollableButton*>(sender())) {
-        int num = button->queueNumber();
         clearAllButtons();
 
         ScrollableButton * firstButton = addButton(ScrollButtonHelper::FirstButton, 1, "1");
+        if(m_currentPage > 1) {
+            addButton(ScrollButtonHelper::PrevButton, -1, ScrollButtonHelper::prevButtonText);
+        }
         if(m_currentPage == 1) {
             firstButton->setChecked();
         }
-        addButton(ScrollButtonHelper::LeftHiddenButton, num - 1, ScrollButtonHelper::leftHiddenButtonText);
-        addPages(num, std::min(num + ScrollButtonHelper::maxPages - 1, m_pages), m_pages);
+        addButton(ScrollButtonHelper::LeftHiddenButton, button->queueNumber() - 1, ScrollButtonHelper::leftHiddenButtonText);
+        addPages(button->queueNumber(), std::min(button->queueNumber() + ScrollButtonHelper::maxPages - 1, m_pages), m_pages);
     }
+}
+
+void GrpcViewNavigator::prev()
+{
+    emit pageSelected(m_currentPage - 1);
+    selectPage(m_currentPage - 1);
+}
+
+void GrpcViewNavigator::next()
+{
+    emit pageSelected(m_currentPage + 1);
+    selectPage(m_currentPage + 1);
 }
 
 void GrpcViewNavigator::first()
@@ -159,10 +182,14 @@ void GrpcViewNavigator::last()
     }
 }
 
-ScrollableButton *  GrpcViewNavigator::addButton(ScrollButtonHelper::Type type, int numInQueue, const QString & text)
+ScrollableButton * GrpcViewNavigator::addButton(ScrollButtonHelper::Type type, int numInQueue, const QString & text, int position)
 {
     auto btn = new ScrollableButton(type, numInQueue, text, m_centerWidget);
-    m_buttonLayout->addWidget(btn);
+    if(position < 0) {
+        m_buttonLayout->addWidget(btn);
+    } else {
+        m_buttonLayout->insertWidget(position, btn);
+    }
     m_buttons.append(btn);
 
     if(type == ScrollButtonHelper::NumberButton) {
@@ -172,6 +199,10 @@ ScrollableButton *  GrpcViewNavigator::addButton(ScrollButtonHelper::Type type, 
         connect(btn, &QPushButton::clicked, this, &GrpcViewNavigator::leftHidden);
     } else if(type == ScrollButtonHelper::RightHiddenButton) {
         connect(btn, &QPushButton::clicked, this, &GrpcViewNavigator::rightHidden);
+    } else if(type == ScrollButtonHelper::PrevButton) {
+        connect(btn, &QPushButton::clicked, this, &GrpcViewNavigator::prev);
+    } else if(type == ScrollButtonHelper::NextButton) {
+        connect(btn, &QPushButton::clicked, this, &GrpcViewNavigator::next);
     } else if(type == ScrollButtonHelper::FirstButton) {
         connect(btn, &QPushButton::clicked, this, &GrpcViewNavigator::first);
         connect(btn, &ScrollableButton::setCurrent, this, &GrpcViewNavigator::setPageCurrent);
@@ -273,6 +304,7 @@ void GrpcViewNavigator::selectPage(int page)
 ScrollableButton::ScrollableButton(ScrollButtonHelper::Type type, int numInQueue, const QString & text, QWidget * parent)
     : QPushButton(text, parent)
     , m_numInQueue(numInQueue)
+    , m_type(type)
 {
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
