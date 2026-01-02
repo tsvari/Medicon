@@ -3,194 +3,244 @@
 #include <sstream>
 #include <format>
 #include <random>
-#include <set>
+#include <algorithm>
+#include <iomanip>
 
-namespace TimeFormatHelper{
-std::string chronoSysSecToString(const std::chrono::milliseconds dateTimeInSecs, DataInfo::Type nType)
-{
-    std::chrono::sys_seconds dts = floor<std::chrono::seconds>(std::chrono::sys_time<std::chrono::milliseconds>{dateTimeInSecs});
-    string formattedString;
-     try {
-        switch (nType) {
-            case DataInfo::DateTime:
-                return std::format("{:%Y-%m-%d %H:%M:%S}", dts);
-            case DataInfo::DateTimeNoSec:
-                return std::format("{:%Y-%m-%d %H:%M}", dts);
-            case DataInfo::Date:
-                return std::format("{:%Y-%m-%d}", dts);
-            case DataInfo::Time:
-                return std::format("{:%H:%M:%S}", dts);
-            default:
-                throw std::invalid_argument(FORMATER_ERR_WRONG_DATE_TYME_TYPE);
-        }
-     } catch (const std::format_error&) {
-         throw std::invalid_argument(FORMATER_ERR_CHRONO_FORMAT);
-     }
-    return formattedString;
-}
+// ============================================================================
+// Time Formatting Utilities
+// ============================================================================
 
-std::string chronoSysSecToString(int64_t dateTimeInSecs, DataInfo::Type nType)
-{
-    //std::chrono::seconds duration(dateTimeInSecs);
-    std::chrono::milliseconds timePoint{dateTimeInSecs};
-    return chronoSysSecToString(timePoint, nType);
-}
+using std::map;
+using std::string;
+using std::string_view;
+namespace timeFormatter {
 
-std::chrono::milliseconds stringTochronoSysSec(const string & formattedDateTime, DataInfo::Type nType)
-{
-    std::chrono::sys_time<std::chrono::milliseconds> dateTimeInSecs;
-    std::istringstream ss(formattedDateTime);
+string toString(std::chrono::milliseconds timePoint, DataInfo::Type type) {
+    auto seconds = std::chrono::floor<std::chrono::seconds>(
+        std::chrono::sys_time<std::chrono::milliseconds>{timePoint}
+        );
 
-    switch (nType) {
+    try {
+        switch (type) {
         case DataInfo::DateTime:
-            ss >> std::chrono::parse("%Y-%m-%d %H:%M:%S", dateTimeInSecs);
-            break;
+            return std::format("{:%Y-%m-%d %H:%M:%S}", seconds);
         case DataInfo::DateTimeNoSec:
-            ss >> std::chrono::parse("%Y-%m-%d %H:%M", dateTimeInSecs);
-            break;
+            return std::format("{:%Y-%m-%d %H:%M}", seconds);
         case DataInfo::Date:
-            ss >> std::chrono::parse("%Y-%m-%d", dateTimeInSecs);
-            break;
+            return std::format("{:%Y-%m-%d}", seconds);
         case DataInfo::Time:
-            ss >> std::chrono::parse("%Y-%m-%d %H:%M:%S", dateTimeInSecs);
-            break;
+            return std::format("{:%H:%M:%S}", seconds);
         default:
-            throw std::invalid_argument(FORMATER_ERR_WRONG_DATE_TYME_TYPE);
+            throw FormatterException(ERR_WRONG_DATE_TIME_TYPE);
+        }
+    } catch (const std::format_error& e) {
+        throw FormatterException(
+            std::format("{} - {}", ERR_CHRONO_FORMAT, e.what())
+            );
+    }
+}
+
+string toString(int64_t milliseconds, DataInfo::Type type) {
+    return toString(std::chrono::milliseconds{milliseconds}, type);
+}
+
+std::chrono::milliseconds fromString(string_view formatted, DataInfo::Type type) {
+    std::chrono::sys_time<std::chrono::milliseconds> timePoint;
+    string inputStr(formatted);
+
+    // For Time type without date, prepend a date for parsing
+    if (type == DataInfo::Time) {
+        inputStr = std::format("1970-01-01 {}", formatted);
+    }
+
+    std::istringstream ss(inputStr);
+
+    switch (type) {
+    case DataInfo::DateTime:
+        ss >> std::chrono::parse("%Y-%m-%d %H:%M:%S", timePoint);
+        break;
+    case DataInfo::DateTimeNoSec:
+        ss >> std::chrono::parse("%Y-%m-%d %H:%M", timePoint);
+        break;
+    case DataInfo::Date:
+        ss >> std::chrono::parse("%Y-%m-%d", timePoint);
+        break;
+    case DataInfo::Time:
+        ss >> std::chrono::parse("%Y-%m-%d %H:%M:%S", timePoint);
+        break;
+    default:
+        throw FormatterException(ERR_WRONG_DATE_TIME_TYPE);
     }
 
     if (ss.fail()) {
-        throw std::invalid_argument(FORMATER_ERR_STRING_FORMAT);
+        throw FormatterException(
+            std::format("{} Input: '{}'", ERR_STRING_FORMAT, formatted)
+            );
     }
 
-    return dateTimeInSecs.time_since_epoch();
+    return timePoint.time_since_epoch();
 }
 
-std::chrono::milliseconds chronoNow()
-{
-    return duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch());;
+std::chrono::milliseconds now() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()
+        );
 }
 
-std::string generateUniqueString() {
+string generateUniqueId() {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distrib(0, 127);
+    std::uniform_int_distribution<> dist(0, 255);
 
-    std::vector<uint8_t> randomBytes(64);
-    for (int i = 0; i < 64; ++i) {
-        randomBytes[i] = distrib(gen);
-    }
+    std::vector<uint8_t> bytes(32);  // 256-bit unique ID
+    std::generate(bytes.begin(), bytes.end(), [&]() { return dist(gen); });
 
-    std::stringstream ss;
+    std::ostringstream ss;
     ss << std::hex << std::setfill('0');
-    for (uint8_t byte : randomBytes) {
+    for (uint8_t byte : bytes) {
         ss << std::setw(2) << static_cast<int>(byte);
     }
 
     return ss.str();
 }
 
-} // namespace
+} // namespace timeFormatter
 
-void TypeToStringFormatter::AddDataInfo(const char * paramName, FormatterDataType & paramValue)
-{
+// ============================================================================
+// TypeToStringFormatter Implementation
+// ============================================================================
+
+void TypeToStringFormatter::addParameter(string_view name, const FormatterValue& value) {
     DataInfo info;
-    info.param = paramName;
+    info.param = name;
 
-    if (int * ptr = std::get_if<int>(&paramValue)) {
-        info.value = std::to_string(*ptr);
-        info.type = DataInfo::Int;
-    } else if (int64_t * ptr = std::get_if<int64_t>(&paramValue)) {
-        info.value = std::to_string(*ptr);
-        info.type = DataInfo::Int64;
-    }else if (double * ptr = std::get_if<double>(&paramValue)) {
-        info.value = std::to_string(*ptr);
-        info.type = DataInfo::Double;
-    } else if (string * ptr = std::get_if<string>(&paramValue)) {
-        info.value = *ptr;
-        info.type = DataInfo::String;
-    } else if (bool * ptr = std::get_if<bool>(&paramValue)) {
-        info.value = std::to_string((*ptr == true)?1:0);
-        info.type = DataInfo::Bool;
-    } else {
-        // unknown type
-        throw std::invalid_argument(FORMATER_ERR_WRONG_TYPE);
-    }
-    dataList.push_back(info);
+    std::visit([&info](auto&& val) {
+        using T = std::decay_t<decltype(val)>;
+
+        if constexpr (std::is_same_v<T, int>) {
+            info.value = std::to_string(val);
+            info.type = DataInfo::Int;
+        } else if constexpr (std::is_same_v<T, int64_t>) {
+            info.value = std::to_string(val);
+            info.type = DataInfo::Int64;
+        } else if constexpr (std::is_same_v<T, double>) {
+            info.value = std::to_string(val);
+            info.type = DataInfo::Double;
+        } else if constexpr (std::is_same_v<T, string>) {
+            info.value = val;
+            info.type = DataInfo::String;
+        } else if constexpr (std::is_same_v<T, bool>) {
+            info.value = std::to_string(val ? 1 : 0);
+            info.type = DataInfo::Bool;
+        } else {
+            throw FormatterException(ERR_WRONG_TYPE);
+        }
+    }, value);
+
+    addToList(std::move(info));
 }
 
-void TypeToStringFormatter::AddDataInfo(const char * paramName, std::chrono::milliseconds paramValue, DataInfo::Type nType)
-{
+void TypeToStringFormatter::addParameter(string_view name,
+                                         std::chrono::milliseconds value,
+                                         DataInfo::Type type) {
+    if (!timeFormatter::isDateTimeType(type)) {
+        throw FormatterException(
+            std::format("{} for parameter '{}'", ERR_WRONG_DATE_TIME_TYPE, name)
+            );
+    }
+
     DataInfo info;
-    info.param = paramName;
-    info.value = TimeFormatHelper::chronoSysSecToString(paramValue, nType);
-    info.type = nType;
+    info.param = name;
+    info.value = timeFormatter::toString(value, type);
+    info.type = type;
 
-    dataList.push_back(info);
+    addToList(std::move(info));
 }
 
-void TypeToStringFormatter::AddDataInfo(const char *paramName, const char *paramValue, DataInfo::Type nType)
-{
+void TypeToStringFormatter::addParameter(string_view name,
+                                         string_view value,
+                                         DataInfo::Type type) {
+    if (!timeFormatter::isDateTimeType(type)) {
+        throw FormatterException(
+            std::format("{} for parameter '{}'", ERR_WRONG_DATE_TIME_TYPE, name)
+            );
+    }
+
+    // Validate by parsing and re-formatting
+    auto timePoint = timeFormatter::fromString(value, type);
+
     DataInfo info;
-    info.param = paramName;
-    info.type = nType;
-    // Check validity of provided value
-    std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(paramValue, nType);
-    info.value = TimeFormatHelper::chronoSysSecToString(sysSecs, nType);
+    info.param = name;
+    info.value = timeFormatter::toString(timePoint, type);
+    info.type = type;
 
-    dataList.push_back(info);
+    addToList(std::move(info));
 }
 
-map<string, string> TypeToStringFormatter::formattedParamValueList() const
-{
-    map<string, string> paramValue;
-    for(auto const & info: dataList) {
-        paramValue.insert(std::make_pair(info.param, info.value));
+std::optional<string_view> TypeToStringFormatter::getValue(string_view name) const {
+    if (const auto* info = findByName(name)) {
+        return info->value;
     }
-    return paramValue;
+    return std::nullopt;
 }
 
-string TypeToStringFormatter::value(const char * paramName)
-{
-    auto it = std::find_if(dataList.begin(), dataList.end(),
-                           [&](const DataInfo & info) { return info.param == paramName; });
-
-    if(it == dataList.end()) {
-        throw std::invalid_argument(FORMATER_ERR_WRONG_KEY_PARAMETER_NAME);
+string_view TypeToStringFormatter::getValueOrThrow(string_view name) const {
+    if (auto value = getValue(name)) {
+        return *value;
     }
-    return it->value;
+    throw FormatterException(std::format("{}{}", ERR_WRONG_KEY_PARAMETER, name));
 }
 
-DataInfo TypeToStringFormatter::dataInfo(const char *paramName)
-{
-    auto it = std::find_if(dataList.begin(), dataList.end(),
-                           [&](const DataInfo & info) { return info.param == paramName; });
-
-    if(it == dataList.end()) {
-        throw std::invalid_argument(FORMATER_ERR_WRONG_KEY_PARAMETER_NAME);
+std::optional<DataInfo> TypeToStringFormatter::getInfo(string_view name) const {
+    if (const auto* info = findByName(name)) {
+        return *info;
     }
-    return *it;
+    return std::nullopt;
 }
 
-std::chrono::milliseconds TypeToStringFormatter::toTime(const char * paramName)
-{
-    auto it = std::find_if(dataList.begin(), dataList.end(),
-                           [&](const DataInfo & info) { return info.param == paramName; });
-
-    if(it == dataList.end()) {
-        throw std::invalid_argument(FORMATER_ERR_WRONG_KEY_PARAMETER_NAME);
+const DataInfo& TypeToStringFormatter::getInfoOrThrow(string_view name) const {
+    if (const auto* info = findByName(name)) {
+        return *info;
     }
-
-    static std::set<DataInfo::Type> trueDateTimes({DataInfo::DateTime, DataInfo::DateTimeNoSec, DataInfo::Date, DataInfo::Time});
-    if(!trueDateTimes.contains(it->type)) {
-        throw std::invalid_argument(FORMATER_ERR_WRONG_DATE_TYME_TYPE);
-    }
-
-    string infoValue = it->value;
-    if(it->type == DataInfo::Time) {
-        // There is no Time alone without a Date, so write something like 1-1-1 to avoid being thrown DataInfo::Time type
-        infoValue = string("1-1-1 ") + infoValue;
-    }
-
-    return TimeFormatHelper::stringTochronoSysSec(infoValue, it->type);
+    throw FormatterException(std::format("{}{}", ERR_WRONG_KEY_PARAMETER, name));
 }
 
+std::chrono::milliseconds TypeToStringFormatter::getAsTime(string_view name) const {
+    const auto& info = getInfoOrThrow(name);
+
+    if (!timeFormatter::isDateTimeType(info.type)) {
+        throw FormatterException(
+            std::format("{} for parameter '{}'", ERR_WRONG_DATE_TIME_TYPE, name)
+            );
+    }
+
+    // fromString already handles Time type by prepending date
+    return timeFormatter::fromString(info.value, info.type);
+}
+
+map<string, string> TypeToStringFormatter::toMap() const {
+    map<string, string> result;
+    for (const auto& info : m_dataList) {
+        result.emplace(info.param, info.value);
+    }
+    return result;
+}
+
+bool TypeToStringFormatter::contains(string_view name) const {
+    return findByName(name) != nullptr;
+}
+
+void TypeToStringFormatter::addToList(DataInfo info) {
+    size_t index = m_dataList.size();
+    string nameKey = info.param;  // Copy for map key
+    m_dataList.push_back(std::move(info));
+    m_lookupMap[std::move(nameKey)] = index;
+}
+
+const DataInfo* TypeToStringFormatter::findByName(string_view name) const {
+    auto it = m_lookupMap.find(string(name));
+    if (it != m_lookupMap.end() && it->second < m_dataList.size()) {
+        return &m_dataList[it->second];
+    }
+    return nullptr;
+}
