@@ -1,83 +1,117 @@
 #include "include_util.h"
-
 #include <stdexcept>
 #include <algorithm>
 #include <fstream>
-#include <iostream>
+#include <system_error>
 
-namespace CommonUtil {
-    uint32_t sqlRowOffset(uint32_t page, uint32_t limitCount, uint32_t totalCount,
-                      uint32_t & realCurrentPage, uint32_t & pageCount) {
-        if (limitCount == 0) {
-            throw std::runtime_error("Division by zero!");
-        }
-        if(limitCount >= totalCount) {
-            realCurrentPage = 0;
-            pageCount = 0;
-            return 0;
-        }
-        pageCount = totalCount / limitCount;
-        if(totalCount % limitCount > 0) {
-            pageCount++;
-        }
-        if(page > pageCount) {
-            realCurrentPage = 0;
-            return 0;
-        }
+namespace {
+constexpr const char* ERROR_BINARY_OPEN = "Failed to open file!";
+}
 
-        realCurrentPage = page;
-        return limitCount * (page - 1);
-    }
-
-    uint32_t sqlRowOffset(uint32_t page, uint32_t limitCount, uint32_t totalCount) {
-        uint32_t realCurrentPage = 0;
-        uint32_t pageCount = 0;
-        return sqlRowOffset(page, limitCount, totalCount, realCurrentPage, pageCount);
-    }
-};
+using std::string;
+using std::string_view;
+// ============================================================================
+// String Trimming Utilities
+// ============================================================================
 
 namespace Trimmer {
-    const char * ws = " \t\n\r\f\v";
-    // trim from end of string (right)
-    std::string & rtrim(std::string & s, const char * t)
-    {
-        s.erase(s.find_last_not_of(t) + 1);
+string rtrim(string_view s, const char* t) {
+    string result(s);
+    return rtrimInPlace(result, t);
+}
+
+string ltrim(string_view s, const char* t) {
+    string result(s);
+    return ltrimInPlace(result, t);
+}
+
+string trim(string_view s, const char* t) {
+    string result(s);
+    return trimInPlace(result, t);
+}
+
+string& rtrimInPlace(string& s, const char* t) {
+    if (s.empty()) {
         return s;
     }
-    // trim from beginning of string (left)
-    std::string& ltrim(std::string & s, const char * t)
-    {
-        s.erase(0, s.find_first_not_of(t));
+    auto pos = s.find_last_not_of(t);
+    if (pos != string::npos) {
+        s.erase(pos + 1);
+    } else {
+        s.clear();  // String contains only trim characters
+    }
+    return s;
+}
+
+string& ltrimInPlace(string& s, const char* t) {
+    if (s.empty()) {
         return s;
     }
-    // trim from both ends of string (right then left)
-    std::string& trim(std::string & str, const char * t)
-    {
-        str.erase(std::remove(str.begin(), str.end(), '\n'), str.end());
-        str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
-        return ltrim(rtrim(str, t), t);
+    auto pos = s.find_first_not_of(t);
+    if (pos != string::npos) {
+        s.erase(0, pos);
+    } else {
+        s.clear();  // String contains only trim characters
     }
-};
+    return s;
+}
+
+string& trimInPlace(string& s, const char* t) {
+    return ltrimInPlace(rtrimInPlace(s, t), t);
+}
+}
+
+// ============================================================================
+// Common Utilities - now inline in header
+// ============================================================================
+
+// ============================================================================
+// Binary File Utilities
+// ============================================================================
 
 namespace StdBinary {
-std::string toStdString(const char * pathToBinary) {
-    std::ifstream file(pathToBinary, std::ios::in | std::ios::binary);
+string toStdString(const std::filesystem::path& path) {
+    std::ifstream file(path, std::ios::in | std::ios::binary);
     if (!file.is_open()) {
-        throw std::system_error(errno, std::generic_category(), ERROR_BINARY_OPEN);
+        throw std::system_error(
+            errno,
+            std::generic_category(),
+            string(ERROR_BINARY_OPEN) + " Path: " + path.string()
+            );
     }
-    std::string content((std::istreambuf_iterator<char>(file)),
-                        std::istreambuf_iterator<char>());
+
+    // Read entire file efficiently
+    // Use extra parentheses to avoid Most Vexing Parse
+    string content(
+        (std::istreambuf_iterator<char>(file)),
+        (std::istreambuf_iterator<char>())
+        );
+
     return content;
+    // File automatically closed by RAII
 }
 
-void toBinary(const char * pathToBinary, const std::string & data) {
-    std::ofstream file(pathToBinary, std::ios::binary | std::ios::out);
+void toBinary(const std::filesystem::path& path, string_view data) {
+    std::ofstream file(path, std::ios::binary | std::ios::out);
     if (!file.is_open()) {
-        throw std::system_error(errno, std::generic_category(), ERROR_BINARY_OPEN);
+        throw std::system_error(
+            errno,
+            std::generic_category(),
+            string(ERROR_BINARY_OPEN) + " Path: " + path.string()
+            );
     }
-    file.write(data.c_str(), data.size());
-    file.close();
+
+    file.write(data.data(), data.size());
+
+    // Check for write errors
+    if (!file.good()) {
+        throw std::system_error(
+            errno,
+            std::generic_category(),
+            "Failed to write data to file: " + path.string()
+            );
+    }
+
+    // File automatically closed by RAII
 }
-};
-
-
+}

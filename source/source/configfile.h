@@ -2,11 +2,12 @@
 #define CONFIGFILE_H
 
 #include "include_util.h"
+#include <map>
 
 ///////////////////////////////////////////////////////////
 /// \brief The IConfigFile class
 /// Use std::variant for different types
-///  typedef std::variant<int, double, time_t, string> MyVariant
+///  typedef std::variant<int, double, time_t, std::string> MyVariant
 ///
 //https://en.cppreference.com/w/cpp/utility/variant/visit
 // helper type for the visitor
@@ -14,7 +15,7 @@ template<class... Ts>
 struct overloads : Ts... { using Ts::operator()...; };
 
 /*
-std::variant<int, float, std::string> var;
+std::variant<int, float, std::std::string> var;
         var = 10;
 
         switch (var.index()) {
@@ -25,13 +26,13 @@ std::variant<int, float, std::string> var;
                 std::cout << "Type is float: " << std::get<1>(var) << std::endl;
                 break;
             case 2:
-                std::cout << "Type is string: " << std::get<2>(var) << std::endl;
+                std::cout << "Type is std::string: " << std::get<2>(var) << std::endl;
                 break;
             default:
                 std::cout << "Variant is valueless" << std::endl;
         }
-if (std::holds_alternative<std::string>(var)) {
-            std::cout << "Type is string: " << std::get<std::string>(var) << std::endl;
+if (std::holds_alternative<std::std::string>(var)) {
+            std::cout << "Type is std::string: " << std::get<std::std::string>(var) << std::endl;
         } else if (std::holds_alternative<int>(var)) {
              std::cout << "Type is int: " << std::get<int>(var) << std::endl;
         } else if (std::holds_alternative<float>(var)){
@@ -56,6 +57,7 @@ const char * CONFIG_ERR_ALL_PROJECT_PATH = "Config: All project path not found!"
 const char * CONFIG_ERR_CONFIG_FILE = "Config: Config file was not found";
 const char * CONFIG_ERR_LOG_FILE = "Config: Log file was not found";
 }
+
 class ConfigFile
 {
 private:
@@ -69,29 +71,29 @@ public:
 
     void load();
 
-    string value(const  char *  key);
-    string & operator[](const  char *  key);
+    std::string value(const  char *  key);
+    std::string & operator[](const  char *  key);
 
-    string appletPath() const {return m_appletePath;}
-    string templatetPath() const {return m_templatePath;}
-    string logFilePath() const {return m_logFilePath;}
+    std::string appletPath() const {return m_appletePath;}
+    std::string templatetPath() const {return m_templatePath;}
+    std::string logFilePath() const {return m_logFilePath;}
 
-    string projectPath() const;
+    std::string projectPath() const;
 
 protected:
     void setProjectPath(const  char *  m_allProjectPath, const  char *  projectName);
 
 private:
-    map<std::string, std::string> m_jsonData;
+    std::map<std::string, std::string> m_jsonData;
 
-    string m_allProjectPath;
-    string m_projectName;
+    std::string m_allProjectPath;
+    std::string m_projectName;
 
-    string m_configFilePath;
-    string m_appletePath;
-    string m_templatePath;
-    string m_logFilePath;
-    string m_readError;
+    std::string m_configFilePath;
+    std::string m_appletePath;
+    std::string m_templatePath;
+    std::string m_logFilePath;
+    std::string m_readError;
 };
 
 
