@@ -28,7 +28,7 @@ set(HEADER_FILES
     ${INCLUDE_DIR}/include_util.h
     ${INCLUDE_DIR}/configfile.h
     ${INCLUDE_DIR}/TypeToStringFormatter.h
-    ${INCLUDE_DIR}/JsonParameterFormatter.h
+    #${INCLUDE_DIR}/JsonParameterFormatter.h
 )
 
 set(SOURCE_FILES
@@ -37,7 +37,7 @@ set(SOURCE_FILES
     ${INCLUDE_DIR}/include_util.cpp
     ${INCLUDE_DIR}/configfile.cpp
     ${INCLUDE_DIR}/TypeToStringFormatter.cpp
-    ${INCLUDE_DIR}/JsonParameterFormatter.cpp
+    #${INCLUDE_DIR}/JsonParameterFormatter.cpp
 
     ConfigFIleTests.cpp
     TypeToStringFormatterTests.cpp

@@ -1,228 +1,485 @@
-#include "../JsonParameterFormatter.h"
-
+#include "../TypeToStringFormatter.h"
 #include "gtest/gtest.h"
-
 #include <chrono>
+#include <format>
 
 
-TEST(FormaterTest, TimeFormatHelperTests)
-{
-    std::chrono::milliseconds sysSecs;
-    std::string input = "0-0-0 10:11:12";
-    EXPECT_THROW(TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime), std::invalid_argument);
 
-    input = "1211-10-11 10:11:12";
-    EXPECT_NO_THROW(sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime));
+// ============================================================================
+// Time Formatting Helper Tests
+// ============================================================================
 
-    try {
-        TimeFormatHelper::chronoSysSecToString(sysSecs, DataInfo::Double);
-    } catch(const std::invalid_argument & err) {
-        // and this tests that it has the correct message
-        EXPECT_STREQ(FORMATER_ERR_WRONG_DATE_TYME_TYPE, err.what());
-    } catch (...) {
-        FAIL() << "Expected a different exception type.";
+class TimeFormatterTest : public ::testing::Test {
+protected:
+    const std::string validDateTime = "1211-10-11 10:11:12";
+    const std::string validDate = "2007-01-20";
+    const std::string validTime = "10:11:12";
+    std::chrono::milliseconds sampleTime;
+
+    void SetUp() override {
+        sampleTime = timeFormatter::fromString(validDateTime, DataInfo::DateTime);
     }
+};
 
-    EXPECT_EQ(TimeFormatHelper::chronoSysSecToString(sysSecs, DataInfo::DateTime), "1211-10-11 10:11:12");
-    EXPECT_EQ(TimeFormatHelper::chronoSysSecToString(sysSecs, DataInfo::DateTimeNoSec), "1211-10-11 10:11");
-    EXPECT_EQ(TimeFormatHelper::chronoSysSecToString(sysSecs, DataInfo::Date), "1211-10-11");
-    EXPECT_EQ(TimeFormatHelper::chronoSysSecToString(sysSecs, DataInfo::Time), "10:11:12");
+TEST_F(TimeFormatterTest, ParseInvalidDateTime) {
+    std::string invalid = "0-0-0 10:11:12";
+    EXPECT_THROW(timeFormatter::fromString(invalid, DataInfo::DateTime), FormatterException);
 }
 
-TEST(FormaterTest, GenerateUniqueStringTests)
-{
-    EXPECT_EQ(TimeFormatHelper::generateUniqueString().size(), 128);
+TEST_F(TimeFormatterTest, ParseValidDateTime) {
+    EXPECT_NO_THROW(timeFormatter::fromString(validDateTime, DataInfo::DateTime));
 }
 
-TEST(TypeToStringFormatterTests, TypeToStringFormatterWrongParamValueTests)
-{
-    FormatterDataType dataType;
-    dataType = 10;
+TEST_F(TimeFormatterTest, ThrowOnWrongTypeForDateTime) {
+    EXPECT_THROW(
+        timeFormatter::toString(sampleTime, DataInfo::Double),
+        FormatterException
+        );
+}
 
+TEST_F(TimeFormatterTest, FormatDateTime) {
+    EXPECT_EQ(timeFormatter::toString(sampleTime, DataInfo::DateTime), "1211-10-11 10:11:12");
+}
+
+TEST_F(TimeFormatterTest, FormatDateTimeNoSec) {
+    EXPECT_EQ(timeFormatter::toString(sampleTime, DataInfo::DateTimeNoSec), "1211-10-11 10:11");
+}
+
+TEST_F(TimeFormatterTest, FormatDate) {
+    EXPECT_EQ(timeFormatter::toString(sampleTime, DataInfo::Date), "1211-10-11");
+}
+
+TEST_F(TimeFormatterTest, FormatTime) {
+    EXPECT_EQ(timeFormatter::toString(sampleTime, DataInfo::Time), "10:11:12");
+}
+
+TEST_F(TimeFormatterTest, ConvertInt64ToDateTime) {
+    int64_t milliseconds = sampleTime.count();
+    std::string result = timeFormatter::toString(milliseconds, DataInfo::DateTime);
+    EXPECT_EQ(result, "1211-10-11 10:11:12");
+}
+
+TEST_F(TimeFormatterTest, ParseTimeWithoutDate) {
+    // Time type should be parsed correctly even without date
+    EXPECT_NO_THROW(timeFormatter::fromString("10:11:12", DataInfo::Time));
+}
+
+TEST_F(TimeFormatterTest, GetCurrentTime) {
+    auto now = timeFormatter::now();
+    EXPECT_GT(now.count(), 0);
+}
+
+TEST_F(TimeFormatterTest, IsDateTimeType) {
+    EXPECT_TRUE(timeFormatter::isDateTimeType(DataInfo::DateTime));
+    EXPECT_TRUE(timeFormatter::isDateTimeType(DataInfo::DateTimeNoSec));
+    EXPECT_TRUE(timeFormatter::isDateTimeType(DataInfo::Date));
+    EXPECT_TRUE(timeFormatter::isDateTimeType(DataInfo::Time));
+
+    EXPECT_FALSE(timeFormatter::isDateTimeType(DataInfo::Int));
+    EXPECT_FALSE(timeFormatter::isDateTimeType(DataInfo::String));
+    EXPECT_FALSE(timeFormatter::isDateTimeType(DataInfo::Double));
+}
+
+TEST_F(TimeFormatterTest, GenerateUniqueId) {
+    auto id1 = timeFormatter::generateUniqueId();
+    auto id2 = timeFormatter::generateUniqueId();
+
+    EXPECT_EQ(id1.size(), 64);  // 32 bytes * 2 hex chars
+    EXPECT_EQ(id2.size(), 64);
+    EXPECT_NE(id1, id2);  // Should be different
+}
+
+// ============================================================================
+// TypeToStringFormatter Basic Tests
+// ============================================================================
+
+class FormatterTest : public ::testing::Test {
+protected:
     TypeToStringFormatter formatter;
-    formatter.AddDataInfo("IntType", dataType);
+};
+
+TEST_F(FormatterTest, EmptyFormatterState) {
+    EXPECT_TRUE(formatter.empty());
+    EXPECT_EQ(formatter.size(), 0);
+}
+
+TEST_F(FormatterTest, AddIntParameter) {
+    formatter.addParameter("Height", FormatterValue{175});
+
+    EXPECT_FALSE(formatter.empty());
+    EXPECT_EQ(formatter.size(), 1);
+    EXPECT_TRUE(formatter.contains("Height"));
+
+    auto value = formatter.getValue("Height");
+    ASSERT_TRUE(value.has_value());
+    EXPECT_EQ(*value, "175");
+}
+
+TEST_F(FormatterTest, AddInt64Parameter) {
+    formatter.addParameter("BigNum", FormatterValue{9223372036854775807LL});
+
+    auto value = formatter.getValueOrThrow("BigNum");
+    EXPECT_EQ(value, "9223372036854775807");
+}
+
+TEST_F(FormatterTest, AddDoubleParameter) {
+    formatter.addParameter("Money", FormatterValue{122.123});
+
+    auto value = formatter.getValueOrThrow("Money");
+    // std::to_string for double includes 6 decimal places
+    std::string expected = std::to_string(122.123);
+    EXPECT_EQ(value, expected);
+}
+
+TEST_F(FormatterTest, AddStringParameter) {
+    formatter.addParameter("Name", FormatterValue{std::string("John")});
+
+    auto value = formatter.getValueOrThrow("Name");
+    EXPECT_EQ(value, "John");
+}
+
+TEST_F(FormatterTest, AddBoolParameter) {
+    formatter.addParameter("Active", FormatterValue{true});
+    formatter.addParameter("Deleted", FormatterValue{false});
+
+    EXPECT_EQ(formatter.getValueOrThrow("Active"), "1");
+    EXPECT_EQ(formatter.getValueOrThrow("Deleted"), "0");
+}
+
+TEST_F(FormatterTest, AddMultipleParameters) {
+    formatter.addParameter("Int", FormatterValue{10});
+    formatter.addParameter("Double", FormatterValue{11.11});
+    formatter.addParameter("String", FormatterValue{std::string("RandomString")});
+    formatter.addParameter("Bool", FormatterValue{true});
+
+    EXPECT_EQ(formatter.size(), 4);
+
+    auto map = formatter.toMap();
+    EXPECT_EQ(map.size(), 4);
+    EXPECT_EQ(map["Int"], "10");
+    EXPECT_EQ(map["String"], "RandomString");
+    EXPECT_EQ(map["Bool"], "1");
+}
+
+TEST_F(FormatterTest, GetNonExistentParameter) {
+    auto value = formatter.getValue("NotExists");
+    EXPECT_FALSE(value.has_value());
+}
+
+TEST_F(FormatterTest, GetOrThrowNonExistentParameter) {
+    EXPECT_THROW(
+        formatter.getValueOrThrow("NotExists"),
+        FormatterException
+        );
+}
+
+TEST_F(FormatterTest, ExceptionContainsParameterName) {
     try {
-        formatter.value("WrongParamName");
-    } catch(const std::invalid_argument & err) {
-        // and this tests that it has the correct message
-        EXPECT_STREQ(FORMATER_ERR_WRONG_KEY_PARAMETER_NAME, err.what());
-    } catch (...) {
-        FAIL() << "Expected a different exception type.";
+        formatter.getValueOrThrow("MissingParam");
+        FAIL() << "Expected FormatterException";
+    } catch (const FormatterException& e) {
+        std::string message = e.what();
+        EXPECT_TRUE(message.find("MissingParam") != std::string::npos);
     }
-
-    try {
-        formatter.dataInfo("WrongParamName");
-    } catch(const std::invalid_argument & err) {
-        // and this tests that it has the correct message
-        EXPECT_STREQ(FORMATER_ERR_WRONG_KEY_PARAMETER_NAME, err.what());
-    } catch (...) {
-        FAIL() << "Expected a different exception type.";
-    }
-
-    DataInfo info = formatter.dataInfo("IntType");
-    EXPECT_EQ(info.value, "10");
-    EXPECT_EQ(info.type, DataInfo::Int);
-    EXPECT_EQ(info.param, "IntType");
 }
 
-TEST(TypeToStringFormatterTests, AddAllTypesExceptDateTime)
-{
-    std::vector paramNameList = {"Int", "Double", "Strig", "Bool"};
+TEST_F(FormatterTest, ContainsCheck) {
+    formatter.addParameter("Exists", FormatterValue{42});
 
+    EXPECT_TRUE(formatter.contains("Exists"));
+    EXPECT_FALSE(formatter.contains("NotExists"));
+}
+
+TEST_F(FormatterTest, ClearParameters) {
+    formatter.addParameter("Param1", FormatterValue{1});
+    formatter.addParameter("Param2", FormatterValue{2});
+
+    EXPECT_EQ(formatter.size(), 2);
+
+    formatter.clear();
+
+    EXPECT_TRUE(formatter.empty());
+    EXPECT_EQ(formatter.size(), 0);
+    EXPECT_FALSE(formatter.contains("Param1"));
+}
+
+// ============================================================================
+// DateTime Parameter Tests
+// ============================================================================
+
+TEST_F(FormatterTest, AddDateTimeFromChrono) {
+    auto time = timeFormatter::fromString("2007-01-20 11:22:33", DataInfo::DateTime);
+
+    formatter.addParameter("DateTime", time, DataInfo::DateTime);
+    formatter.addParameter("DateTimeNoSec", time, DataInfo::DateTimeNoSec);
+    formatter.addParameter("Date", time, DataInfo::Date);
+    formatter.addParameter("Time", time, DataInfo::Time);
+
+    EXPECT_EQ(formatter.getValueOrThrow("DateTime"), "2007-01-20 11:22:33");
+    EXPECT_EQ(formatter.getValueOrThrow("DateTimeNoSec"), "2007-01-20 11:22");
+    EXPECT_EQ(formatter.getValueOrThrow("Date"), "2007-01-20");
+    EXPECT_EQ(formatter.getValueOrThrow("Time"), "11:22:33");
+}
+
+TEST_F(FormatterTest, AddDateTimeFromString) {
+    formatter.addParameter("DateTime", "2007-01-20 11:22:33", DataInfo::DateTime);
+    formatter.addParameter("Date", "2007-01-20", DataInfo::Date);
+    formatter.addParameter("Time", "11:22:33", DataInfo::Time);
+
+    // Should be validated and reformatted
+    EXPECT_EQ(formatter.getValueOrThrow("DateTime"), "2007-01-20 11:22:33");
+    EXPECT_EQ(formatter.getValueOrThrow("Date"), "2007-01-20");
+    EXPECT_EQ(formatter.getValueOrThrow("Time"), "11:22:33");
+}
+
+TEST_F(FormatterTest, ThrowOnInvalidDateTimeString) {
+    EXPECT_THROW(
+        formatter.addParameter("Bad", "invalid-date", DataInfo::DateTime),
+        FormatterException
+        );
+}
+
+TEST_F(FormatterTest, ThrowOnWrongTypeForChrono) {
+    auto time = timeFormatter::now();
+
+    EXPECT_THROW(
+        formatter.addParameter("Bad", time, DataInfo::Int),
+        FormatterException
+        );
+}
+
+// ============================================================================
+// GetInfo Tests
+// ============================================================================
+
+TEST_F(FormatterTest, GetInfoSuccess) {
+    formatter.addParameter("Height", FormatterValue{175});
+
+    auto info = formatter.getInfo("Height");
+    ASSERT_TRUE(info.has_value());
+    EXPECT_EQ(info->param, "Height");
+    EXPECT_EQ(info->value, "175");
+    EXPECT_EQ(info->type, DataInfo::Int);
+}
+
+TEST_F(FormatterTest, GetInfoNotFound) {
+    auto info = formatter.getInfo("NotExists");
+    EXPECT_FALSE(info.has_value());
+}
+
+TEST_F(FormatterTest, GetInfoOrThrow) {
+    formatter.addParameter("Name", FormatterValue{std::string("John")});
+
+    const auto& info = formatter.getInfoOrThrow("Name");
+    EXPECT_EQ(info.param, "Name");
+    EXPECT_EQ(info.value, "John");
+    EXPECT_EQ(info.type, DataInfo::String);
+}
+
+TEST_F(FormatterTest, GetInfoOrThrowNotFound) {
+    EXPECT_THROW(
+        formatter.getInfoOrThrow("NotExists"),
+        FormatterException
+        );
+}
+
+// ============================================================================
+// GetAsTime Tests
+// ============================================================================
+
+TEST_F(FormatterTest, GetAsTimeSuccess) {
+    formatter.addParameter("DateTime", "2007-01-20 11:22:33", DataInfo::DateTime);
+
+    EXPECT_NO_THROW(formatter.getAsTime("DateTime"));
+}
+
+TEST_F(FormatterTest, GetAsTimeNotFound) {
+    EXPECT_THROW(
+        formatter.getAsTime("NotExists"),
+        FormatterException
+        );
+}
+
+TEST_F(FormatterTest, GetAsTimeWrongType) {
+    formatter.addParameter("Height", FormatterValue{175});
+
+    EXPECT_THROW(
+        formatter.getAsTime("Height"),
+        FormatterException
+        );
+}
+
+TEST_F(FormatterTest, GetAsTimeAllDateTimeTypes) {
+    formatter.addParameter("DateTime", "2007-01-20 11:22:33", DataInfo::DateTime);
+    formatter.addParameter("DateTimeNoSec", "2007-01-20 11:22", DataInfo::DateTimeNoSec);
+    formatter.addParameter("Date", "2007-01-20", DataInfo::Date);
+    formatter.addParameter("Time", "11:22:33", DataInfo::Time);
+
+    EXPECT_NO_THROW(formatter.getAsTime("DateTime"));
+    EXPECT_NO_THROW(formatter.getAsTime("DateTimeNoSec"));
+    EXPECT_NO_THROW(formatter.getAsTime("Date"));
+    EXPECT_NO_THROW(formatter.getAsTime("Time"));
+}
+
+// ============================================================================
+// ToMap Tests
+// ============================================================================
+
+TEST_F(FormatterTest, ToMapAllTypes) {
+    auto timeStr = "2007-01-20 11:22:33";
+    auto time = timeFormatter::fromString(timeStr, DataInfo::DateTime);
+
+    formatter.addParameter("Int", FormatterValue{10});
+    formatter.addParameter("Double", FormatterValue{11.11});
+    formatter.addParameter("String", FormatterValue{std::string("RandomString")});
+    formatter.addParameter("Bool", FormatterValue{true});
+    formatter.addParameter("DateTime", time, DataInfo::DateTime);
+
+    auto map = formatter.toMap();
+
+    EXPECT_EQ(map.size(), 5);
+    EXPECT_EQ(map["Int"], "10");
+    EXPECT_EQ(map["String"], "RandomString");
+    EXPECT_EQ(map["Bool"], "1");
+    EXPECT_EQ(map["DateTime"], "2007-01-20 11:22:33");
+}
+
+// ============================================================================
+// Parameters Access Tests
+// ============================================================================
+
+TEST_F(FormatterTest, ParametersReadOnlyAccess) {
+    formatter.addParameter("Param1", FormatterValue{1});
+    formatter.addParameter("Param2", FormatterValue{2});
+
+    const auto& params = formatter.parameters();
+
+    EXPECT_EQ(params.size(), 2);
+    EXPECT_EQ(params[0].param, "Param1");
+    EXPECT_EQ(params[1].param, "Param2");
+}
+
+// ============================================================================
+// Performance / Edge Cases
+// ============================================================================
+
+TEST(FormatterEdgeCaseTest, ManyParameters) {
     TypeToStringFormatter formatter;
-    FormatterDataType dataType;
 
-    dataType = 10;
-    formatter.AddDataInfo(paramNameList[0], dataType);
+    for (int i = 0; i < 1000; ++i) {
+        formatter.addParameter(std::format("Param{}", i), FormatterValue{i});
+    }
 
-    dataType = 11.11;
-    formatter.AddDataInfo(paramNameList[1], dataType);
+    EXPECT_EQ(formatter.size(), 1000);
 
-    dataType = "RandomString";
-    formatter.AddDataInfo(paramNameList[2], dataType);
-
-    dataType = true;
-    formatter.AddDataInfo(paramNameList[3], dataType);
-
-    std::map<string, string> expected = {{"Int", "10"},
-                                         {"Double", "11.110000"},// six digits by default
-                                         {"Strig", "RandomString"},
-                                         {"Bool", "1"}};
-
-    std::map<string, string> actual = formatter.formattedParamValueList();
-
-    // Assert if wrong
-    ASSERT_EQ(expected, actual);
+    // O(1) lookup should be fast
+    for (int i = 0; i < 1000; i += 100) {
+        auto name = std::format("Param{}", i);
+        EXPECT_TRUE(formatter.contains(name));
+    }
 }
 
-TEST(TypeToStringFormatterTests, TypeToStringFormatterTests)
-{
+TEST(FormatterEdgeCaseTest, EmptyParameterName) {
     TypeToStringFormatter formatter;
-    std::chrono::milliseconds currentTime = TimeFormatHelper::stringTochronoSysSec("2007-01-20 11:22:33", DataInfo::DateTime);
+    formatter.addParameter("", FormatterValue{42});
 
-    std::vector paramNameList = {"DateTime", "DateTimeNoSec", "Date", "Time"};
-    formatter.AddDataInfo(paramNameList[0], currentTime, DataInfo::DateTime);
-    formatter.AddDataInfo(paramNameList[1], currentTime, DataInfo::DateTimeNoSec);
-    formatter.AddDataInfo(paramNameList[2], currentTime, DataInfo::Date);
-    formatter.AddDataInfo(paramNameList[3], currentTime, DataInfo::Time);
-
-    std::map<string, string> expected = {{"DateTime", "2007-01-20 11:22:33"},
-                                         {"DateTimeNoSec", "2007-01-20 11:22"},
-                                         {"Date", "2007-01-20"},
-                                         {"Time", "11:22:33"}};
-    std::map<string, string> actual = formatter.formattedParamValueList();
-
-    // Assert if wrong
-    ASSERT_EQ(expected, actual);
-    for(const auto & [param, value] : actual) {
-        EXPECT_TRUE(std::find(std::begin(paramNameList), std::end(paramNameList), param) != std::end(paramNameList));
-    }
-    // Test TypeToStringFormatter::value
-    for(const auto & param : paramNameList) {
-        EXPECT_EQ(actual[param], formatter.value(param));
-    }
+    EXPECT_TRUE(formatter.contains(""));
+    EXPECT_EQ(formatter.getValueOrThrow(""), "42");
 }
 
-TEST(TypeToStringFormatterTests, TypeToStringFormatterStringsTests)
-{
-    const char * currentTimeStr("2007-01-20 11:22:33");
-    std::vector paramNameList = {"Int", "Double", "Strig", "Bool"};
-
+TEST(FormatterEdgeCaseTest, SpecialCharactersInName) {
     TypeToStringFormatter formatter;
-    formatter.AddDataInfo("DateTime", currentTimeStr, DataInfo::DateTime);
-    formatter.AddDataInfo("DateTimeNoSec", currentTimeStr, DataInfo::DateTimeNoSec);
-    formatter.AddDataInfo("Date", currentTimeStr, DataInfo::Date);
-    formatter.AddDataInfo("Time", currentTimeStr, DataInfo::Time);
+    formatter.addParameter("special:name-with.chars", FormatterValue{100});
 
-    FormatterDataType dataType;
-
-    dataType = 10;
-    formatter.AddDataInfo(paramNameList[0], dataType);
-
-    dataType = 11.11;
-    formatter.AddDataInfo(paramNameList[1], dataType);
-
-    dataType = "RandomString";
-    formatter.AddDataInfo(paramNameList[2], dataType);
-
-    dataType = true;
-    formatter.AddDataInfo(paramNameList[3], dataType);
-
-    std::map<string, string> expected = {{"DateTime", "2007-01-20 11:22:33"},
-                                         {"DateTimeNoSec", "2007-01-20 11:22"},
-                                         {"Date", "2007-01-20"},
-                                         {"Time", "11:22:33"},
-                                         {"Int", "10"},
-                                         {"Double", "11.110000"},// six digits by default
-                                         {"Strig", "RandomString"},
-                                         {"Bool", "1"}};
-    std::map<string, string> actual = formatter.formattedParamValueList();
-
-    // Assert if wrong
-    ASSERT_EQ(expected, actual);
+    EXPECT_EQ(formatter.getValueOrThrow("special:name-with.chars"), "100");
 }
 
-TEST(TypeToStringFormatterTests, TypeToStringFormatterToTimeTests)
-{
-
+TEST(FormatterEdgeCaseTest, DuplicateParameterNames) {
     TypeToStringFormatter formatter;
-    FormatterDataType dataType;
+    formatter.addParameter("Duplicate", FormatterValue{1});
+    formatter.addParameter("Duplicate", FormatterValue{2});
 
-    dataType = 10;
-    formatter.AddDataInfo("IntType", dataType);
-
-    try {
-        formatter.toTime("WrongParamName");
-    } catch(const std::invalid_argument & err) {
-        // and this tests that it has the correct message
-        EXPECT_STREQ(FORMATER_ERR_WRONG_KEY_PARAMETER_NAME, err.what());
-    } catch (...) {
-        FAIL() << "Expected a different exception type.";
-    }
-
-    try {
-        formatter.toTime("IntType");
-    } catch(const std::invalid_argument & err) {
-        // and this tests that it has the correct message
-        EXPECT_STREQ(FORMATER_ERR_WRONG_DATE_TYME_TYPE, err.what());
-    } catch (...) {
-        FAIL() << "Expected a different exception type.";
-    }
-
-    const char * currentTimeStr("1-1-1 11:22:00");
-
-    formatter.AddDataInfo("DateTime", currentTimeStr, DataInfo::DateTime);
-    formatter.AddDataInfo("DateTimeNoSec", currentTimeStr, DataInfo::DateTimeNoSec);
-    formatter.AddDataInfo("Date", currentTimeStr, DataInfo::Date);
-    formatter.AddDataInfo("Time", currentTimeStr, DataInfo::Time);
-
-    EXPECT_NO_THROW(formatter.toTime("DateTime"));
-    EXPECT_NO_THROW(formatter.toTime("DateTimeNoSec"));
-    EXPECT_NO_THROW(formatter.toTime("Date"));
-    EXPECT_NO_THROW(formatter.toTime("Time"));
+    // Last write wins - both are added to the list
+    EXPECT_EQ(formatter.size(), 2);
+    // But lookup returns the last one added (due to map overwrite)
+    auto value = formatter.getValueOrThrow("Duplicate");
+    EXPECT_EQ(value, "2");
 }
 
-TEST(TypeToStringFormatterTests, JsonParsingTests)
-{
-    const char * currentTimeStr("2007-01-20 11:22:33");
+// ============================================================================
+// Copy and Move Semantics Tests
+// ============================================================================
 
-    JsonParameterFormatter formatter;
-    formatter.AddDataInfo("DateTime", currentTimeStr, DataInfo::DateTime);
-    formatter.AddDataInfo("DateTimeNoSec", currentTimeStr, DataInfo::DateTimeNoSec);
-    formatter.AddDataInfo("Date", currentTimeStr, DataInfo::Date);
-    formatter.AddDataInfo("Time", currentTimeStr, DataInfo::Time);
+TEST(FormatterCopyMoveTest, CopyConstructor) {
+    TypeToStringFormatter original;
+    original.addParameter("Int", FormatterValue{42});
+    original.addParameter("String", FormatterValue{std::string("test")});
 
-    std::map<string, string> expected = {{"DateTime", "2007-01-20 11:22:33"},
-                                         {"DateTimeNoSec", "2007-01-20 11:22"},
-                                         {"Date", "2007-01-20"},
-                                         {"Time", "11:22:33"}};
+    TypeToStringFormatter copy(original);
 
-    string jsonString = formatter.toJsonString();
-    EXPECT_FALSE(jsonString.empty());
+    EXPECT_EQ(copy.size(), 2);
+    EXPECT_EQ(copy.getValueOrThrow("Int"), "42");
+    EXPECT_EQ(copy.getValueOrThrow("String"), "test");
 
-    std::map<string, string> actual = JsonParameterFormatter::fromJsonString(jsonString);
-    ASSERT_EQ(expected, actual);
+    // Ensure deep copy - modifying copy shouldn't affect original
+    copy.addParameter("New", FormatterValue{100});
+    EXPECT_EQ(copy.size(), 3);
+    EXPECT_EQ(original.size(), 2);
 }
 
+TEST(FormatterCopyMoveTest, CopyAssignment) {
+    TypeToStringFormatter original;
+    original.addParameter("Value", FormatterValue{123});
 
+    TypeToStringFormatter copy;
+    copy.addParameter("Other", FormatterValue{999});
 
+    copy = original;
+
+    EXPECT_EQ(copy.size(), 1);
+    EXPECT_EQ(copy.getValueOrThrow("Value"), "123");
+    EXPECT_FALSE(copy.contains("Other"));
+}
+
+TEST(FormatterCopyMoveTest, MoveConstructor) {
+    TypeToStringFormatter original;
+    original.addParameter("Int", FormatterValue{42});
+    original.addParameter("String", FormatterValue{std::string("test")});
+
+    TypeToStringFormatter moved(std::move(original));
+
+    EXPECT_EQ(moved.size(), 2);
+    EXPECT_EQ(moved.getValueOrThrow("Int"), "42");
+    EXPECT_EQ(moved.getValueOrThrow("String"), "test");
+
+    // Original should be in valid but unspecified state
+    // We can only safely check it can be used again
+    EXPECT_NO_THROW(original.clear());
+}
+
+TEST(FormatterCopyMoveTest, MoveAssignment) {
+    TypeToStringFormatter original;
+    original.addParameter("Value", FormatterValue{456});
+
+    TypeToStringFormatter moved;
+    moved.addParameter("Other", FormatterValue{999});
+
+    moved = std::move(original);
+
+    EXPECT_EQ(moved.size(), 1);
+    EXPECT_EQ(moved.getValueOrThrow("Value"), "456");
+
+    // Original should be in valid but unspecified state
+    EXPECT_NO_THROW(original.clear());
+}
+
+TEST(FormatterCopyMoveTest, SelfAssignment) {
+    TypeToStringFormatter formatter;
+    formatter.addParameter("Test", FormatterValue{789});
+
+    // Self-assignment should be safe
+    formatter = formatter;
+
+    EXPECT_EQ(formatter.size(), 1);
+    EXPECT_EQ(formatter.getValueOrThrow("Test"), "789");
+}
