@@ -3,7 +3,7 @@
 	<!-- 
 	list of comments
 	-->
-  <Description>Query selection users by user ID </Description>
+  <Description>Query selection users by user ID</Description>
   <Param>
         <!-- Name -->
         <Name>Name</Name>
