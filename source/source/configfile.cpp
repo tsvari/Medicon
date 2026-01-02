@@ -5,6 +5,8 @@
 
 namespace fs = std::filesystem;
 using json = nlohmann::json;
+using std::string;
+using std::map;
 
 ConfigFile::ConfigFile(const char * allProjectPath, const  char *  projectName)
 {
@@ -48,7 +50,7 @@ void ConfigFile::setProjectPath(const  char *  allProjectPath, const  char *  pr
     m_templatePath = m_allProjectPath + string(m_projectName) + string("/templates/");
 }
 
-std::string & ConfigFile::operator[](const  char *  key)
+string & ConfigFile::operator[](const  char *  key)
 {
     if(!m_jsonData.contains(key)) {
         throw std::out_of_range("Index out of bounds");
