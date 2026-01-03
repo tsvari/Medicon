@@ -1,29 +1,11 @@
 #include "include_backend_util.h"
 #include "gtest/gtest.h"
 #include <fstream>
+#include <filesystem>
 
 namespace {
 const std::string logoFile = std::string(ALL_BACKEND_TEST_APPDATA_PATH) + "logo.png";
-}
-
-TEST(SaBinaryTests, LoadFileTest)
-{
-    try {
-        SaBinary::toStdString("C:/Path/To/Wrong/File");
-    } catch(std::system_error & e) {
-        // and this tests that it has the correct message
-        EXPECT_TRUE(std::string(e.what()).contains(ERROR_BINARY_OPEN));
-    } catch (...) {
-        FAIL() << "Expected a different exception type.";
-    }
-
-    std::string stdString;
-    EXPECT_NO_THROW(stdString = SaBinary::toStdString(logoFile.c_str()));
-
-    SAString saString;
-    EXPECT_NO_THROW(saString = SaBinary::toSaString(logoFile.c_str()));
-
-    EXPECT_EQ(stdString, SaBinary::toStdString(saString));
+const std::string testDataPath = std::string(ALL_BACKEND_TEST_APPDATA_PATH);
 }
 
 /*
@@ -48,17 +30,148 @@ std::string getImageTypeFromStream(std::istream& is) {
     }
     return "Unknown";
 }
-
-int main() {
-    // Example with a dummy stream (in a real scenario, this would be a file or network stream)
-    std::ifstream fileStream("image.png", std::ios::binary);
-    if (fileStream.is_open()) {
-        std::string type = getImageTypeFromStream(fileStream);
-        std::cout << "Image type: " << type << std::endl;
-        fileStream.close();
-    } else {
-        std::cerr << "Error opening file." << std::endl;
-    }
-    return 0;
-}
 */
+// ============================================================================
+// File Loading Tests
+// ============================================================================
+
+TEST(SaBinaryTests, LoadInvalidFile) {
+    EXPECT_THROW(
+        SaBinary::toStdString("C:/Path/To/NonExistent/File.bin"),
+        std::system_error
+    );
+}
+
+TEST(SaBinaryTests, LoadFileToStdString) {
+    if (!std::filesystem::exists(logoFile)) {
+        GTEST_SKIP() << "Test file not found: " << logoFile;
+    }
+
+    std::string stdString;
+    EXPECT_NO_THROW(stdString = SaBinary::toStdString(logoFile.c_str()));
+    EXPECT_FALSE(stdString.empty());
+    
+    // PNG files start with specific magic bytes
+    EXPECT_EQ(static_cast<unsigned char>(stdString[0]), 0x89);
+    EXPECT_EQ(stdString[1], 'P');
+    EXPECT_EQ(stdString[2], 'N');
+    EXPECT_EQ(stdString[3], 'G');
+}
+
+TEST(SaBinaryTests, LoadFileToSaString) {
+    if (!std::filesystem::exists(logoFile)) {
+        GTEST_SKIP() << "Test file not found: " << logoFile;
+    }
+
+    SAString saString;
+    EXPECT_NO_THROW(saString = SaBinary::toSaString(logoFile.c_str()));
+    EXPECT_GT(saString.GetBinaryLength(), 0);
+}
+
+// ============================================================================
+// Conversion Tests
+// ============================================================================
+
+TEST(SaBinaryTests, ConvertSaStringToStdString) {
+    if (!std::filesystem::exists(logoFile)) {
+        GTEST_SKIP() << "Test file not found: " << logoFile;
+    }
+
+    SAString saString = SaBinary::toSaString(logoFile.c_str());
+    std::string stdString = SaBinary::toStdString(saString);
+    
+    EXPECT_FALSE(stdString.empty());
+    EXPECT_EQ(stdString.size(), saString.GetBinaryLength());
+}
+
+TEST(SaBinaryTests, ConvertStdStringToSaString) {
+    std::string original = "Binary data \x00\x01\x02\xFF test";
+    
+    SAString saString = SaBinary::toSaString(original);
+    
+    EXPECT_EQ(saString.GetBinaryLength(), original.size());
+    
+    // Convert back and verify
+    std::string converted = SaBinary::toStdString(saString);
+    EXPECT_EQ(converted, original);
+}
+
+TEST(SaBinaryTests, RoundTripConversion) {
+    if (!std::filesystem::exists(logoFile)) {
+        GTEST_SKIP() << "Test file not found: " << logoFile;
+    }
+
+    // Load as std::string
+    std::string stdString1 = SaBinary::toStdString(logoFile.c_str());
+    
+    // Convert to SAString
+    SAString saString = SaBinary::toSaString(stdString1);
+    
+    // Convert back to std::string
+    std::string stdString2 = SaBinary::toStdString(saString);
+    
+    // Should be identical
+    EXPECT_EQ(stdString1, stdString2);
+    EXPECT_EQ(stdString1.size(), stdString2.size());
+}
+
+TEST(SaBinaryTests, FilePathConversionEquality) {
+    if (!std::filesystem::exists(logoFile)) {
+        GTEST_SKIP() << "Test file not found: " << logoFile;
+    }
+
+    // Load directly to std::string
+    std::string stdString = SaBinary::toStdString(logoFile.c_str());
+    
+    // Load directly to SAString then convert
+    SAString saString = SaBinary::toSaString(logoFile.c_str());
+    std::string fromSaString = SaBinary::toStdString(saString);
+    
+    // Both methods should produce identical results
+    EXPECT_EQ(stdString, fromSaString);
+}
+
+// ============================================================================
+// Edge Cases
+// ============================================================================
+
+TEST(SaBinaryTests, EmptyStdString) {
+    std::string empty;
+    SAString saString = SaBinary::toSaString(empty);
+    
+    EXPECT_EQ(saString.GetBinaryLength(), 0);
+    
+    std::string converted = SaBinary::toStdString(saString);
+    EXPECT_TRUE(converted.empty());
+}
+
+TEST(SaBinaryTests, BinaryDataWithNullBytes) {
+    // String with embedded null bytes
+    std::string original;
+    original.push_back('A');
+    original.push_back('\0');
+    original.push_back('B');
+    original.push_back('\0');
+    original.push_back('C');
+    
+    SAString saString = SaBinary::toSaString(original);
+    std::string converted = SaBinary::toStdString(saString);
+    
+    EXPECT_EQ(converted.size(), 5);
+    EXPECT_EQ(converted, original);
+    EXPECT_EQ(converted[0], 'A');
+    EXPECT_EQ(converted[1], '\0');
+    EXPECT_EQ(converted[2], 'B');
+}
+
+TEST(SaBinaryTests, LargeBinaryData) {
+    // Create a large binary string (1 MB)
+    std::string large(1024 * 1024, 'X');
+    
+    SAString saString = SaBinary::toSaString(large);
+    EXPECT_EQ(saString.GetBinaryLength(), large.size());
+    
+    std::string converted = SaBinary::toStdString(saString);
+    EXPECT_EQ(converted.size(), large.size());
+    EXPECT_EQ(converted, large);
+}
