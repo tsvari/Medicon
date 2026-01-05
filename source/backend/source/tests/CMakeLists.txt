@@ -55,7 +55,7 @@ set(HEADER_FILES
     ${BACKEND_INCLUDE_DIR}/include_backend_util.h
     ${BACKEND_INCLUDE_DIR}/sqlapplet.h
     ${BACKEND_INCLUDE_DIR}/sqlconnection.h
-    #${BACKEND_INCLUDE_DIR}/sqlcommand.h
+    ${BACKEND_INCLUDE_DIR}/sqlcommand.h
 )
 
 set(SOURCE_FILES
@@ -68,12 +68,13 @@ set(SOURCE_FILES
     ${BACKEND_INCLUDE_DIR}/include_backend_util.cpp
     ${BACKEND_INCLUDE_DIR}/sqlapplet.cpp
     ${BACKEND_INCLUDE_DIR}/sqlconnection.cpp
-    #${BACKEND_INCLUDE_DIR}/sqlcommand.cpp
+    ${BACKEND_INCLUDE_DIR}/sqlcommand.cpp
 
     SqlAppletTests.cpp
     SqlConnectionTests.cpp
     SqlConnectionIntegrationTests.cpp
-    #SqlCommandTests.cpp
+    SqlCommandTests.cpp
+    SqlCommandIntegrationTests.cpp
     SaBinaryTests.cpp
 
 

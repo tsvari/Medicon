@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<APPLET>
+	<Description>Test applet for inserting user data in integration tests</Description>
+        <Param>
+                <Name>id</Name>
+                <Type>NUMERIC</Type>
+                <MaxLen>20</MaxLen>
+                <DefVal>0</DefVal>
+        </Param>
+        <Param>
+                <Name>name</Name>
+                <Type>STRING</Type>
+                <MaxLen>100</MaxLen>
+                <DefVal></DefVal>
+        </Param>
+        <Param>
+                <Name>age</Name>
+                <Type>NUMERIC</Type>
+                <MaxLen>20</MaxLen>
+                <DefVal>0</DefVal>
+        </Param>
+        <Code>
+              <![CDATA[
+                INSERT INTO users(id, name, age) VALUES(:id:, :name:, :age:)
+              ]]>
+          </Code>
+</APPLET>
