@@ -155,6 +155,14 @@ public:
     [[nodiscard]] std::map<std::string, std::string> toMap() const;
 
     /**
+     * @brief Get all parameters as name-value map (backward compatibility alias)
+     * @deprecated Use toMap() instead
+     */
+    [[nodiscard]] std::map<std::string, std::string> formattedParamValueList() const {
+        return toMap();
+    }
+
+    /**
      * @brief Get all parameter info
      */
     [[nodiscard]] const std::vector<DataInfo>& parameters() const noexcept {

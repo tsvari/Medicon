@@ -1,0 +1,1 @@
+<?xml version="1.0"?><APPLET><Description>Test description</Description><Param><Type>STRING</Type><DefVal>default1</DefVal></Param><Code><![CDATA[SELECT * FROM test]]></Code></APPLET>
