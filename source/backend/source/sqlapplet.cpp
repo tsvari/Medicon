@@ -3,182 +3,156 @@
 #include <format>
 #include <filesystem>
 
+using std::string;
+using std::map;
+
 namespace {
-    static string AppletPath = "";
+    static string AppletPath;
     static bool UseDefaultValue = false;
-    map<string, DataInfo::Type> const xmlTypeToDataInfo={{"FIELD", DataInfo::Zero},
-                                        {"NUMERIC", DataInfo::Int},
-                                        {"STRING", DataInfo::String},
-                                        {"DATETIME", DataInfo::DateTime},
-                                        {"DATE", DataInfo::Date},
-                                        {"TIME", DataInfo::Time}};
+    
+    // Type mapping table
+    const map<string, DataInfo::Type> xmlTypeToDataInfo = {
+        {"FIELD", DataInfo::Zero},
+        {"NUMERIC", DataInfo::Int},
+        {"STRING", DataInfo::String},
+        {"DATETIME", DataInfo::DateTime},
+        {"DATE", DataInfo::Date},
+        {"TIME", DataInfo::Time}
+    };
 }
+
 namespace fs = std::filesystem;
-SQLApplet::SQLApplet(const char * appletName, map<string, string> formattedParamValueList):
-    m_paramValueList(formattedParamValueList)
+
+SQLApplet::SQLApplet(std::string_view appletName, map<string, string> formattedParamValueList)
+    : m_paramValueList(std::move(formattedParamValueList))
 {
-    // Don't forget call SQLApplet::InitPathToApplets to initialize global path
-    if(AppletPath.size() == 0) {
+    if (AppletPath.empty()) {
         throw SQLAppletException(APPLET_ERR_INIT);
     }
-    m_appletPath = std::format("{}{}", AppletPath, appletName);
+    m_appletPath = AppletPath + string(appletName);
 }
 
-SQLApplet::SQLApplet(const char *appletName, const string & parametersXml)
+SQLApplet::SQLApplet(std::string_view appletName, const string& parametersXml)
 {
-    // Don't forget call SQLApplet::InitPathToApplets to initialize global path
-    if(AppletPath.size() == 0) {
+    if (AppletPath.empty()) {
         throw SQLAppletException(APPLET_ERR_INIT);
     }
-    m_appletPath = std::format("{}{}", AppletPath, appletName);
-    m_paramValueList = JsonParameterFormatter::fromJsonString(parametersXml);
+    m_appletPath = AppletPath + string(appletName);
+    m_paramValueList = m_formatter.fromJsonString(parametersXml);
 }
 
-void SQLApplet::InitPathToApplets(const char * appletPath, bool useDefaultValue)
+void SQLApplet::InitPathToApplets(std::string_view appletPath, bool useDefaultValue)
 {
-    AppletPath = appletPath;
+    AppletPath = string(appletPath);
     UseDefaultValue = useDefaultValue;
 }
 
-void SQLApplet::AddDataInfo(const char * paramName, const char * paramValue)
+// Template addParameter is now defined in the header
+
+void SQLApplet::addParameter(std::string_view name, const std::chrono::milliseconds paramValue, DataInfo::Type nType)
 {
-    FormatterDataType data(paramValue);
-    m_formatter.AddDataInfo(paramName, data);
+    m_formatter.addParameter(name, paramValue, nType);
 }
 
-void SQLApplet::AddDataInfo(const char * paramName, int paramValue)
+void SQLApplet::addParameter(std::string_view name, const char *paramValue, DataInfo::Type nType)
 {
-    FormatterDataType data(paramValue);
-    m_formatter.AddDataInfo(paramName, data);
-}
-
-void SQLApplet::AddDataInfo(const char *paramName, int64_t paramValue)
-{
-    FormatterDataType data(paramValue);
-    m_formatter.AddDataInfo(paramName, data);
-}
-
-void SQLApplet::AddDataInfo(const char * paramName, double paramValue)
-{
-    FormatterDataType data(paramValue);
-    m_formatter.AddDataInfo(paramName, data);
-}
-
-void SQLApplet::AddDataInfo(const char * paramName, bool paramValue)
-{
-    FormatterDataType data(paramValue);
-    m_formatter.AddDataInfo(paramName, data);
-}
-
-void SQLApplet::AddDataInfo(const char * paramName, const std::chrono::milliseconds paramValue, DataInfo::Type nType)
-{
-    m_formatter.AddDataInfo(paramName, paramValue, nType);
-}
-
-void SQLApplet::AddDataInfo(const char *paramName, const char *paramValue, DataInfo::Type nType)
-{
-    m_formatter.AddDataInfo(paramName, paramValue, nType);
+    m_formatter.addParameter(name, paramValue, nType);
 }
 
 void SQLApplet::parse()
 {
-    // check existense of applett and data content
-    if(!fs::exists(m_appletPath)) {
-        throw SQLAppletException(APPLET_ERR_WRONG_PATH);
+    // Check if file exists
+    if (!fs::exists(m_appletPath)) {
+        throw SQLAppletException(string(APPLET_ERR_WRONG_PATH) + m_appletPath);
     }
 
-    map<string, string> formattedList(m_formatter.formattedParamValueList());
+    // Merge formatter parameters with initial param list
+    map<string, string> formattedList = m_formatter.toMap();
     formattedList.insert(m_paramValueList.begin(), m_paramValueList.end());
 
-    CMarkup	parser;
-    // reuse parser
+    // Load and parse XML
+    CMarkup parser;
     if (!parser.Load(m_appletPath)) {
-        throw SQLAppletException(string(string(APPLET_ERR_PARAM_XML) + string(" - ") + parser.GetError()).c_str());
+        throw SQLAppletException(std::format("{}: {}", APPLET_ERR_PARAM_XML, parser.GetError()));
     }
 
-    // find Description Tag/Value
-    if(!parser.FindChildElem("Description")) {
+    // Get description
+    if (!parser.FindChildElem("Description")) {
         throw SQLAppletException(APPLET_ERR_NO_DESCRIPTION);
     }
-
     m_description = parser.GetChildData();
-     vector<DataInfo> xmlDataInfoParams;
-    // - find params and fill vector
+
+    // Parse parameters
+    std::vector<DataInfo> xmlDataInfoParams;
     while (parser.FindChildElem("Param")) {
         parser.IntoElem();
-
         DataInfo ob;
 
-        if (parser.FindChildElem("Name")) {
-            ob.param = parser.GetChildData();
-        } else {
+        // Get parameter name
+        if (!parser.FindChildElem("Name")) {
             throw SQLAppletException(APPLET_ERR_PARAM_NO_NAME);
         }
-        if (parser.FindChildElem("Type")) {
-            string sType = parser.GetChildData();
-            if(xmlTypeToDataInfo.find(sType) != xmlTypeToDataInfo.end()) {
-                ob.type = xmlTypeToDataInfo.at(sType);
-            } else {
-                throw SQLAppletException(APPLET_ERR_WRONG_TYPE_NAME);
-            }
-        } else {
-            throw SQLAppletException(APPLET_ERR_PARAM_NO_TYPE);
-        }
+        ob.param = parser.GetChildData();
 
-        // check param/value in formattedList
-        if(formattedList.find(ob.param) == formattedList.end()) {
-            if(UseDefaultValue) {
-                if (parser.FindChildElem("DefVal")) {
-                    string defaultValue = parser.GetChildData();
-                    if(defaultValue == "uuid") {
-                        ob.value = TimeFormatHelper::generateUniqueString();
-                    } else {
-                        ob.value = parser.GetChildData();
-                    }
-                } else {
-                    throw SQLAppletException(APPLET_ERR_PARAM_NO_DEFVAL);
+        // Get parameter type
+        if (!parser.FindChildElem("Type")) {
+            throw SQLAppletException(std::format("{} for parameter '{}'", APPLET_ERR_PARAM_NO_TYPE, ob.param));
+        }
+        string sType = parser.GetChildData();
+        auto typeIt = xmlTypeToDataInfo.find(sType);
+        if (typeIt == xmlTypeToDataInfo.end()) {
+            throw SQLAppletException(std::format("{} Type: '{}'", APPLET_ERR_WRONG_TYPE_NAME, sType));
+        }
+        ob.type = typeIt->second;
+
+        // Get parameter value
+        auto valueIt = formattedList.find(ob.param);
+        if (valueIt == formattedList.end()) {
+            // No value provided
+            if (UseDefaultValue) {
+                if (!parser.FindChildElem("DefVal")) {
+                    throw SQLAppletException(std::format("{} for parameter '{}'", APPLET_ERR_PARAM_NO_DEFVAL, ob.param));
                 }
+                string defaultValue = parser.GetChildData();
+                ob.value = (defaultValue == "uuid") ? TimeFormatHelper::generateUniqueString() : defaultValue;
+            } else {
+                throw SQLAppletException(std::format("{}: '{}'", APPLET_ERR_PARAM_NO_VALUE, ob.param));
             }
         } else {
-            if(formattedList.contains(ob.param)) {
-                ob.value = formattedList[ob.param];
-            } else {
-                throw SQLAppletException(APPLET_ERR_PARAM_NO_VALUE);
-            }
+            ob.value = valueIt->second;
         }
 
-        xmlDataInfoParams.push_back(ob);
+        xmlDataInfoParams.push_back(std::move(ob));
         parser.OutOfElem();
     }
 
-    // - find SQL code
+    // Get SQL code
     if (!parser.FindChildElem("Code")) {
         throw SQLAppletException(APPLET_ERR_PARAM_NO_CODE);
     }
-
     m_sqlSource = parser.GetChildData();
 
-    // replace params by value
-    for( DataInfo & ob: xmlDataInfoParams) {
-        string sTo = ":" + ob.param + ":";
+    // Substitute parameters
+    for (const DataInfo& ob : xmlDataInfoParams) {
+        string placeholder = std::format(":{0}:", ob.param);
+        string value = ob.value;
 
-        if(ob.type == DataInfo::String ) {
-            ob.value = "'" + ob.value + "'";
-        } else if(ob.type == DataInfo::DateTime ||
-                   ob.type == DataInfo::Date ||
-                   ob.type == DataInfo::Time) {
-            if(	ob.value != string("NULL") ) {
-                ob.value = "'" + ob.value + "'";
-            } else {
-                ob.value = "NULL";
-            }
+        // Add quotes for string and date/time types
+        if (ob.type == DataInfo::String || 
+            ob.type == DataInfo::DateTime || 
+            ob.type == DataInfo::Date || 
+            ob.type == DataInfo::Time) {
+            value = (value != "NULL") ? ("'" + value + "'") : "NULL";
         }
 
-        size_t start_pos = m_sqlSource.find(sTo);
-        while(start_pos && start_pos < m_sqlSource.length()) {
-            m_sqlSource.replace(start_pos, sTo.length(), ob.value);
-            start_pos = m_sqlSource.find(sTo, start_pos);
+        // Replace all occurrences
+        size_t pos = 0;
+        while ((pos = m_sqlSource.find(placeholder, pos)) != string::npos) {
+            m_sqlSource.replace(pos, placeholder.length(), value);
+            pos += value.length();
         }
     }
+    
     m_sqlSource = Trimmer::trim(m_sqlSource);
+    m_isParsed = true;
 }
