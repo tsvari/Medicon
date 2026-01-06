@@ -28,6 +28,8 @@ using grpc::ServerContext;
 using grpc::Status;
 using grpc::StatusCode;
 
+using std::string;
+
 // Service
 using CompanyEdit::CompanyEditor;
 // Objects (messages)
@@ -49,13 +51,13 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
         std::string sqlStd;
         try {
             SQLApplet applet("company_insert.xml");
-            applet.AddDataInfo("SERVER_UID", (int)company->server_uid());
-            applet.AddDataInfo("COMPANY_TYPE", (int)company->company_type());
-            applet.AddDataInfo("NAME", company->name().c_str());
-            applet.AddDataInfo("ADDRESS", company->address().c_str());
-            applet.AddDataInfo("REG_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->reg_date())), DataInfo::Date);
-            applet.AddDataInfo("JOINT_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->joint_date())), DataInfo::Date);
-            applet.AddDataInfo("LICENSE", company->license().c_str());
+            applet.addParameter("SERVER_UID", (int)company->server_uid());
+            applet.addParameter("COMPANY_TYPE", (int)company->company_type());
+            applet.addParameter("NAME", company->name().c_str());
+            applet.addParameter("ADDRESS", company->address().c_str());
+            applet.addParameter("REG_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->reg_date())), DataInfo::Date);
+            applet.addParameter("JOINT_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->joint_date())), DataInfo::Date);
+            applet.addParameter("LICENSE", company->license().c_str());
             applet.parse();
             // To log if eror
             sqlStd = applet.sql();
@@ -112,14 +114,14 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
         std::string sqlStd;
         try {
             SQLApplet applet("company_update.xml");
-            applet.AddDataInfo("UID", company->uid().c_str());
-            applet.AddDataInfo("SERVER_UID", (int)company->server_uid());
-            applet.AddDataInfo("COMPANY_TYPE", (int)company->company_type());
-            applet.AddDataInfo("NAME", company->name().c_str());
-            applet.AddDataInfo("ADDRESS", company->address().c_str());
-            applet.AddDataInfo("REG_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->reg_date())), DataInfo::Date);
-            applet.AddDataInfo("JOINT_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->joint_date())), DataInfo::Date);
-            applet.AddDataInfo("LICENSE", company->license().c_str());
+            applet.addParameter("UID", company->uid().c_str());
+            applet.addParameter("SERVER_UID", (int)company->server_uid());
+            applet.addParameter("COMPANY_TYPE", (int)company->company_type());
+            applet.addParameter("NAME", company->name().c_str());
+            applet.addParameter("ADDRESS", company->address().c_str());
+            applet.addParameter("REG_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->reg_date())), DataInfo::Date);
+            applet.addParameter("JOINT_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->joint_date())), DataInfo::Date);
+            applet.addParameter("LICENSE", company->license().c_str());
             applet.parse();
             // To log if eror
             sqlStd = applet.sql();
@@ -179,7 +181,7 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
             con.connect();
             con.setAutoCommit(true);
 
-            command.addDataInfo("UID", company->uid().c_str());
+            command.addParameter("UID", company->uid().c_str());
 
             command.execute();
 
@@ -278,7 +280,7 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
         SqlQuery cmd(con, "company_select_by_uid.xml");
         try {
             con.connect();
-            cmd.addDataInfo("UID", request->uid().c_str());
+            cmd.addParameter("UID", request->uid().c_str());
             if(cmd.query()) {
                 SAString address = cmd.Field("ADDRESS").asString();
                 address.TrimRight();
