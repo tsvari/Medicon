@@ -38,43 +38,21 @@ add_definitions("-DTEST_DATA_DIR=\"${TEST_DATA_DIR}\"")
 set(HEADER_FILES
     ${INCLUDE_DIR}/include_util.h
     ${INCLUDE_DIR}/TypeToStringFormatter.h
-    ${INCLUDE_DIR}/JsonParameterFormatter.h
 
     ${FRONTEND_INCLUDE_DIR}/include_frontend_util.h
     ${FRONTEND_INCLUDE_DIR}/GrpcObjectTableModel.h
     ${FRONTEND_INCLUDE_DIR}/GrpcDataContainer.hpp
-    ${FRONTEND_INCLUDE_DIR}/GrpcProxySortFilterModel.h
-    ${FRONTEND_INCLUDE_DIR}/GrpcForm.h
-    ${FRONTEND_INCLUDE_DIR}/GrpcTemplateController.h
-    ${FRONTEND_INCLUDE_DIR}/GrpcMasterSlaveController.h
     ${FRONTEND_INCLUDE_DIR}/GrpcObjectWrapper.hpp
-    ${FRONTEND_INCLUDE_DIR}/GrpcSearchForm.h
-    ${FRONTEND_INCLUDE_DIR}/GrpcTableView.h
-    ${FRONTEND_INCLUDE_DIR}/GrpcThreadWorker.h
-
-
     ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.h
-    ${FRONTEND_GRPC_DIR}/front_common.h
-
 )
 
 set(SOURCE_FILES
     ${INCLUDE_DIR}/include_util.cpp
     ${INCLUDE_DIR}/TypeToStringFormatter.cpp
-    ${INCLUDE_DIR}/JsonParameterFormatter.cpp
 
     ${FRONTEND_INCLUDE_DIR}/include_frontend_util.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcObjectTableModel.cpp
-    ${FRONTEND_INCLUDE_DIR}/GrpcProxySortFilterModel.cpp
-    ${FRONTEND_INCLUDE_DIR}/GrpcForm.cpp
-    ${FRONTEND_INCLUDE_DIR}/GrpcTemplateController.cpp
-    ${FRONTEND_INCLUDE_DIR}/GrpcMasterSlaveController.cpp
-    ${FRONTEND_INCLUDE_DIR}/GrpcSearchForm.cpp
-    ${FRONTEND_INCLUDE_DIR}/GrpcTableView.cpp
-    ${FRONTEND_INCLUDE_DIR}/GrpcThreadWorker.cpp
-
     ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.cpp
-    ${FRONTEND_GRPC_DIR}/company_client.hpp
 )
 
 add_executable(FrontendTestProject

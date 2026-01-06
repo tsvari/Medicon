@@ -37,7 +37,7 @@ public:
     using Grpc64Set = void (GrpcObject::*)(int64_t);
     using Grpc64Get = int64_t (GrpcObject::*)()const;
 
-    using GrpcStrSet = void (GrpcObject::*)(const string &);
+    using GrpcStrSet = void (GrpcObject::*)(const std::string &);
     using GrpcStrGet = const std::string&(GrpcObject::*)()const;
 
     using GrpcBoolSet = void (GrpcObject::*)(bool);
@@ -45,7 +45,7 @@ public:
 
     using GrpcDoubleSet = void (GrpcObject::*)(double);
     using GrpcDoubleGet = double (GrpcObject::*)()const;
-    string name;  // Header data
+    std::string name;  // Header data
     DataInfo::Type type;
     std::variant<
         GrpcStrSet,
@@ -69,7 +69,7 @@ public:
 struct PropertyHolder
 {
     std::variant<
-        std::function<void (const string &)>,
+        std::function<void (const std::string &)>,
         std::function<void (int64_t)>,
         std::function<void (int32_t)>,
         std::function<void (bool)>,
@@ -93,7 +93,7 @@ static std::vector<PropertyHolder> bindSettersGetters2(GrpcObject * object, cons
     using Grpc64Set = void (GrpcObject::*)(int64_t);
     using Grpc64Get = int64_t (GrpcObject::*)()const;
 
-    using GrpcStrSet = void (GrpcObject::*)(const string &);
+    using GrpcStrSet = void (GrpcObject::*)(const std::string &);
     using GrpcStrGet = const std::string&(GrpcObject::*)()const;
 
     using GrpcBoolSet = void (GrpcObject::*)(bool);
@@ -107,7 +107,7 @@ static std::vector<PropertyHolder> bindSettersGetters2(GrpcObject * object, cons
         PropertyHolder propertyObject{};
         // bind setters
         if (GrpcStrSet * ptr = std::get_if<GrpcStrSet>(&property.setter)) {
-            propertyObject.setter = std::function<void (const string &)>(
+            propertyObject.setter = std::function<void (const std::string &)>(
                 std::bind(*ptr,  object, std::placeholders::_1)
                 );
         } else if (Grpc64Set * ptr = std::get_if<Grpc64Set>(&property.setter)) {

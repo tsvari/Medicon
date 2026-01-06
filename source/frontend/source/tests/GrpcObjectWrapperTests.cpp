@@ -12,51 +12,8 @@
 #include <QComboBox>
 #include <QLineEdit>
 
-class GprcTestDataObject
-{
-public:
-    ~GprcTestDataObject(){}
-    int32_t uid() const {return m_uid;}
-    void set_uid(int32_t value) {m_uid = value;}
-
-    const std::string & name() const {return m_name;}
-    void set_name(const std::string & value) {m_name = value;}
-
-    int64_t date() const {return m_date;}
-    void set_date(int64_t value) {m_date = value;}
-
-    int32_t height() const {return m_height;}
-    void set_height(int32_t value) {m_height = value;}
-
-    double salary() const {return m_salary;}
-    void set_salary(double value) {m_salary = value;}
-
-    bool married() const {return m_married;}
-    void set_married(bool value) {m_married = value;}
-
-    int32_t level() const {return m_level;}
-    void set_level(int32_t value) {m_level = value;}
-
-    const std::string & level_name() const {return m_level_name;}
-    void set_level_name(const std::string & value) {m_level_name = value;}
-
-    const std::string & married_name() const {return m_married_name;}
-    void set_married_name(const std::string & value) {m_married_name = value;}
-
-private:
-    int32_t m_uid;
-    std::string m_name;
-    int64_t m_date;
-    int32_t m_height;
-    double m_salary;
-    bool m_married;
-    std::string m_married_name;
-    int32_t m_level; // for combo list
-    std::string m_level_name; // combo/edit text
-};
-
 namespace {
-void compareObjects (const GprcTestDataObject & left, const GprcTestDataObject & right) {
+void compareObjects (const MasterObject & left, const MasterObject & right) {
     EXPECT_EQ(left.uid(), right.uid());
     EXPECT_EQ(left.name(), right.name());
     EXPECT_EQ(TimeFormatHelper::chronoSysSecToString(left.date(), DataInfo::Date), TimeFormatHelper::chronoSysSecToString(right.date(), DataInfo::Date));
@@ -70,17 +27,17 @@ const int columnCount = 6;
 
 TEST(GrpcObjectWrapperTests, AllTests)
 {
-    GrpcObjectWrapper<GprcTestDataObject> wrapper;
-    wrapper.addProperty("nameEdit", DataInfo::String, &GprcTestDataObject::set_name, &GprcTestDataObject::name);
-    wrapper.addProperty("dateEdit", DataInfo::Date, &GprcTestDataObject::set_date, &GprcTestDataObject::date);
-    wrapper.addProperty("heightEdit", DataInfo::Int, &GprcTestDataObject::set_height, &GprcTestDataObject::height);
-    wrapper.addProperty("salaryEdit", DataInfo::Double, &GprcTestDataObject::set_salary, &GprcTestDataObject::salary);
-    wrapper.addProperty("marriedCheckBox", DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
-    wrapper.addProperty("levelCombo", DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
+    GrpcObjectWrapper<MasterObject> wrapper;
+    wrapper.addProperty("nameEdit", DataInfo::String, &MasterObject::set_name, &MasterObject::name);
+    wrapper.addProperty("dateEdit", DataInfo::Date, &MasterObject::set_date, &MasterObject::date);
+    wrapper.addProperty("heightEdit", DataInfo::Int, &MasterObject::set_height, &MasterObject::height);
+    wrapper.addProperty("salaryEdit", DataInfo::Double, &MasterObject::set_salary, &MasterObject::salary);
+    wrapper.addProperty("marriedCheckBox", DataInfo::Bool, &MasterObject::set_married, &MasterObject::married);
+    wrapper.addProperty("levelCombo", DataInfo::Int, &MasterObject::set_level, &MasterObject::level);
 
     QDateTime current = QDateTime::currentDateTime();
 
-    GprcTestDataObject obj1;
+    MasterObject obj1;
 
     obj1.set_uid(1);
     obj1.set_name("Givi");
@@ -91,19 +48,19 @@ TEST(GrpcObjectWrapperTests, AllTests)
     obj1.set_level(2);
     obj1.set_level_name("Level2");
 
-    wrapper.setObject(QVariant::fromValue<GprcTestDataObject>(obj1));
+    wrapper.setObject(QVariant::fromValue<MasterObject>(obj1));
 
     EXPECT_EQ(wrapper.propertyCount(), columnCount);
-    compareObjects(obj1, wrapper.variantObject().value<GprcTestDataObject>());
+    compareObjects(obj1, wrapper.variantObject().value<MasterObject>());
 
     GrpcVariantSet data = 222;
     wrapper.setData(2, data);
     obj1.set_height(222);
-    compareObjects(obj1, wrapper.variantObject().value<GprcTestDataObject>());
+    compareObjects(obj1, wrapper.variantObject().value<MasterObject>());
 
     wrapper.setData(2, QVariant::fromValue<int32_t>(333));
     obj1.set_height(333);
-    compareObjects(obj1, wrapper.variantObject().value<GprcTestDataObject>());
+    compareObjects(obj1, wrapper.variantObject().value<MasterObject>());
 
     EXPECT_EQ(wrapper.data(0).toString(), QString::fromStdString(obj1.name()));
 }

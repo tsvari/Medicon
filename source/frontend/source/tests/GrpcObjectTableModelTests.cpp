@@ -11,82 +11,40 @@
 
 using ::testing::ElementsAre;
 
-class GprcTestDataObject
-{
-public:
-    ~GprcTestDataObject(){}
-    int32_t uid() const {return m_uid;}
-    void set_uid(int32_t value) {m_uid = value;}
-
-    const std::string & name() const {return m_name;}
-    void set_name(const std::string & value) {m_name = value;}
-
-    int64_t date() const {return m_date;}
-    void set_date(int64_t value) {m_date = value;}
-
-    int32_t height() const {return m_height;}
-    void set_height(int32_t value) {m_height = value;}
-
-    double salary() const {return m_salary;}
-    void set_salary(double value) {m_salary = value;}
-
-    bool married() const {return m_married;}
-    void set_married(bool value) {m_married = value;}
-
-    int32_t level() const {return m_level;}
-    void set_level(int32_t value) {m_level = value;}
-
-    const std::string & level_name() const {return m_level_name;}
-    void set_level_name(const std::string & value) {m_level_name = value;}
-
-    const std::string & married_name() const {return m_married_name;}
-    void set_married_name(const std::string & value) {m_married_name = value;}
-
-private:
-    int32_t m_uid;
-    std::string m_name;
-    int64_t m_date;
-    int32_t m_height;
-    double m_salary;
-    bool m_married;
-    std::string m_married_name;
-    int32_t m_level; // for combo list
-    std::string m_level_name; // combo/edit text
-};
 
 class GrpcTestObjectTableModel : public GrpcObjectTableModel
 {
 
 public:
-    explicit GrpcTestObjectTableModel(std::vector<GprcTestDataObject> && data, QObject *parent = nullptr) :
-        GrpcObjectTableModel(new GrpcDataContainer<GprcTestDataObject>(std::move(data)), parent)
+    explicit GrpcTestObjectTableModel(std::vector<MasterObject> && data, QObject *parent = nullptr) :
+        GrpcObjectTableModel(new GrpcDataContainer<MasterObject>(std::move(data)), parent)
     {
         initializeModel();
         initializeContainer();
     }
 
     explicit GrpcTestObjectTableModel(QObject *parent = nullptr) :
-        GrpcObjectTableModel( new GrpcDataContainer<GprcTestDataObject>(), parent)
+        GrpcObjectTableModel( new GrpcDataContainer<MasterObject>(), parent)
     {
     }
 
     void initializeModel() override {
-        GrpcDataContainer<GprcTestDataObject> * container = dynamic_cast<GrpcDataContainer<GprcTestDataObject>*>(objectContainer());
+        GrpcDataContainer<MasterObject> * container = dynamic_cast<GrpcDataContainer<MasterObject>*>(objectContainer());
 
-        container->addProperty("Uid", DataInfo::String, &GprcTestDataObject::set_uid, &GprcTestDataObject::uid);
-        container->addProperty("Name", DataInfo::String, &GprcTestDataObject::set_name, &GprcTestDataObject::name);
-        container->addProperty("Date", DataInfo::Date, &GprcTestDataObject::set_date, &GprcTestDataObject::date);
-        container->addProperty("Height", DataInfo::Int, &GprcTestDataObject::set_height, &GprcTestDataObject::height);
-        container->addProperty("Salary", DataInfo::Double, &GprcTestDataObject::set_salary, &GprcTestDataObject::salary);
-        container->addProperty("Married", DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
-        container->addProperty("Married Name", DataInfo::String, &GprcTestDataObject::set_married_name, &GprcTestDataObject::married_name);
-        container->addProperty("Level", DataInfo::Int, &GprcTestDataObject::set_level, &GprcTestDataObject::level);
-        container->addProperty("Level Name", DataInfo::String, &GprcTestDataObject::set_level_name, &GprcTestDataObject::level_name);
+        container->addProperty("Uid", DataInfo::String, &MasterObject::set_uid, &MasterObject::uid);
+        container->addProperty("Name", DataInfo::String, &MasterObject::set_name, &MasterObject::name);
+        container->addProperty("Date", DataInfo::Date, &MasterObject::set_date, &MasterObject::date);
+        container->addProperty("Height", DataInfo::Int, &MasterObject::set_height, &MasterObject::height);
+        container->addProperty("Salary", DataInfo::Double, &MasterObject::set_salary, &MasterObject::salary);
+        container->addProperty("Married", DataInfo::Bool, &MasterObject::set_married, &MasterObject::married);
+        container->addProperty("Married Name", DataInfo::String, &MasterObject::set_married_name, &MasterObject::married_name);
+        container->addProperty("Level", DataInfo::Int, &MasterObject::set_level, &MasterObject::level);
+        container->addProperty("Level Name", DataInfo::String, &MasterObject::set_level_name, &MasterObject::level_name);
     }
 };
 
 namespace {
-void compareObjects (const GprcTestDataObject & left, const GprcTestDataObject & right) {
+void compareObjects (const MasterObject & left, const MasterObject & right) {
     EXPECT_EQ(left.uid(), right.uid());
     EXPECT_EQ(left.name(), right.name());
     EXPECT_EQ(TimeFormatHelper::chronoSysSecToString(left.date(), DataInfo::Date), TimeFormatHelper::chronoSysSecToString(right.date(), DataInfo::Date));
@@ -104,7 +62,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
 {
     QDateTime current = QDateTime::currentDateTime();
 
-    GprcTestDataObject obj1;
+    MasterObject obj1;
 
     obj1.set_uid(1);
     obj1.set_name("Givi");
@@ -116,7 +74,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     obj1.set_level(2);
     obj1.set_level_name("Level2");
 
-    GprcTestDataObject obj2;
+    MasterObject obj2;
 
     obj2.set_uid(2);
     obj2.set_name("Keto");
@@ -128,7 +86,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     obj2.set_level(1);
     obj2.set_level_name("Level1");
 
-    std::vector<GprcTestDataObject> objects;
+    std::vector<MasterObject> objects;
     objects.push_back(obj1);
     objects.push_back(obj2);
 
@@ -138,12 +96,12 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
 
     QVariant variantObject1 = model.variantObject(0);
     EXPECT_TRUE(variantObject1.isValid());
-    GprcTestDataObject expectedRealObject1 = variantObject1.value<GprcTestDataObject>();
+    MasterObject expectedRealObject1 = variantObject1.value<MasterObject>();
     compareObjects(obj1, expectedRealObject1);
 
     QVariant variantObject2 = model.variantObject(1);
     EXPECT_TRUE(variantObject2.isValid());
-    GprcTestDataObject expectedRealObject2 = variantObject2.value<GprcTestDataObject>();
+    MasterObject expectedRealObject2 = variantObject2.value<MasterObject>();
     compareObjects(obj2, expectedRealObject2);
 
     // First row
@@ -173,7 +131,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
                                         "true", "Yes",
                                         "1", "Level1"));
 
-    GprcTestDataObject obj3;
+    MasterObject obj3;
     obj3.set_uid(3);
     obj3.set_name("Vakho");
     obj3.set_date(current.toSecsSinceEpoch());
@@ -185,7 +143,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     obj3.set_level_name("Level3");
 
     // Second Row again
-    model.insertObject(1, QVariant::fromValue<GprcTestDataObject>(obj3));
+    model.insertObject(1, QVariant::fromValue<MasterObject>(obj3));
     EXPECT_EQ(model.rowCount(), 3);
     EXPECT_EQ("Givi", model.index(0,1).data().toString());
     auto actualRowInserted = pullout<QString>(
@@ -199,7 +157,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
                                         FrontConverter::to_qvariant_get_by_type(135000.567, DataInfo::Double),
                                         "true", "Yes", "3", "Level3"));
 
-    GprcTestDataObject obj4;
+    MasterObject obj4;
     obj4.set_uid(4);
     obj4.set_name("Elene");
     obj4.set_date(current.toSecsSinceEpoch());
@@ -211,7 +169,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     obj4.set_level_name("Level5");
 
     // Forth row
-    model.addNewObject(QVariant::fromValue<GprcTestDataObject>(obj4));
+    model.addNewObject(QVariant::fromValue<MasterObject>(obj4));
     EXPECT_EQ(model.rowCount(), 4);
 
     auto actualRowAdded = pullout<QString>(
@@ -236,7 +194,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
                                             "Elene"));
 
     // Update object test
-    GprcTestDataObject newObj;
+    MasterObject newObj;
     newObj.set_uid(5);
     newObj.set_name("Teona");
     newObj.set_date(current.toSecsSinceEpoch());
@@ -247,7 +205,7 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     newObj.set_level(4);
     newObj.set_level_name("Level4");
 
-    model.updateObject(3, QVariant::fromValue<GprcTestDataObject>(newObj));
+    model.updateObject(3, QVariant::fromValue<MasterObject>(newObj));
     auto actualRowUpdated = pullout<QString>(
         {model.index(3,0), model.index(3, columnCount - 1)},
         Qt::DisplayRole
