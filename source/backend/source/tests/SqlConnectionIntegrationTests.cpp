@@ -11,7 +11,6 @@
 
 #include "sqlconnection.h"
 #include "gtest/gtest.h"
-#include <filesystem>
 
 /**
  * @class SqlConnectionIntegrationTest
@@ -25,16 +24,6 @@ protected:
 
     void TearDown() override {
         SqlConnection::ClearAllConnections();
-        
-        // Clean up test database files
-        std::filesystem::remove("test.db");
-        std::filesystem::remove("transaction_test.db");
-        std::filesystem::remove("rollback_test.db");
-        std::filesystem::remove("autocommit_test.db");
-        std::filesystem::remove("reconnect_test.db");
-        std::filesystem::remove("invalid_test.db");
-        std::filesystem::remove("notconnected_test.db");
-        std::filesystem::remove("destructor_test.db");
     }
 };
 
@@ -60,7 +49,7 @@ TEST_F(SqlConnectionIntegrationTest, SQLite_ConnectDisconnect_Success)
  */
 TEST_F(SqlConnectionIntegrationTest, SQLite_CreateTable_Success)
 {
-    SqlConnection conn(SA_SQLite_Client, "test.db", "dbuser", "dbpass");
+    SqlConnection conn(SA_SQLite_Client, ":memory:", "dbuser", "dbpass");
     conn.connect();
     
     // Create table
@@ -83,7 +72,7 @@ TEST_F(SqlConnectionIntegrationTest, SQLite_CreateTable_Success)
  */
 TEST_F(SqlConnectionIntegrationTest, SQLite_CommitTransaction_Success)
 {
-    SqlConnection conn(SA_SQLite_Client, "transaction_test.db", "testuser", "testpass");
+    SqlConnection conn(SA_SQLite_Client, ":memory:", "testuser", "testpass");
     conn.connect();
     
     // Create table
@@ -112,7 +101,7 @@ TEST_F(SqlConnectionIntegrationTest, SQLite_CommitTransaction_Success)
  */
 TEST_F(SqlConnectionIntegrationTest, SQLite_RollbackTransaction_Success)
 {
-    SqlConnection conn(SA_SQLite_Client, "rollback_test.db", "rollbackuser", "rollbackpass");
+    SqlConnection conn(SA_SQLite_Client, ":memory:", "rollbackuser", "rollbackpass");
     conn.connect();
     
     // Create table
@@ -141,7 +130,7 @@ TEST_F(SqlConnectionIntegrationTest, SQLite_RollbackTransaction_Success)
  */
 TEST_F(SqlConnectionIntegrationTest, SQLite_AutoCommit_Success)
 {
-    SqlConnection conn(SA_SQLite_Client, "autocommit_test.db", "autouser", "autopass");
+    SqlConnection conn(SA_SQLite_Client, ":memory:", "autouser", "autopass");
     conn.connect();
     
     // Create table
@@ -167,7 +156,7 @@ TEST_F(SqlConnectionIntegrationTest, SQLite_AutoCommit_Success)
  */
 TEST_F(SqlConnectionIntegrationTest, SQLite_Reconnect_Success)
 {
-    SqlConnection conn(SA_SQLite_Client, "reconnect_test.db", "reconuser", "reconpass");
+    SqlConnection conn(SA_SQLite_Client, ":memory:", "reconuser", "reconpass");
     
     // First connection
     conn.connect();
@@ -183,7 +172,7 @@ TEST_F(SqlConnectionIntegrationTest, SQLite_Reconnect_Success)
  */
 TEST_F(SqlConnectionIntegrationTest, SQLite_InvalidSQL_ThrowsException)
 {
-    SqlConnection conn(SA_SQLite_Client, "invalid_test.db", "invaliduser", "invalidpass");
+    SqlConnection conn(SA_SQLite_Client, ":memory:", "invaliduser", "invalidpass");
     conn.connect();
     
     // Invalid SQL should throw
@@ -198,7 +187,7 @@ TEST_F(SqlConnectionIntegrationTest, SQLite_InvalidSQL_ThrowsException)
  */
 TEST_F(SqlConnectionIntegrationTest, NotConnected_TransactionOps_ThrowException)
 {
-    SqlConnection conn(SA_SQLite_Client, "notconnected_test.db", "notconnuser", "notconnpass");
+    SqlConnection conn(SA_SQLite_Client, ":memory:", "notconnuser", "notconnpass");
     
     // Not connected yet
     EXPECT_THROW(conn.commit(), std::runtime_error);
@@ -211,7 +200,7 @@ TEST_F(SqlConnectionIntegrationTest, NotConnected_TransactionOps_ThrowException)
 TEST_F(SqlConnectionIntegrationTest, Destructor_ClosesConnection)
 {
     {
-        SqlConnection conn(SA_SQLite_Client, "destructor_test.db", "destruser", "destpass");
+        SqlConnection conn(SA_SQLite_Client, ":memory:", "destruser", "destpass");
         conn.connect();
         EXPECT_TRUE(conn.isConnected());
         // Destructor should close connection
