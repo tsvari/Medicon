@@ -127,7 +127,7 @@ public:
      * 
      * Parses the applet template, substitutes parameters, and executes the command.
      */
-    void execute();
+    void execute() override;
 
     /**
      * @brief Get the final SQL command text with substituted parameters
