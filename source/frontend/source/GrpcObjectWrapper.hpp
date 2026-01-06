@@ -40,7 +40,7 @@ public:
     using Grpc64Set = void (GrpcObject::*)(int64_t);
     using Grpc64Get = int64_t (GrpcObject::*)()const;
 
-    using GrpcStrSet = void (GrpcObject::*)(const string &);
+    using GrpcStrSet = void (GrpcObject::*)(const std::string &);
     using GrpcStrGet = const std::string&(GrpcObject::*)()const;
 
     using GrpcBoolSet = void (GrpcObject::*)(bool);
@@ -320,7 +320,7 @@ private:
             PropertyHolder propertyObject{};
             // bind setters
             if (GrpcStrSet * ptr = std::get_if<GrpcStrSet>(&property.setter)) {
-                propertyObject.setter = std::function<void (const string &)>(
+                propertyObject.setter = std::function<void (const std::string &)>(
                     std::bind(*ptr,  &(*grpcObject), std::placeholders::_1)
                     );
             } else if (Grpc64Set * ptr = std::get_if<Grpc64Set>(&property.setter)) {

@@ -10,52 +10,8 @@
 using ::testing::ElementsAre;
 using ::testing::Pointwise;
 
-class GprcTestDataObject
-{
-public:
-    ~GprcTestDataObject(){}
-    int32_t uid() const {return m_uid;}
-    void set_uid(int32_t value) {m_uid = value;}
-
-    const std::string & name() const {return m_name;}
-    void set_name(const std::string & value) {m_name = value;}
-
-    int64_t date() const {return m_date;}
-    void set_date(int64_t value) {m_date = value;}
-
-    int32_t height() const {return m_height;}
-    void set_height(int32_t value) {m_height = value;}
-
-    double salary() const {return m_salary;}
-    void set_salary(double value) {m_salary = value;}
-
-    bool married() const {return m_married;}
-    void set_married(bool value) {m_married = value;}
-
-    int32_t level() const {return m_level;}
-    void set_level(int32_t value) {m_level = value;}
-
-    const std::string & level_name() const {return m_level_name;}
-    void set_level_name(const std::string & value) {m_level_name = value;}
-
-    const std::string & married_name() const {return m_married_name;}
-    void set_married_name(const std::string & value) {m_married_name = value;}
-
-private:
-    int32_t m_uid;
-    std::string m_name;
-    int64_t m_date;
-    int32_t m_height;
-    double m_salary;
-    bool m_married;
-    std::string m_married_name;
-    int32_t m_level; // for combo list
-    std::string m_level_name; // combo/edit text
-};
-
-
 namespace {
-void compareObjects (const GprcTestDataObject & left, const GprcTestDataObject & right) {
+void compareObjects (const MasterObject & left, const MasterObject & right) {
     EXPECT_EQ(left.name(), right.name());
     EXPECT_EQ(TimeFormatHelper::chronoSysSecToString(left.date(), DataInfo::Date), TimeFormatHelper::chronoSysSecToString(right.date(), DataInfo::Date));
     EXPECT_EQ(left.height(), right.height());
@@ -67,35 +23,35 @@ void compareObjects (const GprcTestDataObject & left, const GprcTestDataObject &
 const int PROPERTIES = 5;
 }
 
-TEST(GrpcDataContainerTests, GprcTestDataObjectTest)
+TEST(GrpcDataContainerTests, MasterObjectTest)
 {
     QDateTime current = QDateTime::currentDateTime();
 
-    GprcTestDataObject obj1;
+    MasterObject obj1;
     obj1.set_name("Givi");
     obj1.set_date(current.toSecsSinceEpoch());
     obj1.set_height(168);
     obj1.set_salary(12.15);
     obj1.set_married(false);
 
-    GprcTestDataObject obj2;
+    MasterObject obj2;
     obj2.set_name("Keto");
     obj2.set_date(current.toSecsSinceEpoch());
     obj2.set_height(164);
     obj2.set_salary(30.557);
     obj2.set_married(true);
 
-    std::vector<GprcTestDataObject> objects;
+    std::vector<MasterObject> objects;
     objects.push_back(obj1);
     objects.push_back(obj2);
 
-    GrpcDataContainer<GprcTestDataObject> container(std::move(objects));
+    GrpcDataContainer<MasterObject> container(std::move(objects));
 
-    container.addProperty("Name", DataInfo::String, &GprcTestDataObject::set_name, &GprcTestDataObject::name);
-    container.addProperty("Date", DataInfo::Date, &GprcTestDataObject::set_date, &GprcTestDataObject::date);
-    container.addProperty("Height", DataInfo::Int, &GprcTestDataObject::set_height, &GprcTestDataObject::height);
-    container.addProperty("Salary", DataInfo::Double, &GprcTestDataObject::set_salary, &GprcTestDataObject::salary);
-    container.addProperty("Married", DataInfo::Bool, &GprcTestDataObject::set_married, &GprcTestDataObject::married);
+    container.addProperty("Name", DataInfo::String, &MasterObject::set_name, &MasterObject::name);
+    container.addProperty("Date", DataInfo::Date, &MasterObject::set_date, &MasterObject::date);
+    container.addProperty("Height", DataInfo::Int, &MasterObject::set_height, &MasterObject::height);
+    container.addProperty("Salary", DataInfo::Double, &MasterObject::set_salary, &MasterObject::salary);
+    container.addProperty("Married", DataInfo::Bool, &MasterObject::set_married, &MasterObject::married);
     container.initialize();
 
     // vector shouls be empty after using
@@ -103,11 +59,11 @@ TEST(GrpcDataContainerTests, GprcTestDataObjectTest)
 
     QVariant variantObject = container.variantObject(0);
     EXPECT_TRUE(variantObject.isValid());
-    GprcTestDataObject expectedRealObject = variantObject.value<GprcTestDataObject>();
+    MasterObject expectedRealObject = variantObject.value<MasterObject>();
     compareObjects(obj1, expectedRealObject);
 
-    GprcTestDataObject CompanyExpect1 = container.object(0);
-    GprcTestDataObject CompanyExpect2 = container.object(1);
+    MasterObject CompanyExpect1 = container.object(0);
+    MasterObject CompanyExpect2 = container.object(1);
 
     // Check objects
     compareObjects(obj1, CompanyExpect1);
@@ -202,7 +158,7 @@ TEST(GrpcDataContainerTests, GprcTestDataObjectTest)
     double newSalary = 56.78;
     bool newMarried = true;
 
-    GprcTestDataObject actualObject;
+    MasterObject actualObject;
 
     QVariant newVariant = QString::fromStdString(newName);
     GrpcVariantSet newGrpcVariant = newName;
@@ -281,7 +237,7 @@ TEST(GrpcDataContainerTests, GprcTestDataObjectTest)
     EXPECT_EQ("Givi", container.data(0, 0).toString());
     EXPECT_EQ("Keto", container.data(1, 0).toString());
 
-    GprcTestDataObject newObj;
+    MasterObject newObj;
     newObj.set_name("Vakho");
     newObj.set_date(current.toSecsSinceEpoch());
     newObj.set_height(175);
