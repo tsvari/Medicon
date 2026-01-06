@@ -1,6 +1,8 @@
 #include "configfile.h"
 #include "gtest/gtest.h"
 
+using std::string;
+
 TEST(ConfigFileIntegrationTests, LoadAndCheckData)
 {
     ConfigFile * config = nullptr;
@@ -15,7 +17,7 @@ TEST(ConfigFileIntegrationTests, LoadAndCheckData)
     string appletPath = alProjectPath + string("provider/sql-applets/");
 
     EXPECT_EQ(config->appletPath(), appletPath);
-    EXPECT_EQ(config->templatetPath(), templatetPath);
+    EXPECT_EQ(config->templatePath(), templatetPath);
     EXPECT_EQ(config->logFilePath(), logFilePath);
     EXPECT_EQ(config->projectPath(), projectPath);
 
