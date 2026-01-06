@@ -40,6 +40,7 @@ set(SOURCE_FILES
     ${INCLUDE_DIR}/JsonParameterFormatter.cpp
 
     ConfigFIleTests.cpp
+    ConfigFileIntegrationTests.cpp
     TypeToStringFormatterTests.cpp
     JsonParameterFormatterTests.cpp
     IncludeUtilTests.cpp
