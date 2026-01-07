@@ -1,24 +1,26 @@
-#ifndef GRPCDATACONTROLER_H
-#define GRPCDATACONTROLER_H
+#ifndef GRPCDATACONTAINER_H
+#define GRPCDATACONTAINER_H
 
 #include "include_frontend_util.h"
 #include <functional>
 #include <QVariant>
+#include <memory>
+#include <cassert>
 
 struct IBaseDataContainer {
     virtual ~IBaseDataContainer() = default;
 
-    virtual int propertyCount() = 0;
-    virtual int count() = 0;
+    virtual int propertyCount() const = 0;
+    virtual int count() const = 0;
 
-    virtual QVariant data(int row, int col) = 0;
-    virtual GrpcVariantGet nativeData(int row, int col) = 0;
-    virtual QVariant horizontalHeaderData(int col) = 0;
+    virtual QVariant data(int row, int col) const = 0;
+    virtual GrpcVariantGet nativeData(int row, int col) const = 0;
+    virtual QVariant horizontalHeaderData(int col) const = 0;
 
     virtual void setData(int row, int col, const QVariant & data) = 0;
     virtual void setData(int row, int col, const GrpcVariantSet & data) = 0;
 
-    virtual DataInfo::Type dataType(int col) = 0;
+    virtual DataInfo::Type dataType(int col) const = 0;
 
     virtual void insertObject(int row, const QVariant & data) = 0;
     virtual void deleteObject(int row) = 0;
@@ -28,7 +30,7 @@ struct IBaseDataContainer {
     virtual void initialize() = 0;
     virtual void acquireData(IBaseDataContainer * source) = 0;
 
-    virtual QVariant variantObject(int row) = 0;
+    virtual QVariant variantObject(int row) const = 0;
 };
 
 template<typename GrpcObject>
@@ -37,43 +39,47 @@ class GrpcDataContainer : public IBaseDataContainer
 public:
 
     using Grpc32Set = void (GrpcObject::*)(int32_t);
-    using Grpc32Get = int32_t (GrpcObject::*)()const;
+    using Grpc32Get = int32_t (GrpcObject::*)() const;
 
     using Grpc64Set = void (GrpcObject::*)(int64_t);
-    using Grpc64Get = int64_t (GrpcObject::*)()const;
+    using Grpc64Get = int64_t (GrpcObject::*)() const;
 
     using GrpcStrSet = void (GrpcObject::*)(const std::string &);
-    using GrpcStrGet = const std::string&(GrpcObject::*)()const;
+    using GrpcStrGet = const std::string& (GrpcObject::*)() const;
 
     using GrpcBoolSet = void (GrpcObject::*)(bool);
-    using GrpcBoolGet = bool (GrpcObject::*)()const;
+    using GrpcBoolGet = bool (GrpcObject::*)() const;
 
     using GrpcDoubleSet = void (GrpcObject::*)(double);
-    using GrpcDoubleGet = double (GrpcObject::*)()const;
+    using GrpcDoubleGet = double (GrpcObject::*)() const;
 
     //////////////////////////////////////////////////
     /// \brief GrpcDataContainer
     /// \param data
     ///
-    GrpcDataContainer(std::vector<GrpcObject> && data) //: m_data(std::move(data))
-    {
-        m_data.resize(data.size());
-        m_propertyHolders.resize(data.size());
-        for(int i = 0; i < data.size(); ++i) {
-            m_data[i] = new GrpcObject(std::move(data[i]));
+    explicit GrpcDataContainer(std::vector<GrpcObject> && data) {
+        m_data.reserve(data.size());
+        m_propertyHolders.reserve(data.size());
+        
+        for (auto && obj : data) {
+            m_data.push_back(std::make_unique<GrpcObject>(std::move(obj)));
         }
-
+        m_propertyHolders.resize(m_data.size());
     }
 
     // Default constructor
     GrpcDataContainer() = default;
 
     // Destructor
-    virtual ~GrpcDataContainer()
-    {
-        clearAllData();
-    }
+    ~GrpcDataContainer() override = default;
 
+    // Delete copy operations to prevent accidental copying
+    GrpcDataContainer(const GrpcDataContainer&) = delete;
+    GrpcDataContainer& operator=(const GrpcDataContainer&) = delete;
+
+    // Move operations
+    GrpcDataContainer(GrpcDataContainer&&) noexcept = default;
+    GrpcDataContainer& operator=(GrpcDataContainer&&) noexcept = default;
 
     //////////////////////////////////////////////////
     /// \brief Dont modify aggregated object from outside
@@ -81,6 +87,7 @@ public:
     /// \return
     ///
     const GrpcObject & object(int row) const {
+        assert(row >= 0 && row < static_cast<int>(m_data.size()));
         return *m_data[row];
     }
 
@@ -90,6 +97,7 @@ public:
     /// \return
     ///
     GrpcObject object(int row) {
+        assert(row >= 0 && row < static_cast<int>(m_data.size()));
         return *m_data[row];
     }
 
@@ -98,7 +106,7 @@ public:
     /// \param row
     /// \return
     ///
-    QVariant variantObject(int row) override {
+    QVariant variantObject(int row) const override {
         return QVariant::fromValue(object(row));
     }
 
@@ -106,16 +114,16 @@ public:
     /// \brief propertyCount
     /// \return
     ///
-    int propertyCount() override {
-        return m_properties.size();
+    int propertyCount() const override {
+        return static_cast<int>(m_properties.size());
     }
 
     //////////////////////////////////////////////////
     /// \brief count
     /// \return
     ///
-    int count() override {
-        return m_data.size();
+    int count() const override {
+        return static_cast<int>(m_data.size());
     }
 
     //////////////////////////////////////////////////
@@ -123,7 +131,8 @@ public:
     /// \param col
     /// \return
     ///
-    QVariant horizontalHeaderData(int col) override {
+    QVariant horizontalHeaderData(int col) const override {
+        assert(col >= 0 && col < static_cast<int>(m_properties.size()));
         return FrontConverter::to_str(m_properties[col].name);
     }
     ///////////////////////////////////////////////////
@@ -132,7 +141,7 @@ public:
     /// \param col
     /// \return
     ///
-    QVariant data(int row, int col) override {
+    QVariant data(int row, int col) const override {
         GrpcVariantGet varData = nativeData(row, col);
         return FrontConverter::to_qvariant_get(varData);
     }
@@ -143,14 +152,14 @@ public:
     /// \param col
     /// \return
     ///
-    GrpcVariantGet nativeData(int row, int col) override {
-        GrpcVariantGet varData;
-        PropertyHolder property = m_propertyHolders[row].at(col);
-        varData = std::visit([](const auto & getterFunction) {
-            GrpcVariantGet dataToReturn = getterFunction();
-            return dataToReturn;
+    GrpcVariantGet nativeData(int row, int col) const override {
+        assert(row >= 0 && row < static_cast<int>(m_propertyHolders.size()));
+        assert(col >= 0 && col < static_cast<int>(m_propertyHolders[row].size()));
+        
+        const PropertyHolder& property = m_propertyHolders[row][col];
+        return std::visit([](const auto& getterFunction) -> GrpcVariantGet {
+            return getterFunction();
         }, property.getter);
-        return varData; // it's safe because of object is alocated
     }
 
     //////////////////////////////////////////////////
@@ -160,21 +169,30 @@ public:
     /// \param data
     ///
     void setData(int row, int col, const GrpcVariantSet & data) override {
-        PropertyHolder property = m_propertyHolders[row].at(col);
-        std::visit(overload {
-                       [](std::function<void(const std::string&)> setter, const std::string & param) {
-                           setter(param);
-                       },
-                       [](std::function<void(int64_t)> setter, int64_t param) {
-                           setter(param);
-                       },
-                       [](std::function<void(int32_t)> setter, int32_t param) {
-                           setter(param);
-                       },
-                       [](std::function<void(bool)> setter, bool param) { setter(param); },
-                       [](std::function<void(double)> setter, double param) { setter(param); },
-                       [](auto, auto) { /* Handle other combinations if needed */ }
-                   }, property.setter, data);
+        assert(row >= 0 && row < static_cast<int>(m_propertyHolders.size()));
+        assert(col >= 0 && col < static_cast<int>(m_propertyHolders[row].size()));
+        
+        PropertyHolder& property = m_propertyHolders[row][col];
+        std::visit(overload{
+            [](std::function<void(const std::string&)>& setter, const std::string& param) {
+                setter(param);
+            },
+            [](std::function<void(int64_t)>& setter, int64_t param) {
+                setter(param);
+            },
+            [](std::function<void(int32_t)>& setter, int32_t param) {
+                setter(param);
+            },
+            [](std::function<void(bool)>& setter, bool param) {
+                setter(param);
+            },
+            [](std::function<void(double)>& setter, double param) {
+                setter(param);
+            },
+            [](auto&, auto) {
+                // Handle incompatible type combinations
+            }
+        }, property.setter, data);
     }
 
     //////////////////////////////////////////////////
@@ -184,45 +202,9 @@ public:
     /// \param data
     ///
     void setData(int row, int col, const QVariant & data) override {
-        GrpcVariantSet variantData;
-        DataInfo::Type type = m_properties.at(col).type;
-        std::string propertyName =m_properties.at(col).name;
-        switch(type) {
-        case DataInfo::Int:
-            if(data.canConvert<int32_t>()) {
-                variantData = data.toInt();
-            }
-            break;
-        case DataInfo::Int64:
-            if(data.canConvert<int64_t>()) {
-                variantData = data.toLongLong();
-            }
-            break;
-        case DataInfo::String:
-            if(data.canConvert<QString>()) {
-                variantData = FrontConverter::to_str(data.toString());
-            }
-            break;
-        case DataInfo::Double:
-            if(data.canConvert<double>()) {
-                variantData = data.toDouble();
-            }
-            break;
-        case DataInfo::Bool:
-            if(data.canConvert<bool>()) {
-                variantData = data.toBool();
-            }
-            break;
-        case DataInfo::Date:
-        case DataInfo::DateTime:
-        case DataInfo::DateTimeNoSec:
-            if(data.canConvert<int64_t>()) {
-                variantData = data.toLongLong();
-            }
-            break;
-        default:
-            break;
-        }
+        assert(col >= 0 && col < static_cast<int>(m_properties.size()));
+        
+        GrpcVariantSet variantData = convertQVariantToGrpcVariant(data, m_properties[col].type);
         setData(row, col, variantData);
     }
 
@@ -231,102 +213,20 @@ public:
     /// \param col
     /// \return
     ///
-    DataInfo::Type dataType(int col) override {
-        return m_properties.at(col).type;
+    DataInfo::Type dataType(int col) const override {
+        assert(col >= 0 && col < static_cast<int>(m_properties.size()));
+        return m_properties[col].type;
     }
 
     //////////////////////////////////////////////////
-    /// \brief addProperty
+    /// \brief addProperty - template method to reduce code duplication
     /// \param name
     /// \param type
     /// \param setter
     /// \param getter
     ///
-    void addProperty(const char * name,
-                     DataInfo::Type type,
-                     GrpcStrSet setter,
-                     GrpcStrGet getter)
-    {
-        Property<GrpcObject> property;
-        property.name = name;
-        property.type = type;
-        property.setter = setter;
-        property.getter = getter;
-        m_properties.push_back(property);
-    }
-
-    //////////////////////////////////////////////////
-    /// \brief addProperty
-    /// \param name
-    /// \param type
-    /// \param setter
-    /// \param getter
-    ///
-    void addProperty(const char * name,
-                     DataInfo::Type type,
-                     Grpc64Set setter,
-                     Grpc64Get getter)
-    {
-        Property<GrpcObject> property;
-        property.name = name;
-        property.type = type;
-        property.setter = setter;
-        property.getter = getter;
-        m_properties.push_back(property);
-    }
-
-    //////////////////////////////////////////////////
-    /// \brief addProperty
-    /// \param name
-    /// \param type
-    /// \param setter
-    /// \param getter
-    ///
-    void addProperty(const char * name,
-                     DataInfo::Type type,
-                     Grpc32Set setter,
-                     Grpc32Get getter)
-    {
-        Property<GrpcObject> property;
-        property.name = name;
-        property.type = type;
-        property.setter = setter;
-        property.getter = getter;
-        m_properties.push_back(property);
-    }
-
-    //////////////////////////////////////////////////
-    /// \brief addProperty
-    /// \param name
-    /// \param type
-    /// \param setter
-    /// \param getter
-    ///
-    void addProperty(const char * name,
-                     DataInfo::Type type,
-                     GrpcBoolSet setter,
-                     GrpcBoolGet getter)
-    {
-        Property<GrpcObject> property;
-        property.name = name;
-        property.type = type;
-        property.setter = setter;
-        property.getter = getter;
-        m_properties.push_back(property);
-    }
-
-    //////////////////////////////////////////////////
-    /// \brief addProperty
-    /// \param name
-    /// \param type
-    /// \param setter
-    /// \param getter
-    ///
-    void addProperty(const char * name,
-                     DataInfo::Type type,
-                     GrpcDoubleSet setter,
-                     GrpcDoubleGet getter)
-    {
+    template<typename SetterType, typename GetterType>
+    void addProperty(const char* name, DataInfo::Type type, SetterType setter, GetterType getter) {
         Property<GrpcObject> property;
         property.name = name;
         property.type = type;
@@ -340,17 +240,14 @@ public:
     ///
     void initialize() override
     {
-        int row = 0;
-        for(GrpcObject * object: m_data) {
-            std::vector<PropertyHolder> propertiesList = std::move(bindSettersGetters(object));
-            m_propertyHolders[row] = propertiesList;
-            row++;
+        for (size_t row = 0; row < m_data.size(); ++row) {
+            m_propertyHolders[row] = bindSettersGetters(m_data[row].get());
         }
     }
 
     void insertObject(int row, const QVariant & data) override
     {
-        if(data.isValid()) {
+        if(data.isValid() && data.canConvert<GrpcObject>()) {
             GrpcObject object = data.value<GrpcObject>();
             insert(row, object);
         }
@@ -363,7 +260,7 @@ public:
 
     void updateObject(int row, const QVariant & data) override
     {
-        if(data.isValid()) {
+        if(data.isValid() && data.canConvert<GrpcObject>()) {
             GrpcObject object = data.value<GrpcObject>();
             update(row, object);
         }
@@ -371,118 +268,181 @@ public:
 
     void addNewObject(const QVariant & data) override
     {
-        if(data.isValid()) {
+        if(data.isValid() && data.canConvert<GrpcObject>()) {
             GrpcObject object = data.value<GrpcObject>();
             addNew(object);
         }
     }
 
-    void insert(int row, GrpcObject & object)
+    void insert(int row, const GrpcObject & object)
     {
-        m_data.insert(m_data.begin() + row, new GrpcObject(object));
-        m_propertyHolders.insert(m_propertyHolders.begin() + row, bindSettersGetters(m_data[row]));
+        assert(row >= 0 && row <= static_cast<int>(m_data.size()));
+        
+        auto newObject = std::make_unique<GrpcObject>(object);
+        auto newPropertyHolder = bindSettersGetters(newObject.get());
+        
+        m_data.insert(m_data.begin() + row, std::move(newObject));
+        m_propertyHolders.insert(m_propertyHolders.begin() + row, std::move(newPropertyHolder));
     }
 
-    void update(int row, GrpcObject & object)
+    void update(int row, const GrpcObject & object)
     {
-        delete m_data[row];
-        m_data[row] = new GrpcObject(object);
-        m_propertyHolders[row] = bindSettersGetters(m_data[row]);
+        assert(row >= 0 && row < static_cast<int>(m_data.size()));
+        
+        m_data[row] = std::make_unique<GrpcObject>(object);
+        m_propertyHolders[row] = bindSettersGetters(m_data[row].get());
     }
 
-    void addNew(GrpcObject & object)
+    void addNew(const GrpcObject & object)
     {
-        m_data.push_back(new GrpcObject(object));
-        m_propertyHolders.push_back(bindSettersGetters(m_data[m_data.size() - 1]));
+        auto newObject = std::make_unique<GrpcObject>(object);
+        auto newPropertyHolder = bindSettersGetters(newObject.get());
+        
+        m_data.push_back(std::move(newObject));
+        m_propertyHolders.push_back(std::move(newPropertyHolder));
     }
 
     void remove(int row)
     {
-        delete m_data[row];
+        assert(row >= 0 && row < static_cast<int>(m_data.size()));
+        
         m_data.erase(m_data.begin() + row);
         m_propertyHolders.erase(m_propertyHolders.begin() + row);
     }
 
-    void clearAllData()
-    {
-        for (auto it = m_data.begin(); it != m_data.end(); ) {
-            delete *it; // Delete the object pointed to by the pointer
-            it = m_data.erase(it); // Remove the pointer from the vector and update iterator
-        }
-        m_data.clear();
-        m_propertyHolders.clear();
-    }
-
     void acquireData(IBaseDataContainer * source) override {
-        GrpcDataContainer * child = dynamic_cast<GrpcDataContainer * >(source);
-        assert(child);
-        m_data = std::move(child->m_data);
-        m_propertyHolders.resize(m_data.size());
+        auto* typedSource = dynamic_cast<GrpcDataContainer*>(source);
+        assert(typedSource && "Source must be of type GrpcDataContainer<GrpcObject>");
+        
+        if (typedSource) {
+            m_data = std::move(typedSource->m_data);
+            m_propertyHolders.resize(m_data.size());
+        }
     }
 
 private:
-    std::vector<PropertyHolder> bindSettersGetters(GrpcObject * object)
+    // Convert QVariant to GrpcVariantSet based on type
+    GrpcVariantSet convertQVariantToGrpcVariant(const QVariant& data, DataInfo::Type type) const {
+        switch (type) {
+            case DataInfo::Int:
+                if (data.canConvert<int32_t>()) {
+                    return data.toInt();
+                }
+                break;
+            case DataInfo::Int64:
+            case DataInfo::Date:
+            case DataInfo::DateTime:
+            case DataInfo::DateTimeNoSec:
+                if (data.canConvert<int64_t>()) {
+                    return data.toLongLong();
+                }
+                break;
+            case DataInfo::String:
+                if (data.canConvert<QString>()) {
+                    return FrontConverter::to_str(data.toString());
+                }
+                break;
+            case DataInfo::Double:
+                if (data.canConvert<double>()) {
+                    return data.toDouble();
+                }
+                break;
+            case DataInfo::Bool:
+                if (data.canConvert<bool>()) {
+                    return data.toBool();
+                }
+                break;
+            default:
+                break;
+        }
+        // Return default constructed variant if conversion fails
+        return int32_t{0};
+    }
+
+    // Bind setters and getters using lambdas
+    std::vector<PropertyHolder> bindSettersGetters(GrpcObject* object) const
     {
         std::vector<PropertyHolder> propertiesList;
-        for(auto & property: m_properties) {
+        propertiesList.reserve(m_properties.size());
+
+        for (const auto& property : m_properties) {
             PropertyHolder propertyObject{};
-            // bind setters
-            if (GrpcStrSet * ptr = std::get_if<GrpcStrSet>(&property.setter)) {
-                propertyObject.setter = std::function<void (const std::string &)>(
-                    std::bind(*ptr,  object, std::placeholders::_1)
-                    );
-            } else if (Grpc64Set * ptr = std::get_if<Grpc64Set>(&property.setter)) {
-                propertyObject.setter = std::function<void (int64_t)>(
-                    std::bind(*ptr,  object, std::placeholders::_1)
-                    );
-            } else if (Grpc32Set * ptr = std::get_if<Grpc32Set>(&property.setter)) {
-                propertyObject.setter = std::function<void (int32_t)>(
-                    std::bind(*ptr, object, std::placeholders::_1)
-                    );
-            } else if (GrpcBoolSet * ptr = std::get_if<GrpcBoolSet>(&property.setter)) {
-                propertyObject.setter = std::function<void (bool)>(
-                    std::bind(*ptr, object, std::placeholders::_1)
-                    );
-            } else if (GrpcDoubleSet * ptr = std::get_if<GrpcDoubleSet>(&property.setter)) {
-                propertyObject.setter = std::function<void (double)>(
-                    std::bind(*ptr, object, std::placeholders::_1)
-                    );
+
+            // Bind setters
+            if (const GrpcStrSet* ptr = std::get_if<GrpcStrSet>(&property.setter)) {
+                GrpcStrSet setter = *ptr;
+                propertyObject.setter = std::function<void(const std::string&)>(
+                    [object, setter](const std::string& value) {
+                        (object->*setter)(value);
+                    });
+            } else if (const Grpc64Set* ptr = std::get_if<Grpc64Set>(&property.setter)) {
+                Grpc64Set setter = *ptr;
+                propertyObject.setter = std::function<void(int64_t)>(
+                    [object, setter](int64_t value) {
+                        (object->*setter)(value);
+                    });
+            } else if (const Grpc32Set* ptr = std::get_if<Grpc32Set>(&property.setter)) {
+                Grpc32Set setter = *ptr;
+                propertyObject.setter = std::function<void(int32_t)>(
+                    [object, setter](int32_t value) {
+                        (object->*setter)(value);
+                    });
+            } else if (const GrpcBoolSet* ptr = std::get_if<GrpcBoolSet>(&property.setter)) {
+                GrpcBoolSet setter = *ptr;
+                propertyObject.setter = std::function<void(bool)>(
+                    [object, setter](bool value) {
+                        (object->*setter)(value);
+                    });
+            } else if (const GrpcDoubleSet* ptr = std::get_if<GrpcDoubleSet>(&property.setter)) {
+                GrpcDoubleSet setter = *ptr;
+                propertyObject.setter = std::function<void(double)>(
+                    [object, setter](double value) {
+                        (object->*setter)(value);
+                    });
             }
-            // bind getters
-            if (GrpcStrGet * ptr = std::get_if<GrpcStrGet>(&property.getter)) {
+
+            // Bind getters
+            if (const GrpcStrGet* ptr = std::get_if<GrpcStrGet>(&property.getter)) {
+                GrpcStrGet getter = *ptr;
                 propertyObject.getter = std::function<const std::string&()>(
-                    std::bind(*ptr, object)
-                    );
-            } else if (Grpc64Get * ptr = std::get_if<Grpc64Get>(&property.getter)) {
-                propertyObject.getter = std::function<int64_t(void)>(
-                    std::bind(*ptr, object)
-                    );
-            } else if (Grpc32Get * ptr = std::get_if<Grpc32Get>(&property.getter)) {
-                propertyObject.getter = std::function<int32_t(void)>(
-                    std::bind(*ptr, object)
-                    );
-            } else if (GrpcBoolGet * ptr = std::get_if<GrpcBoolGet>(&property.getter)) {
-                propertyObject.getter = std::function<bool(void)>(
-                    std::bind(*ptr, object)
-                    );
-            } else if (GrpcDoubleGet * ptr = std::get_if<GrpcDoubleGet>(&property.getter)) {
-                propertyObject.getter = std::function<double(void)>(
-                    std::bind(*ptr, object)
-                    );
+                    [object, getter]() -> const std::string& {
+                        return (object->*getter)();
+                    });
+            } else if (const Grpc64Get* ptr = std::get_if<Grpc64Get>(&property.getter)) {
+                Grpc64Get getter = *ptr;
+                propertyObject.getter = std::function<int64_t()>(
+                    [object, getter]() -> int64_t {
+                        return (object->*getter)();
+                    });
+            } else if (const Grpc32Get* ptr = std::get_if<Grpc32Get>(&property.getter)) {
+                Grpc32Get getter = *ptr;
+                propertyObject.getter = std::function<int32_t()>(
+                    [object, getter]() -> int32_t {
+                        return (object->*getter)();
+                    });
+            } else if (const GrpcBoolGet* ptr = std::get_if<GrpcBoolGet>(&property.getter)) {
+                GrpcBoolGet getter = *ptr;
+                propertyObject.getter = std::function<bool()>(
+                    [object, getter]() -> bool {
+                        return (object->*getter)();
+                    });
+            } else if (const GrpcDoubleGet* ptr = std::get_if<GrpcDoubleGet>(&property.getter)) {
+                GrpcDoubleGet getter = *ptr;
+                propertyObject.getter = std::function<double()>(
+                    [object, getter]() -> double {
+                        return (object->*getter)();
+                    });
             }
-            propertiesList.push_back(propertyObject);
+
+            propertiesList.push_back(std::move(propertyObject));
         }
         return propertiesList;
     }
-    //using iterator = typename std::vector<GrpcObject>::iterator;
-    //// Provide begin() and end() methods returning vector iterators
-    //iterator begin() { return m_data.begin(); }
-    //iterator end() { return m_data.end(); }
 
 private:
-    std::vector<GrpcObject*> m_data;
+    std::vector<std::unique_ptr<GrpcObject>> m_data;
     std::vector<std::vector<PropertyHolder>> m_propertyHolders;
     std::vector<Property<GrpcObject>> m_properties;
 };
 
-#endif // GRPCDATACONTROLER_H
+#endif // GRPCDATACONTAINER_H
