@@ -60,7 +60,7 @@ add_executable(FrontendTestProject
     ${SOURCE_FILES}
 
     #GrpcObjectTableModelTests.cpp
-    #GrpcDataContainerTests.cpp
+    GrpcDataContainerTests.cpp
     #GrpcObjectWrapperTests.cpp
     TestSharedUtilityTests.cpp
 )
