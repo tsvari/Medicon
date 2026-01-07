@@ -153,6 +153,7 @@ static std::vector<PropertyHolder> bindSettersGetters2(GrpcObject * object, cons
     }
     return propertiesList;
 }
+
 }
 
 namespace FrontConverter {
@@ -172,6 +173,168 @@ enum {
     VariantObjectRole = Qt::UserRole + 1000
     };
 }
+
+/**
+ * @brief Shared helper class for GRPC property binding
+ * 
+ * This class contains common functionality used by both GrpcObjectWrapper 
+ * and GrpcDataContainer to eliminate code duplication (~200 lines).
+ * 
+ * Provides:
+ * - Type aliases for member function pointers
+ * - QVariant to GrpcVariant conversion
+ * - Property binding logic
+ */
+template<typename GrpcObject>
+class GrpcPropertyBinder
+{
+public:
+    // Type aliases for member function pointers
+    using Grpc32Set = void (GrpcObject::*)(int32_t);
+    using Grpc32Get = int32_t (GrpcObject::*)() const;
+
+    using Grpc64Set = void (GrpcObject::*)(int64_t);
+    using Grpc64Get = int64_t (GrpcObject::*)() const;
+
+    using GrpcStrSet = void (GrpcObject::*)(const std::string &);
+    using GrpcStrGet = const std::string& (GrpcObject::*)() const;
+
+    using GrpcBoolSet = void (GrpcObject::*)(bool);
+    using GrpcBoolGet = bool (GrpcObject::*)() const;
+
+    using GrpcDoubleSet = void (GrpcObject::*)(double);
+    using GrpcDoubleGet = double (GrpcObject::*)() const;
+
+    /**
+     * @brief Converts QVariant to GrpcVariantSet based on type
+     * @param data QVariant data to convert
+     * @param type Target DataInfo::Type
+     * @return GrpcVariantSet containing the converted value
+     */
+    static GrpcVariantSet convertQVariantToGrpcVariant(const QVariant& data, DataInfo::Type type) {
+        switch (type) {
+            case DataInfo::Int:
+                if (data.canConvert<int32_t>()) {
+                    return data.toInt();
+                }
+                break;
+            case DataInfo::Int64:
+            case DataInfo::Date:
+            case DataInfo::DateTime:
+            case DataInfo::DateTimeNoSec:
+                if (data.canConvert<int64_t>()) {
+                    return data.toLongLong();
+                }
+                break;
+            case DataInfo::String:
+                if (data.canConvert<QString>()) {
+                    return FrontConverter::to_str(data.toString());
+                }
+                break;
+            case DataInfo::Double:
+                if (data.canConvert<double>()) {
+                    return data.toDouble();
+                }
+                break;
+            case DataInfo::Bool:
+                if (data.canConvert<bool>()) {
+                    return data.toBool();
+                }
+                break;
+            default:
+                break;
+        }
+        // Return default constructed variant if conversion fails
+        return int32_t{0};
+    }
+
+    /**
+     * @brief Binds setters and getters for a single GRPC object
+     * @param object Pointer to the GRPC object
+     * @param properties Vector of property definitions
+     * @return Vector of PropertyHolder with bound functions
+     */
+    static std::vector<PropertyHolder> bindSettersGetters(
+        GrpcObject* object,
+        const std::vector<Property<GrpcObject>>& properties)
+    {
+        std::vector<PropertyHolder> propertiesList;
+        propertiesList.reserve(properties.size());
+
+        for (const auto& property : properties) {
+            PropertyHolder propertyObject{};
+
+            // Bind setters using lambdas
+            if (const GrpcStrSet* ptr = std::get_if<GrpcStrSet>(&property.setter)) {
+                GrpcStrSet setter = *ptr;
+                propertyObject.setter = std::function<void(const std::string&)>(
+                    [object, setter](const std::string& value) {
+                        (object->*setter)(value);
+                    });
+            } else if (const Grpc64Set* ptr = std::get_if<Grpc64Set>(&property.setter)) {
+                Grpc64Set setter = *ptr;
+                propertyObject.setter = std::function<void(int64_t)>(
+                    [object, setter](int64_t value) {
+                        (object->*setter)(value);
+                    });
+            } else if (const Grpc32Set* ptr = std::get_if<Grpc32Set>(&property.setter)) {
+                Grpc32Set setter = *ptr;
+                propertyObject.setter = std::function<void(int32_t)>(
+                    [object, setter](int32_t value) {
+                        (object->*setter)(value);
+                    });
+            } else if (const GrpcBoolSet* ptr = std::get_if<GrpcBoolSet>(&property.setter)) {
+                GrpcBoolSet setter = *ptr;
+                propertyObject.setter = std::function<void(bool)>(
+                    [object, setter](bool value) {
+                        (object->*setter)(value);
+                    });
+            } else if (const GrpcDoubleSet* ptr = std::get_if<GrpcDoubleSet>(&property.setter)) {
+                GrpcDoubleSet setter = *ptr;
+                propertyObject.setter = std::function<void(double)>(
+                    [object, setter](double value) {
+                        (object->*setter)(value);
+                    });
+            }
+
+            // Bind getters using lambdas
+            if (const GrpcStrGet* ptr = std::get_if<GrpcStrGet>(&property.getter)) {
+                GrpcStrGet getter = *ptr;
+                propertyObject.getter = std::function<const std::string&()>(
+                    [object, getter]() -> const std::string& {
+                        return (object->*getter)();
+                    });
+            } else if (const Grpc64Get* ptr = std::get_if<Grpc64Get>(&property.getter)) {
+                Grpc64Get getter = *ptr;
+                propertyObject.getter = std::function<int64_t()>(
+                    [object, getter]() -> int64_t {
+                        return (object->*getter)();
+                    });
+            } else if (const Grpc32Get* ptr = std::get_if<Grpc32Get>(&property.getter)) {
+                Grpc32Get getter = *ptr;
+                propertyObject.getter = std::function<int32_t()>(
+                    [object, getter]() -> int32_t {
+                        return (object->*getter)();
+                    });
+            } else if (const GrpcBoolGet* ptr = std::get_if<GrpcBoolGet>(&property.getter)) {
+                GrpcBoolGet getter = *ptr;
+                propertyObject.getter = std::function<bool()>(
+                    [object, getter]() -> bool {
+                        return (object->*getter)();
+                    });
+            } else if (const GrpcDoubleGet* ptr = std::get_if<GrpcDoubleGet>(&property.getter)) {
+                GrpcDoubleGet getter = *ptr;
+                propertyObject.getter = std::function<double()>(
+                    [object, getter]() -> double {
+                        return (object->*getter)();
+                    });
+            }
+
+            propertiesList.push_back(std::move(propertyObject));
+        }
+        return propertiesList;
+    }
+};
 
 
 
