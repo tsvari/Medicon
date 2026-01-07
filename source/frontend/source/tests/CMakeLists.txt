@@ -61,7 +61,7 @@ add_executable(FrontendTestProject
 
     #GrpcObjectTableModelTests.cpp
     GrpcDataContainerTests.cpp
-    #GrpcObjectWrapperTests.cpp
+    GrpcObjectWrapperTests.cpp
     TestSharedUtilityTests.cpp
 )
 

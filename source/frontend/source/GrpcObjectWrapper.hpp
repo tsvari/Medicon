@@ -4,29 +4,30 @@
 #include "include_frontend_util.h"
 #include <functional>
 #include <QVariant>
+#include <cassert>
 
 struct IBaseGrpcObjectWrapper
 {
     virtual ~IBaseGrpcObjectWrapper() = default;
 
-    virtual QVariant data(int col) = 0;
-    virtual GrpcVariantGet nativeData(int row) = 0;
+    virtual QVariant data(int col) const = 0;
+    virtual GrpcVariantGet nativeData(int col) const = 0;
 
     virtual void setData(int col, const QVariant & data) = 0;
     virtual void setData(int col, const GrpcVariantSet & data) = 0;
 
-    virtual QVariant variantObject() = 0;
+    virtual QVariant variantObject() const = 0;
 
-    virtual int propertyCount() = 0;
-    virtual QVariant propertyWidgetName(int col) = 0;
-    virtual DataInfo::Type dataType(int col) = 0;
+    virtual int propertyCount() const = 0;
+    virtual QVariant propertyWidgetName(int col) const = 0;
+    virtual DataInfo::Type dataType(int col) const = 0;
 
     virtual void setObject(const QVariant & data) = 0;
-    virtual bool hasObject() = 0;
+    virtual bool hasObject() const = 0;
 
-    virtual int dataMask(int col) = 0;
-    virtual QVariant trueData(int col) = 0;
-    virtual QVariant falseData(int col) = 0;
+    virtual int dataMask(int col) const = 0;
+    virtual QVariant trueData(int col) const = 0;
+    virtual QVariant falseData(int col) const = 0;
 };
 
 
@@ -49,115 +50,95 @@ public:
     using GrpcDoubleSet = void (GrpcObject::*)(double);
     using GrpcDoubleGet = double (GrpcObject::*)()const;
 
-    GrpcObjectWrapper(){}
+    GrpcObjectWrapper() = default;
 
-    virtual ~GrpcObjectWrapper()
-    {
-    }
+    ~GrpcObjectWrapper() override = default;
 
-    QVariant propertyWidgetName(int col) override {
+    // Delete copy operations
+    GrpcObjectWrapper(const GrpcObjectWrapper&) = delete;
+    GrpcObjectWrapper& operator=(const GrpcObjectWrapper&) = delete;
+
+    // Move operations
+    GrpcObjectWrapper(GrpcObjectWrapper&&) noexcept = default;
+    GrpcObjectWrapper& operator=(GrpcObjectWrapper&&) noexcept = default;
+
+    QVariant propertyWidgetName(int col) const override {
+        assert(col >= 0 && col < static_cast<int>(m_properties.size()));
         return FrontConverter::to_str(m_properties[col].name);
     }
 
-    int dataMask(int col) override {
+    int dataMask(int col) const override {
+        assert(col >= 0 && col < static_cast<int>(m_properties.size()));
         return m_properties[col].dataMask;
     }
 
-    QVariant trueData(int col) override {
+    QVariant trueData(int col) const override {
+        assert(col >= 0 && col < static_cast<int>(m_properties.size()));
         return FrontConverter::to_str(m_properties[col].trueData);
     }
 
-    QVariant falseData(int col) override {
+    QVariant falseData(int col) const override {
+        assert(col >= 0 && col < static_cast<int>(m_properties.size()));
         return FrontConverter::to_str(m_properties[col].falseData);
     }
 
-    int propertyCount() override {
-        return m_properties.size();
+    int propertyCount() const override {
+        return static_cast<int>(m_properties.size());
     }
 
-    QVariant data( int col) override {
+    QVariant data(int col) const override {
         GrpcVariantGet varData = nativeData(col);
         return FrontConverter::to_qvariant_get(varData);
     }
 
-    GrpcVariantGet nativeData(int col) override {
-        GrpcVariantGet varData;
-        PropertyHolder property = m_propertyHolders.at(col);
-        varData = std::visit([](const auto & getterFunction) {
-            GrpcVariantGet dataToReturn = getterFunction();
-            return dataToReturn;
+    GrpcVariantGet nativeData(int col) const override {
+        assert(col >= 0 && col < static_cast<int>(m_propertyHolders.size()));
+        const PropertyHolder& property = m_propertyHolders[col];
+        return std::visit([](const auto& getterFunction) -> GrpcVariantGet {
+            return getterFunction();
         }, property.getter);
-        return varData;
     }
 
-    void setData(int col, const GrpcVariantSet & data) override {
-        if(!hasObject()) {
+    void setData(int col, const GrpcVariantSet& data) override {
+        if (!hasObject()) {
             return;
         }
-        PropertyHolder property = m_propertyHolders.at(col);
-        std::visit(overload {
-                       [](std::function<void(const std::string&)> setter, const std::string & param) {
-                           setter(param);
-                       },
-                       [](std::function<void(int64_t)> setter, int64_t param) {
-                           setter(param);
-                       },
-                       [](std::function<void(int32_t)> setter, int32_t param) {
-                           setter(param);
-                       },
-                       [](std::function<void(bool)> setter, bool param) { setter(param); },
-                       [](std::function<void(double)> setter, double param) { setter(param); },
-                       [](auto, auto) { /* Handle other combinations if needed */ }
-                   }, property.setter, data);
+        assert(col >= 0 && col < static_cast<int>(m_propertyHolders.size()));
+        
+        PropertyHolder& property = m_propertyHolders[col];
+        std::visit(overload{
+            [](std::function<void(const std::string&)>& setter, const std::string& param) {
+                setter(param);
+            },
+            [](std::function<void(int64_t)>& setter, int64_t param) {
+                setter(param);
+            },
+            [](std::function<void(int32_t)>& setter, int32_t param) {
+                setter(param);
+            },
+            [](std::function<void(bool)>& setter, bool param) {
+                setter(param);
+            },
+            [](std::function<void(double)>& setter, double param) {
+                setter(param);
+            },
+            [](auto&, auto) {
+                // Handle incompatible type combinations
+            }
+        }, property.setter, data);
     }
 
-    void setData(int col, const QVariant & data) override {
-        if(!hasObject()) {
+    void setData(int col, const QVariant& data) override {
+        if (!hasObject()) {
             return;
         }
-        GrpcVariantSet variantData;
-        DataInfo::Type type = m_properties.at(col).type;
-        std::string propertyName =m_properties.at(col).name;
-        switch(type) {
-        case DataInfo::Int:
-            if(data.canConvert<int32_t>()) {
-                variantData = data.toInt();
-            }
-            break;
-        case DataInfo::Int64:
-            if(data.canConvert<int64_t>()) {
-                variantData = data.toLongLong();
-            }
-            break;
-        case DataInfo::String:
-            if(data.canConvert<QString>()) {
-                variantData = FrontConverter::to_str(data.toString());
-            }
-            break;
-        case DataInfo::Double:
-            if(data.canConvert<double>()) {
-                variantData = data.toDouble();
-            }
-            break;
-        case DataInfo::Bool:
-            if(data.canConvert<bool>()) {
-                variantData = data.toBool();
-            }
-            break;
-        case DataInfo::Date:
-        case DataInfo::DateTime:
-        case DataInfo::DateTimeNoSec:
-            if(data.canConvert<int64_t>()) {
-                variantData = data.toLongLong();
-            }
-            break;
-        default:
-            break;
-        }
+        assert(col >= 0 && col < static_cast<int>(m_properties.size()));
+        
+        GrpcVariantSet variantData = convertQVariantToGrpcVariant(data, m_properties[col].type);
         setData(col, variantData);
     }
 
-    bool hasObject() override {
+    bool hasObject() const override {
         return grpcObject.has_value();
     }
 
@@ -167,19 +148,23 @@ public:
         bindSettersGetters();
     }
     //////////////////////////////////////////////////
-    /// \brief addProperty
+    /// \brief addProperty - template method to reduce code duplication
     /// \param name
     /// \param type
     /// \param setter
     /// \param getter
+    /// \param dataMask
+    /// \param trueData
+    /// \param falseData
     ///
-    void addProperty(const char * name,
+    template<typename SetterType, typename GetterType>
+    void addProperty(const char* name,
                      DataInfo::Type type,
-                     GrpcStrSet setter,
-                     GrpcStrGet getter,
+                     SetterType setter,
+                     GetterType getter,
                      int dataMask = DataMask::NoMask,
-                     const std::string & trueData = "",
-                     const std::string & falseData = "")
+                     const std::string& trueData = "",
+                     const std::string& falseData = "")
     {
         Property<GrpcObject> property;
         property.name = name;
@@ -192,127 +177,60 @@ public:
         m_properties.push_back(property);
     }
 
-    //////////////////////////////////////////////////
-    /// \brief addProperty
-    /// \param name
-    /// \param type
-    /// \param setter
-    /// \param getter
-    ///
-    void addProperty(const char * name,
-                     DataInfo::Type type,
-                     Grpc64Set setter,
-                     Grpc64Get getter,
-                     int dataMask = DataMask::NoMask,
-                     const std::string & trueData = "",
-                     const std::string & falseData = "")
-    {
-        Property<GrpcObject> property;
-        property.name = name;
-        property.type = type;
-        property.setter = setter;
-        property.getter = getter;
-        property.dataMask = dataMask;
-        property.trueData = trueData;
-        property.falseData = falseData;
-        m_properties.push_back(property);
-    }
-
-    //////////////////////////////////////////////////
-    /// \brief addProperty
-    /// \param name
-    /// \param type
-    /// \param setter
-    /// \param getter
-    ///
-    void addProperty(const char * name,
-                     DataInfo::Type type,
-                     Grpc32Set setter,
-                     Grpc32Get getter,
-                     int dataMask = DataMask::NoMask,
-                     const std::string & trueData = "",
-                     const std::string & falseData = "")
-    {
-        Property<GrpcObject> property;
-        property.name = name;
-        property.type = type;
-        property.setter = setter;
-        property.getter = getter;
-        property.dataMask = dataMask;
-        property.trueData = trueData;
-        property.falseData = falseData;
-        m_properties.push_back(property);
-    }
-
-    //////////////////////////////////////////////////
-    /// \brief addProperty
-    /// \param name
-    /// \param type
-    /// \param setter
-    /// \param getter
-    ///
-    void addProperty(const char * name,
-                     DataInfo::Type type,
-                     GrpcBoolSet setter,
-                     GrpcBoolGet getter,
-                     int dataMask = DataMask::NoMask,
-                     const std::string & trueData = "",
-                     const std::string & falseData = "")
-    {
-        Property<GrpcObject> property;
-        property.name = name;
-        property.type = type;
-        property.setter = setter;
-        property.getter = getter;
-        property.dataMask = dataMask;
-        property.trueData = trueData;
-        property.falseData = falseData;
-        m_properties.push_back(property);
-    }
-
-    //////////////////////////////////////////////////
-    /// \brief addProperty
-    /// \param name
-    /// \param type
-    /// \param setter
-    /// \param getter
-    ///
-    void addProperty(const char * name,
-                     DataInfo::Type type,
-                     GrpcDoubleSet setter,
-                     GrpcDoubleGet getter,
-                     int dataMask = DataMask::NoMask,
-                     const std::string & trueData = "",
-                     const std::string & falseData = "")
-    {
-        Property<GrpcObject> property;
-        property.name = name;
-        property.type = type;
-        property.setter = setter;
-        property.getter = getter;
-        property.dataMask = dataMask;
-        property.trueData = trueData;
-        property.falseData = falseData;
-        m_properties.push_back(property);
-    }
-
-    DataInfo::Type dataType(int col) override {
-        return m_properties.at(col).type;
+    DataInfo::Type dataType(int col) const override {
+        assert(col >= 0 && col < static_cast<int>(m_properties.size()));
+        return m_properties[col].type;
     }
 
     //////////////////////////////////////////////////
     /// \brief variantObject
-    /// \param row
     /// \return
     ///
-    QVariant variantObject() override {
-        if(grpcObject.has_value()) {
+    QVariant variantObject() const override {
+        if (grpcObject.has_value()) {
             return QVariant::fromValue(*grpcObject);
         }
         return QVariant();
     }
 
 private:
+    // Convert QVariant to GrpcVariantSet based on type
+    GrpcVariantSet convertQVariantToGrpcVariant(const QVariant& data, DataInfo::Type type) const {
+        switch (type) {
+            case DataInfo::Int:
+                if (data.canConvert<int32_t>()) {
+                    return data.toInt();
+                }
+                break;
+            case DataInfo::Int64:
+            case DataInfo::Date:
+            case DataInfo::DateTime:
+            case DataInfo::DateTimeNoSec:
+                if (data.canConvert<int64_t>()) {
+                    return data.toLongLong();
+                }
+                break;
+            case DataInfo::String:
+                if (data.canConvert<QString>()) {
+                    return FrontConverter::to_str(data.toString());
+                }
+                break;
+            case DataInfo::Double:
+                if (data.canConvert<double>()) {
+                    return data.toDouble();
+                }
+                break;
+            case DataInfo::Bool:
+                if (data.canConvert<bool>()) {
+                    return data.toBool();
+                }
+                break;
+            default:
+                break;
+        }
+        // Return default constructed variant if conversion fails
+        return int32_t{0};
+    }
     void bindSettersGetters()
     {
         m_propertyHolders.clear();
