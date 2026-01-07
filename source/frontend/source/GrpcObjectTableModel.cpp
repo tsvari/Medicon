@@ -2,6 +2,7 @@
 #include "include_frontend_util.h"
 #include "GrpcDataContainer.hpp"
 #include "GrpcTemplateController.h"
+#include <stdexcept>
 
 
 GrpcObjectTableModel::GrpcObjectTableModel(IBaseDataContainer * container, QObject * parent)
@@ -48,7 +49,7 @@ QVariant GrpcObjectTableModel::data(const QModelIndex & index, int role) const
         return QVariant();
     }
 
-    if(role == Qt::DisplayRole) {
+    if(role == Qt::DisplayRole || role == Qt::EditRole) {
         return FrontConverter::to_qvariant_get_by_type(m_container->nativeData(index.row(), index.column()),
                                                    m_container->dataType(index.column()));
     } else if (role == GlobalRoles::VariantObjectRole) {
@@ -80,6 +81,14 @@ Qt::ItemFlags GrpcObjectTableModel::flags(const QModelIndex &index) const
 
 void GrpcObjectTableModel::insertObject(int row, const QVariant & data)
 {
+    if (row < 0 || row > m_container->count()) {
+        throw std::out_of_range("Row index out of range for insertion: " + std::to_string(row) + 
+                                " (valid range: 0-" + std::to_string(m_container->count()) + ")");
+    }
+    if (!data.isValid()) {
+        throw std::invalid_argument("Cannot insert invalid QVariant data");
+    }
+    
     insertRow(row);
     m_container->insertObject(row, data);  
     // Simply emit a signal to move the cursor to the newly inserted row and select it
@@ -93,6 +102,14 @@ void GrpcObjectTableModel::addNewObject(const QVariant & data)
 
 void GrpcObjectTableModel::updateObject(int row, const QVariant &data)
 {
+    if (row < 0 || row >= m_container->count()) {
+        throw std::out_of_range("Row index out of range for update: " + std::to_string(row) + 
+                                " (valid range: 0-" + std::to_string(m_container->count() - 1) + ")");
+    }
+    if (!data.isValid()) {
+        throw std::invalid_argument("Cannot update with invalid QVariant data");
+    }
+    
     m_container->updateObject(row, data);
     emit dataChanged(index(row, 0), index(row, columnCount() - 1));
     emit updated(row);
@@ -100,16 +117,25 @@ void GrpcObjectTableModel::updateObject(int row, const QVariant &data)
 
 void GrpcObjectTableModel::deleteObject(int row)
 {
+    if (row < 0 || row >= m_container->count()) {
+        throw std::out_of_range("Row index out of range for deletion: " + std::to_string(row) + 
+                                " (valid range: 0-" + std::to_string(m_container->count() - 1) + ")");
+    }
+    
     removeRow(row);
     m_container->deleteObject(row);
     emit deleted(row);
     if(m_container->count() == 0) {
-        emit zerroCount(true);
+        emit zeroCount(true);
     }
 }
 
-QVariant GrpcObjectTableModel::variantObject(int row)
+QVariant GrpcObjectTableModel::variantObject(int row) const
 {
+    if (row < 0 || row >= m_container->count()) {
+        throw std::out_of_range("Row index out of range: " + std::to_string(row) + 
+                                " (valid range: 0-" + std::to_string(m_container->count() - 1) + ")");
+    }
     return m_container->variantObject(row);
 }
 
@@ -119,7 +145,7 @@ void GrpcObjectTableModel::setModelData(std::shared_ptr<IBaseDataContainer> cont
 
     m_container->acquireData(container.get());
     if(m_container->count() == 0) {
-        emit zerroCount(true);
+        emit zeroCount(true);
     }
     m_container->initialize();
 
@@ -162,8 +188,7 @@ QVariant GrpcObjectTableModel::alignment(int type) const
     case DataInfo::Double:
         return QVariant::fromValue<Qt::Alignment>(Qt::AlignRight | Qt::AlignVCenter);
     default:
-        QVariant::fromValue<Qt::Alignment>(Qt::AlignLeft | Qt::AlignVCenter);
+        return QVariant::fromValue<Qt::Alignment>(Qt::AlignLeft | Qt::AlignVCenter);
     }
-    return QVariant();
 }
 

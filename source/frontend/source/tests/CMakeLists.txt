@@ -14,8 +14,8 @@ add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")
 set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVER_MODE PRE_TEST)
 include(GoogleTest)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Test)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Test)
 
 qt_standard_project_setup()
 
@@ -59,7 +59,7 @@ add_executable(FrontendTestProject
     ${HEADER_FILES}
     ${SOURCE_FILES}
 
-    #GrpcObjectTableModelTests.cpp
+    GrpcObjectTableModelTests.cpp
     GrpcDataContainerTests.cpp
     GrpcObjectWrapperTests.cpp
     TestSharedUtilityTests.cpp
@@ -83,6 +83,7 @@ target_link_libraries(FrontendTestProject
     Qt6::Core
     Qt6::Widgets
     Qt6::Gui
+    Qt6::Test
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
