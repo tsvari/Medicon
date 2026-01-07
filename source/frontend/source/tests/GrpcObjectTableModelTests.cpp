@@ -7,6 +7,7 @@
 #include "GrpcDataContainer.hpp"
 
 #include <QDateTime>
+#include <QSignalSpy>
 
 
 using ::testing::ElementsAre;
@@ -26,6 +27,8 @@ public:
     explicit GrpcTestObjectTableModel(QObject *parent = nullptr) :
         GrpcObjectTableModel( new GrpcDataContainer<MasterObject>(), parent)
     {
+        initializeModel();
+        initializeContainer();
     }
 
     void initializeModel() override {
@@ -277,5 +280,548 @@ TEST(GrpcObjectTableModelTests, GprcBasicTest)
     model.deleteObject(0);
     EXPECT_EQ(model.rowCount(), 0);
 
+}
+
+// ============================================================================
+// Additional Tests for Improved GrpcObjectTableModel
+// ============================================================================
+
+TEST(GrpcObjectTableModelTests, EmptyModelTest)
+{
+    GrpcTestObjectTableModel model;
+    
+    EXPECT_EQ(model.rowCount(), 0);
+    EXPECT_EQ(model.columnCount(), columnCount);
+}
+
+TEST(GrpcObjectTableModelTests, InvalidIndexTest)
+{
+    QDateTime current = QDateTime::currentDateTime();
+    
+    MasterObject obj;
+    obj.set_name("Test");
+    
+    std::vector<MasterObject> objects;
+    objects.push_back(obj);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    // Invalid index
+    QModelIndex invalidIndex;
+    EXPECT_FALSE(invalidIndex.isValid());
+    EXPECT_FALSE(model.data(invalidIndex).isValid());
+    
+    // Out of bounds
+    QModelIndex outOfBounds = model.index(10, 0);
+    EXPECT_FALSE(outOfBounds.isValid());
+}
+
+TEST(GrpcObjectTableModelTests, SetDataTest)
+{
+    QDateTime current = QDateTime::currentDateTime();
+    
+    MasterObject obj;
+    obj.set_name("Original");
+    obj.set_height(170);
+    obj.set_salary(50000.0);
+    obj.set_married(false);
+    
+    std::vector<MasterObject> objects;
+    objects.push_back(obj);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    // Set name
+    QModelIndex nameIndex = model.index(0, 1);
+    EXPECT_TRUE(model.setData(nameIndex, "Updated", Qt::EditRole));
+    EXPECT_EQ(model.data(nameIndex).toString(), "Updated");
+    
+    // Set height
+    QModelIndex heightIndex = model.index(0, 3);
+    EXPECT_TRUE(model.setData(heightIndex, 180, Qt::EditRole));
+    EXPECT_EQ(model.data(heightIndex).toString(), "180");
+    
+    // Set salary
+    QModelIndex salaryIndex = model.index(0, 4);
+    EXPECT_TRUE(model.setData(salaryIndex, 60000.50, Qt::EditRole));
+    EXPECT_EQ(model.data(salaryIndex).toString(), FrontConverter::to_qvariant_get_by_type(60000.50, DataInfo::Double));
+    
+    // Set married
+    QModelIndex marriedIndex = model.index(0, 5);
+    EXPECT_TRUE(model.setData(marriedIndex, true, Qt::EditRole));
+    EXPECT_EQ(model.data(marriedIndex).toString(), "true");
+}
+
+TEST(GrpcObjectTableModelTests, SetDataNoChangeTest)
+{
+    MasterObject obj;
+    obj.set_name("Test");
+    
+    std::vector<MasterObject> objects;
+    objects.push_back(obj);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    QModelIndex nameIndex = model.index(0, 1);
+    
+    // Setting same value should return false
+    EXPECT_FALSE(model.setData(nameIndex, "Test", Qt::EditRole));
+}
+
+TEST(GrpcObjectTableModelTests, FlagsTest)
+{
+    MasterObject obj;
+    
+    std::vector<MasterObject> objects;
+    objects.push_back(obj);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    QModelIndex validIndex = model.index(0, 0);
+    Qt::ItemFlags flags = model.flags(validIndex);
+    
+    EXPECT_TRUE(flags & Qt::ItemIsEnabled);
+    EXPECT_TRUE(flags & Qt::ItemIsSelectable);
+    EXPECT_TRUE(flags & Qt::ItemIsEditable);
+    
+    QModelIndex invalidIndex;
+    EXPECT_EQ(model.flags(invalidIndex), Qt::NoItemFlags);
+}
+
+TEST(GrpcObjectTableModelTests, HeaderDataHorizontalTest)
+{
+    GrpcTestObjectTableModel model;
+    
+    EXPECT_EQ(model.headerData(0, Qt::Horizontal, Qt::DisplayRole).toString(), "Uid");
+    EXPECT_EQ(model.headerData(1, Qt::Horizontal, Qt::DisplayRole).toString(), "Name");
+    EXPECT_EQ(model.headerData(2, Qt::Horizontal, Qt::DisplayRole).toString(), "Date");
+    EXPECT_EQ(model.headerData(3, Qt::Horizontal, Qt::DisplayRole).toString(), "Height");
+    EXPECT_EQ(model.headerData(4, Qt::Horizontal, Qt::DisplayRole).toString(), "Salary");
+    EXPECT_EQ(model.headerData(5, Qt::Horizontal, Qt::DisplayRole).toString(), "Married");
+}
+
+TEST(GrpcObjectTableModelTests, HeaderDataVerticalTest)
+{
+    MasterObject obj1, obj2, obj3;
+    
+    std::vector<MasterObject> objects;
+    objects.push_back(obj1);
+    objects.push_back(obj2);
+    objects.push_back(obj3);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    EXPECT_EQ(model.headerData(0, Qt::Vertical, Qt::DisplayRole).toInt(), 1);
+    EXPECT_EQ(model.headerData(1, Qt::Vertical, Qt::DisplayRole).toInt(), 2);
+    EXPECT_EQ(model.headerData(2, Qt::Vertical, Qt::DisplayRole).toInt(), 3);
+}
+
+TEST(GrpcObjectTableModelTests, HeaderDataAlignmentTest)
+{
+    GrpcTestObjectTableModel model;
+    
+    // String (Name) - Left aligned
+    QVariant nameAlign = model.headerData(1, Qt::Horizontal, Qt::TextAlignmentRole);
+    EXPECT_EQ(nameAlign.value<Qt::Alignment>(), Qt::AlignLeft | Qt::AlignVCenter);
+    
+    // Date - Center aligned
+    QVariant dateAlign = model.headerData(2, Qt::Horizontal, Qt::TextAlignmentRole);
+    EXPECT_EQ(dateAlign.value<Qt::Alignment>(), Qt::AlignCenter);
+    
+    // Int (Height) - Right aligned
+    QVariant heightAlign = model.headerData(3, Qt::Horizontal, Qt::TextAlignmentRole);
+    EXPECT_EQ(heightAlign.value<Qt::Alignment>(), Qt::AlignRight | Qt::AlignVCenter);
+    
+    // Double (Salary) - Right aligned
+    QVariant salaryAlign = model.headerData(4, Qt::Horizontal, Qt::TextAlignmentRole);
+    EXPECT_EQ(salaryAlign.value<Qt::Alignment>(), Qt::AlignRight | Qt::AlignVCenter);
+    
+    // Bool (Married) - Center aligned
+    QVariant marriedAlign = model.headerData(5, Qt::Horizontal, Qt::TextAlignmentRole);
+    EXPECT_EQ(marriedAlign.value<Qt::Alignment>(), Qt::AlignCenter);
+}
+
+TEST(GrpcObjectTableModelTests, DataAlignmentRoleTest)
+{
+    MasterObject obj;
+    
+    std::vector<MasterObject> objects;
+    objects.push_back(obj);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    // String - Left aligned
+    QVariant nameAlign = model.data(model.index(0, 1), Qt::TextAlignmentRole);
+    EXPECT_EQ(nameAlign.value<Qt::Alignment>(), Qt::AlignLeft | Qt::AlignVCenter);
+    
+    // Int - Right aligned
+    QVariant heightAlign = model.data(model.index(0, 3), Qt::TextAlignmentRole);
+    EXPECT_EQ(heightAlign.value<Qt::Alignment>(), Qt::AlignRight | Qt::AlignVCenter);
+    
+    // Bool - Center aligned
+    QVariant marriedAlign = model.data(model.index(0, 5), Qt::TextAlignmentRole);
+    EXPECT_EQ(marriedAlign.value<Qt::Alignment>(), Qt::AlignCenter);
+}
+
+TEST(GrpcObjectTableModelTests, VariantObjectRoleTest)
+{
+    MasterObject obj;
+    obj.set_uid(42);
+    obj.set_name("TestObject");
+    obj.set_height(175);
+    
+    std::vector<MasterObject> objects;
+    objects.push_back(obj);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    QVariant variantData = model.data(model.index(0, 0), GlobalRoles::VariantObjectRole);
+    EXPECT_TRUE(variantData.isValid());
+    
+    MasterObject retrieved = variantData.value<MasterObject>();
+    EXPECT_EQ(retrieved.uid(), 42);
+    EXPECT_EQ(retrieved.name(), "TestObject");
+    EXPECT_EQ(retrieved.height(), 175);
+}
+
+TEST(GrpcObjectTableModelTests, VariantObjectMethodTest)
+{
+    MasterObject obj;
+    obj.set_uid(99);
+    obj.set_name("DirectMethod");
+    
+    std::vector<MasterObject> objects;
+    objects.push_back(obj);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    QVariant variantData = model.variantObject(0);
+    EXPECT_TRUE(variantData.isValid());
+    
+    MasterObject retrieved = variantData.value<MasterObject>();
+    EXPECT_EQ(retrieved.uid(), 99);
+    EXPECT_EQ(retrieved.name(), "DirectMethod");
+}
+
+
+
+TEST(GrpcObjectTableModelTests, InsertAtBeginningTest)
+{
+    MasterObject obj1, obj2;
+    obj1.set_name("First");
+    obj2.set_name("Second");
+    
+    std::vector<MasterObject> objects;
+    objects.push_back(obj1);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    model.insertObject(0, QVariant::fromValue(obj2));
+    
+    EXPECT_EQ(model.rowCount(), 2);
+    EXPECT_EQ(model.index(0, 1).data().toString(), "Second");
+    EXPECT_EQ(model.index(1, 1).data().toString(), "First");
+}
+
+
+
+
+
+
+
+TEST(GrpcObjectTableModelTests, MultipleInsertsTest)
+{
+    GrpcTestObjectTableModel model;
+    
+    EXPECT_EQ(model.rowCount(), 0);
+    
+    for (int i = 0; i < 5; ++i) {
+        MasterObject obj;
+        obj.set_name("Object" + std::to_string(i));
+        model.addNewObject(QVariant::fromValue(obj));
+    }
+    
+    EXPECT_EQ(model.rowCount(), 5);
+    
+    for (int i = 0; i < 5; ++i) {
+        EXPECT_EQ(model.index(i, 1).data().toString(), QString::fromStdString("Object" + std::to_string(i)));
+    }
+}
+
+TEST(GrpcObjectTableModelTests, SignalInsertedTest)
+{
+    GrpcTestObjectTableModel model;
+    
+    QSignalSpy spy(&model, &GrpcObjectTableModel::inserted);
+    
+    MasterObject obj;
+    model.addNewObject(QVariant::fromValue(obj));
+    
+    EXPECT_EQ(spy.count(), 1);
+    QList<QVariant> arguments = spy.takeFirst();
+    EXPECT_EQ(arguments.at(0).toInt(), 0);
+}
+
+TEST(GrpcObjectTableModelTests, SignalUpdatedTest)
+{
+    MasterObject obj;
+    
+    std::vector<MasterObject> objects;
+    objects.push_back(obj);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    QSignalSpy spy(&model, &GrpcObjectTableModel::updated);
+    
+    MasterObject newObj;
+    model.updateObject(0, QVariant::fromValue(newObj));
+    
+    EXPECT_EQ(spy.count(), 1);
+    QList<QVariant> arguments = spy.takeFirst();
+    EXPECT_EQ(arguments.at(0).toInt(), 0);
+}
+
+TEST(GrpcObjectTableModelTests, SignalDeletedTest)
+{
+    MasterObject obj;
+    
+    std::vector<MasterObject> objects;
+    objects.push_back(obj);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    QSignalSpy spy(&model, &GrpcObjectTableModel::deleted);
+    
+    model.deleteObject(0);
+    
+    EXPECT_EQ(spy.count(), 1);
+    QList<QVariant> arguments = spy.takeFirst();
+    EXPECT_EQ(arguments.at(0).toInt(), 0);
+}
+
+TEST(GrpcObjectTableModelTests, SignalZeroCountTest)
+{
+    MasterObject obj;
+    
+    std::vector<MasterObject> objects;
+    objects.push_back(obj);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    QSignalSpy spy(&model, &GrpcObjectTableModel::zeroCount);
+    
+    model.deleteObject(0);
+    
+    EXPECT_EQ(spy.count(), 1);
+    QList<QVariant> arguments = spy.takeFirst();
+    EXPECT_TRUE(arguments.at(0).toBool());
+}
+
+// Exception Tests
+
+TEST(GrpcObjectTableModelTests, InsertObjectThrowsOnInvalidRow)
+{
+    GrpcTestObjectTableModel model;
+    
+    MasterObject obj;
+    
+    // Insert at negative row
+    EXPECT_THROW({
+        model.insertObject(-1, QVariant::fromValue(obj));
+    }, std::out_of_range);
+    
+    // Insert beyond count
+    EXPECT_THROW({
+        model.insertObject(2, QVariant::fromValue(obj));
+    }, std::out_of_range);
+}
+
+TEST(GrpcObjectTableModelTests, InsertObjectThrowsOnInvalidData)
+{
+    GrpcTestObjectTableModel model;
+    
+    // Insert invalid QVariant
+    EXPECT_THROW({
+        model.insertObject(0, QVariant());
+    }, std::invalid_argument);
+}
+
+TEST(GrpcObjectTableModelTests, UpdateObjectThrowsOnInvalidRow)
+{
+    MasterObject obj;
+    std::vector<MasterObject> objects;
+    objects.push_back(obj);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    MasterObject newObj;
+    newObj.set_name("Updated");
+    
+    // Update at negative row
+    EXPECT_THROW({
+        model.updateObject(-1, QVariant::fromValue(newObj));
+    }, std::out_of_range);
+    
+    // Update beyond count
+    EXPECT_THROW({
+        model.updateObject(1, QVariant::fromValue(newObj));
+    }, std::out_of_range);
+}
+
+TEST(GrpcObjectTableModelTests, UpdateObjectThrowsOnInvalidData)
+{
+    MasterObject obj;
+    std::vector<MasterObject> objects;
+    objects.push_back(obj);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    // Update with invalid QVariant
+    EXPECT_THROW({
+        model.updateObject(0, QVariant());
+    }, std::invalid_argument);
+}
+
+TEST(GrpcObjectTableModelTests, DeleteObjectThrowsOnInvalidRow)
+{
+    MasterObject obj;
+    std::vector<MasterObject> objects;
+    objects.push_back(obj);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    // Delete at negative row
+    EXPECT_THROW({
+        model.deleteObject(-1);
+    }, std::out_of_range);
+    
+    // Delete beyond count
+    EXPECT_THROW({
+        model.deleteObject(1);
+    }, std::out_of_range);
+}
+
+TEST(GrpcObjectTableModelTests, VariantObjectThrowsOnInvalidRow)
+{
+    MasterObject obj;
+    std::vector<MasterObject> objects;
+    objects.push_back(obj);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    // Access at negative row
+    EXPECT_THROW({
+        model.variantObject(-1);
+    }, std::out_of_range);
+    
+    // Access beyond count
+    EXPECT_THROW({
+        model.variantObject(1);
+    }, std::out_of_range);
+}
+
+TEST(GrpcObjectTableModelTests, ExceptionMessagesAreDescriptive)
+{
+    GrpcTestObjectTableModel model;
+    
+    try {
+        model.insertObject(-1, QVariant::fromValue(MasterObject()));
+        FAIL() << "Expected std::out_of_range exception";
+    } catch (const std::out_of_range& e) {
+        std::string message = e.what();
+        EXPECT_TRUE(message.find("Row index out of range") != std::string::npos);
+        EXPECT_TRUE(message.find("-1") != std::string::npos);
+    }
+    
+    try {
+        model.insertObject(0, QVariant());
+        FAIL() << "Expected std::invalid_argument exception";
+    } catch (const std::invalid_argument& e) {
+        std::string message = e.what();
+        EXPECT_TRUE(message.find("invalid") != std::string::npos);
+    }
+}
+
+TEST(GrpcObjectTableModelTests, DataChangedSignalTest)
+{
+    MasterObject obj;
+    obj.set_name("Original");
+    
+    std::vector<MasterObject> objects;
+    objects.push_back(obj);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    QSignalSpy spy(&model, &QAbstractTableModel::dataChanged);
+    
+    model.setData(model.index(0, 1), "Updated", Qt::EditRole);
+    
+    EXPECT_GE(spy.count(), 1);
+}
+
+TEST(GrpcObjectTableModelTests, ParentIndexTest)
+{
+    MasterObject obj;
+    
+    std::vector<MasterObject> objects;
+    objects.push_back(obj);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    // Table models return 0 for valid parent
+    QModelIndex validParent = model.index(0, 0);
+    EXPECT_EQ(model.rowCount(validParent), 0);
+    EXPECT_EQ(model.columnCount(validParent), 0);
+}
+
+TEST(GrpcObjectTableModelTests, RowCountConsistencyTest)
+{
+    GrpcTestObjectTableModel model;
+    
+    EXPECT_EQ(model.rowCount(), 0);
+    
+    MasterObject obj1;
+    model.addNewObject(QVariant::fromValue(obj1));
+    EXPECT_EQ(model.rowCount(), 1);
+    
+    MasterObject obj2;
+    model.addNewObject(QVariant::fromValue(obj2));
+    EXPECT_EQ(model.rowCount(), 2);
+    
+    model.deleteObject(0);
+    EXPECT_EQ(model.rowCount(), 1);
+    
+    model.deleteObject(0);
+    EXPECT_EQ(model.rowCount(), 0);
+}
+
+TEST(GrpcObjectTableModelTests, AllDataTypesDisplayTest)
+{
+    QDateTime current = QDateTime::currentDateTime();
+    
+    MasterObject obj;
+    obj.set_uid(123);
+    obj.set_name("AllTypes");
+    obj.set_date(current.toSecsSinceEpoch());
+    obj.set_height(180);
+    obj.set_salary(75000.99);
+    obj.set_married(true);
+    obj.set_married_name("Yes");
+    obj.set_level(3);
+    obj.set_level_name("Senior");
+    
+    std::vector<MasterObject> objects;
+    objects.push_back(obj);
+    
+    GrpcTestObjectTableModel model(std::move(objects));
+    
+    // Verify all data is displayed correctly
+    EXPECT_EQ(model.index(0, 0).data().toString(), "123");  // Uid
+    EXPECT_EQ(model.index(0, 1).data().toString(), "AllTypes");  // Name
+    EXPECT_EQ(model.index(0, 3).data().toString(), "180");  // Height
+    EXPECT_EQ(model.index(0, 5).data().toString(), "true");  // Married
+    EXPECT_EQ(model.index(0, 6).data().toString(), "Yes");  // Married Name
+    EXPECT_EQ(model.index(0, 7).data().toString(), "3");  // Level
+    EXPECT_EQ(model.index(0, 8).data().toString(), "Senior");  // Level Name
 }
 
