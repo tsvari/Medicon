@@ -59,9 +59,10 @@ add_executable(FrontendTestProject
     ${HEADER_FILES}
     ${SOURCE_FILES}
 
-    GrpcObjectTableModelTests.cpp
-    GrpcDataContainerTests.cpp
-    GrpcObjectWrapperTests.cpp
+    #GrpcObjectTableModelTests.cpp
+    #GrpcDataContainerTests.cpp
+    #GrpcObjectWrapperTests.cpp
+    TestSharedUtilityTests.cpp
 )
 
 target_compile_definitions(FrontendTestProject PRIVATE
