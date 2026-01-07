@@ -83,10 +83,8 @@ bool loose_vector_compare(const std::vector<std::variant<Types...>>& v1,
     return true;
 }
 
-namespace {
-int32_t randomInt(int min, int max) {
+inline int32_t randomInt(int min, int max) {
     return QRandomGenerator::global()->bounded(max - min + 1) + min;
-}
 }
 
 class MasterObject
@@ -133,17 +131,17 @@ public:
     void set_image(const std::string & value) {m_image = value;}
 
 private:
-    int32_t m_uid;
+    int32_t m_uid = 0;
     std::string m_name;
-    int64_t m_date;
-    int64_t m_time;
-    int64_t m_date_time;
-    int64_t m_date_time_no_sec;
-    int32_t m_height;
-    double m_salary;
-    bool m_married;
+    int64_t m_date = 0;
+    int64_t m_time = 0;
+    int64_t m_date_time = 0;
+    int64_t m_date_time_no_sec = 0;
+    int32_t m_height = 0;
+    double m_salary = 0.0;
+    bool m_married = false;
     std::string m_married_name;
-    int32_t m_level; // for combo list
+    int32_t m_level = 0; // for combo list
     std::string m_level_name; // combo/edit text
     std::string m_image;
 };
@@ -170,8 +168,8 @@ public:
     void set_phone(const std::string & value) {m_phone = value;}
 
 private:
-    int32_t m_uid;
-    int32_t m_link_uid;
+    int32_t m_uid = 0;
+    int32_t m_link_uid = 0;
     std::string m_phone;
 };
 
