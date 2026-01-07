@@ -15,6 +15,11 @@
 
 #include <QDebug>
 
+namespace {
+    // ComboBox invalid index
+    constexpr int INVALID_COMBOBOX_INDEX = -1;
+}
+
 GrpcForm::GrpcForm(IBaseGrpcObjectWrapper * objectWrapper, IBaseGrpcObjectWrapper * masterObjectWrapper, QWidget *parent)
     : QWidget{parent}
     , m_objectWrapper(objectWrapper)
@@ -39,7 +44,16 @@ void GrpcForm::fill(const QModelIndex & index)
     const QVariant varData = index.data(GlobalRoles::VariantObjectRole);
     if(varData.isValid()) {
         m_objectWrapper->setObject(varData);
-        Q_ASSERT(m_formWidgets.count() == m_objectWrapper->propertyCount());
+        
+        // Validate property count matches widget count
+        if(m_formWidgets.count() != m_objectWrapper->propertyCount()) {
+            qCritical() << "GrpcForm::fill - Property count mismatch: widgets =" 
+                       << m_formWidgets.count() << ", properties =" 
+                       << m_objectWrapper->propertyCount();
+            Q_ASSERT(m_formWidgets.count() == m_objectWrapper->propertyCount());
+            return;
+        }
+        
         for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
             if(m_objectWrapper->dataMask(i) != DataMask::NoMask) {
                 continue;
@@ -53,40 +67,72 @@ void GrpcForm::fill(const QModelIndex & index)
 
 void GrpcForm::fillObject()
 {
-    if(m_objectWrapper->hasObject()) {
-        for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
-            QVariant data ;
-            QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
+    if(!m_objectWrapper->hasObject()) {
+        return;
+    }
+    
+    for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
+        QVariant data;
+        QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
+        
+        if(!widget) {
+            qCritical() << "GrpcForm::fillObject - Widget not found:" 
+                       << m_objectWrapper->propertyWidgetName(i).toString();
             Q_ASSERT(widget);
-            if(m_objectWrapper->dataMask(i) == DataMask::ComboEditMask) {
-                QComboBox * comboEdit = qobject_cast<QComboBox*>(widget);
-                Q_ASSERT(comboEdit);
-                data = comboEdit->currentText();
-            } else if(m_objectWrapper->dataMask(i) == DataMask::CheckBoxMask) {
-                QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget);
-                Q_ASSERT(checkBox);
-                if(checkBox->isChecked()) {
-                    data = m_objectWrapper->trueData(i);
-                } else {
-                    data = m_objectWrapper->falseData(i);
-                }
-            } else {
-                data = widgetData(widget, m_objectWrapper->dataType(i));
-            }
-            //Q_ASSERT(data.isValid());
-            m_objectWrapper->setData(i, data);
+            continue;
         }
+        
+        if(m_objectWrapper->dataMask(i) == DataMask::ComboEditMask) {
+            QComboBox * comboEdit = qobject_cast<QComboBox*>(widget);
+            if(!comboEdit) {
+                qCritical() << "GrpcForm::fillObject - Expected QComboBox for property" << i;
+                Q_ASSERT(comboEdit);
+                continue;
+            }
+            data = comboEdit->currentText();
+        } else if(m_objectWrapper->dataMask(i) == DataMask::CheckBoxMask) {
+            QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget);
+            if(!checkBox) {
+                qCritical() << "GrpcForm::fillObject - Expected QCheckBox for property" << i;
+                Q_ASSERT(checkBox);
+                continue;
+            }
+            if(checkBox->isChecked()) {
+                data = m_objectWrapper->trueData(i);
+            } else {
+                data = m_objectWrapper->falseData(i);
+            }
+        } else {
+            data = widgetData(widget, m_objectWrapper->dataType(i));
+        }
+        m_objectWrapper->setData(i, data);
     }
 }
 
 void GrpcForm::masterChanged(const QModelIndex &index)
 {
     // Will only be called in the slave template form
+    if(!m_masterObjectWrapper) {
+        return;
+    }
+    
+    if(!index.isValid()) {
+        qCritical() << "GrpcForm::masterChanged - Invalid index provided";
+        Q_ASSERT(index.isValid());
+        return;
+    }
+    
     m_masterObjectWrapper->setObject(index.data(GlobalRoles::VariantObjectRole));
 }
 
 QVariant GrpcForm::widgetData(QWidget *widget, const DataInfo::Type & type)
 {
+    if(!widget) {
+        qCritical() << "GrpcForm::widgetData - Null widget provided";
+        Q_ASSERT(widget);
+        return QVariant();
+    }
+    
     if(QComboBox * comboEdit = qobject_cast<QComboBox*>(widget)) {
         if(GrpcObjectTableModel * model = qobject_cast<GrpcObjectTableModel*>(comboEdit->model())) {
             return model->data(model->index(comboEdit->currentIndex(), 0));
@@ -163,13 +209,15 @@ void GrpcForm::finishSave()
 
 bool GrpcForm::eventFilter(QObject *watched, QEvent *event)
 {
-    QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-    if (keyEvent->key() == Qt::Key_Escape) {
-        emit formEscapeSignal();
-        return true;
+    if(event && event->type() == QEvent::KeyPress) {
+        auto * keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->key() == Qt::Key_Escape) {
+            emit formEscapeSignal();
+            return true;
+        }
     }
     // Pass the event to the next event filter or the watched object
-   return QWidget::eventFilter(watched, event);
+    return QWidget::eventFilter(watched, event);
 
 }
 
@@ -220,7 +268,13 @@ void GrpcForm::initilizeWidgets()
 {
     for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
         QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
-        Q_ASSERT(widget);
+        
+        if(!widget) {
+            qCritical() << "GrpcForm::initilizeWidgets - Widget not found:" 
+                       << m_objectWrapper->propertyWidgetName(i).toString();
+            Q_ASSERT(widget);
+            continue;
+        }
 
         const DataInfo::Type & type = m_objectWrapper->dataType(i);
         QLocale systemLocale = QLocale::system();
@@ -326,10 +380,17 @@ void GrpcForm::clear()
     m_formFillingFinished = false;
     for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
         QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
-        Q_ASSERT(widget);
+        
+        if(!widget) {
+            qCritical() << "GrpcForm::clear - Widget not found:" 
+                       << m_objectWrapper->propertyWidgetName(i).toString();
+            Q_ASSERT(widget);
+            continue;
+        }
+        
         // Connect content changes to GrpcTemplateController State
         if(QComboBox * comboBox = qobject_cast<QComboBox*>(widget)) {
-            comboBox->setCurrentIndex(-1);
+            comboBox->setCurrentIndex(INVALID_COMBOBOX_INDEX);
         } else if(QLineEdit * lineEdit = qobject_cast<QLineEdit*>(widget)) {
             lineEdit->setText("");
         } else if(QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget)) {
@@ -358,7 +419,14 @@ void GrpcForm::makeReadonly(bool readOnly)
     }
     for(int i = 0; i < m_objectWrapper->propertyCount(); ++i) {
         QWidget * widget = findChild<QWidget*>(m_objectWrapper->propertyWidgetName(i).toString());
-        Q_ASSERT(widget);
+        
+        if(!widget) {
+            qCritical() << "GrpcForm::makeReadonly - Widget not found:" 
+                       << m_objectWrapper->propertyWidgetName(i).toString();
+            Q_ASSERT(widget);
+            continue;
+        }
+        
         // Connect content changes to GrpcTemplateController State
         if(QComboBox * comboBox = qobject_cast<QComboBox*>(widget)) {
             comboBox->setEnabled(!readOnly);
@@ -385,7 +453,18 @@ void GrpcForm::makeReadonly(bool readOnly)
 
 void GrpcForm::fillWidget(QWidget * widget, const DataInfo::Type & type, const QVariant & data)
 {
-    Q_ASSERT(data.isValid());
+    if(!widget) {
+        qCritical() << "GrpcForm::fillWidget - Null widget provided";
+        Q_ASSERT(widget);
+        return;
+    }
+    
+    if(!data.isValid()) {
+        qCritical() << "GrpcForm::fillWidget - Invalid data provided";
+        Q_ASSERT(data.isValid());
+        return;
+    }
+    
     if(QComboBox * comboEdit = qobject_cast<QComboBox*>(widget)) {
         // Check type should be suitable
         Q_ASSERT(type == DataInfo::String ||
