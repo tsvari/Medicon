@@ -90,7 +90,6 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     view->addAction(m_actionEscape);
 
     m_grpcLoader = new GrpcLoader(":/icons/loaderSmall.gif", GrpcLoader::Center, view);
-    connect(view, &GrpcTableView::resizeToAdjustLoader, m_grpcLoader, &GrpcLoader::adjustToParentWidget);
     m_grpcLoader->showLoader(false);
 
     connect(this, &GrpcTemplateController::rowChanged, form, &GrpcForm::fill);

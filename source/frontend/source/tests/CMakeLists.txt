@@ -47,6 +47,8 @@ set(HEADER_FILES
 
     ${FRONTEND_INCLUDE_DIR}/GrpcForm.h
     ${FRONTEND_INCLUDE_DIR}/GrpcViewNavigator.h
+
+    ${FRONTEND_INCLUDE_DIR}/GrpcThreadWorker.h
 )
 
 set(SOURCE_FILES
@@ -59,6 +61,7 @@ set(SOURCE_FILES
 
     ${FRONTEND_INCLUDE_DIR}/GrpcForm.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcViewNavigator.cpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcThreadWorker.cpp
 )
 
 add_executable(FrontendTestProject
@@ -71,6 +74,7 @@ add_executable(FrontendTestProject
     TestSharedUtilityTests.cpp
     GrpcFormTests.cpp
     GrpcViewNavigatorTests.cpp
+    GrpcLoaderTests.cpp
 )
 
 target_compile_definitions(FrontendTestProject PRIVATE
