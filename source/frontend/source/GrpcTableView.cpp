@@ -49,8 +49,3 @@ void GrpcTableView::focusOutEvent(QFocusEvent * event)
     QTableView::focusInEvent(event);
 }
 
-void GrpcTableView::resizeEvent(QResizeEvent * event)
-{
-    emit resizeToAdjustLoader();
-    QTableView::resizeEvent(event);
-}

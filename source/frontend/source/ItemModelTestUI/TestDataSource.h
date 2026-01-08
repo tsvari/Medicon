@@ -395,7 +395,7 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
         // Dont need master object in thinscase
 
         // Simulating waiting for a response from the server
-        QThread::msleep(500);
+        QThread::msleep(5000);
 
         std::vector<MasterObject> dataSource;
         int nameInt = 0;
