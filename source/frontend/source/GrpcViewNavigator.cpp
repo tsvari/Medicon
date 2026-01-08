@@ -7,6 +7,23 @@
 #include <QPropertyAnimation>
 #include <QGraphicsOpacityEffect>
 
+namespace {
+int clampInt(int value, int minValue, int maxValue)
+{
+    if (value < minValue) return minValue;
+    if (value > maxValue) return maxValue;
+    return value;
+}
+
+int windowStartForPage(int page, int pages, int windowSize)
+{
+    if (pages <= 0 || windowSize <= 0) return 1;
+    // 1-based pages
+    const int normalized = clampInt(page, 1, pages);
+    return ((normalized - 1) / windowSize) * windowSize + 1;
+}
+}
+
 namespace ScrollButtonHelper {
 const char * leftHiddenButtonText = "...";
 const char * rightHiddenButtonText = "...";
@@ -106,7 +123,10 @@ void GrpcViewNavigator::addPages(int from, int to, int last)
 
 void GrpcViewNavigator::addPages(int count)
 {
-    Q_ASSERT(count > 0);
+    if(count <= 0) {
+        clearPages();
+        return;
+    }
 
     m_pages = count;
     clearAllButtons();
@@ -117,69 +137,50 @@ void GrpcViewNavigator::addPages(int count)
 void GrpcViewNavigator::leftHidden()
 {
     if(ScrollableButton * button = qobject_cast<ScrollableButton*>(sender())) {
-        clearAllButtons();
-        int from = button->queueNumber() - ScrollButtonHelper::maxPages + 1;
-        if(from <= 0) {
-            from = 1;
-        }
-        int to = from + ScrollButtonHelper::maxPages -1 ;
-        if(from > 1) {
-            ScrollableButton * firstButton = addButton(ScrollButtonHelper::FirstButton, 1, "1");
-            if(m_currentPage == 1) {
-                firstButton->setChecked();
-            }
-            addButton(ScrollButtonHelper::LeftHiddenButton, from - 1, ScrollButtonHelper::leftHiddenButtonText);
-        }
-        addPages(from, to, m_pages);
+        const int from = button->queueNumber() - ScrollButtonHelper::maxPages + 1;
+        rebuildWindow(from);
     }
 }
 
 void GrpcViewNavigator::rightHidden()
 {
     if(ScrollableButton * button = qobject_cast<ScrollableButton*>(sender())) {
-        clearAllButtons();
-
-        ScrollableButton * firstButton = addButton(ScrollButtonHelper::FirstButton, 1, "1");
-        if(m_currentPage > 1) {
-            addButton(ScrollButtonHelper::PrevButton, -1, ScrollButtonHelper::prevButtonText);
-        }
-        if(m_currentPage == 1) {
-            firstButton->setChecked();
-        }
-        addButton(ScrollButtonHelper::LeftHiddenButton, button->queueNumber() - 1, ScrollButtonHelper::leftHiddenButtonText);
-        addPages(button->queueNumber(), std::min(button->queueNumber() + ScrollButtonHelper::maxPages - 1, m_pages), m_pages);
+        rebuildWindow(button->queueNumber());
     }
 }
 
 void GrpcViewNavigator::prev()
 {
+    if(m_pages <= 0 || m_currentPage <= 1) {
+        return;
+    }
     emit pageSelected(m_currentPage - 1);
     selectPage(m_currentPage - 1);
 }
 
 void GrpcViewNavigator::next()
 {
+    if(m_pages <= 0 || m_currentPage >= m_pages) {
+        return;
+    }
     emit pageSelected(m_currentPage + 1);
     selectPage(m_currentPage + 1);
 }
 
 void GrpcViewNavigator::first()
 {
-    clearAllButtons();
-    addPages(1, std::min(ScrollButtonHelper::maxPages, m_pages), m_pages);
+    if(m_pages <= 0) {
+        return;
+    }
+    selectPage(1);
 }
 
 void GrpcViewNavigator::last()
 {
-    clearAllButtons();
-
-    if(m_pages > ScrollButtonHelper::maxPages) {
-        addButton(ScrollButtonHelper::FirstButton, 1, "1");
-        addButton(ScrollButtonHelper::LeftHiddenButton, m_pages - ScrollButtonHelper::maxPages, ScrollButtonHelper::leftHiddenButtonText);
-        addPages(m_pages - ScrollButtonHelper::maxPages + 1, m_pages, m_pages);
-    } else {
-        addPages(1, std::min(ScrollButtonHelper::maxPages, m_pages), m_pages);
+    if(m_pages <= 0) {
+        return;
     }
+    selectPage(m_pages);
 }
 
 ScrollableButton * GrpcViewNavigator::addButton(ScrollButtonHelper::Type type, int numInQueue, const QString & text, int position)
@@ -231,6 +232,28 @@ void GrpcViewNavigator::clearAllButtons()
     m_containerWidget->updateGeometry();
 }
 
+void GrpcViewNavigator::rebuildWindow(int from)
+{
+    if(m_pages <= 0) {
+        clearPages();
+        return;
+    }
+
+    const int windowSize = ScrollButtonHelper::maxPages;
+    const int maxFrom = (m_pages > windowSize) ? (m_pages - windowSize + 1) : 1;
+    const int clampedFrom = clampInt(from, 1, maxFrom);
+    const int to = std::min(clampedFrom + windowSize - 1, m_pages);
+
+    clearAllButtons();
+
+    if(clampedFrom > 1) {
+        addButton(ScrollButtonHelper::FirstButton, 1, QString::number(1));
+        addButton(ScrollButtonHelper::LeftHiddenButton, clampedFrom - 1, ScrollButtonHelper::leftHiddenButtonText);
+    }
+
+    addPages(clampedFrom, to, m_pages);
+}
+
 void GrpcViewNavigator::clearPages()
 {
     clearAllButtons();
@@ -240,20 +263,26 @@ void GrpcViewNavigator::clearPages()
 
 void GrpcViewNavigator::synchronizeByPages(int pageCount)
 {
-    if(pageCount <= 1) {
-        m_currentPage = 1;
-        addPages(pageCount);
+    if(pageCount <= 0) {
+        clearPages();
         return;
+    }
+
+    if(pageCount == 1) {
+        addPages(1);
+        return;
+    }
+
+    if(m_currentPage < 1) {
+        m_currentPage = 1;
     }
 
     if(m_pages > pageCount) {
         m_pages = pageCount;
-        if(m_currentPage >= pageCount) {
+        if(m_currentPage > pageCount) {
             // The current page no longer exists
             // Make last-page current and select
-            while(m_currentPage != pageCount) {
-                m_currentPage --;
-            }
+            m_currentPage = pageCount;
             last();
         } else {
             selectPage(m_currentPage);
@@ -272,33 +301,17 @@ void GrpcViewNavigator::synchronizeByRecords(int rowCount)
 
 void GrpcViewNavigator::selectPage(int page)
 {
-    Q_ASSERT(m_pages >= page);
-    // Recalculate, make visible possible buttons then select page
-    int groupCount = static_cast<int>(std::ceil(static_cast<double>(m_pages) / ScrollButtonHelper::maxPages));
-    int group = 0;
-    int from = 1;
-    int to = 1;
-    for(; group < groupCount; ++group) {
-        from = ScrollButtonHelper::maxPages * group + 1;
-        to = from + ScrollButtonHelper::maxPages - 1;
-        if(page >= from && page <= to) {
-            group++;
-            break;
-        }
+    if(m_pages <= 0) {
+        return;
+    }
+    if(page < 1 || page > m_pages) {
+        qCritical() << "GrpcViewNavigator::selectPage - Page out of range:" << page << "pages=" << m_pages;
+        Q_ASSERT(page >= 1 && page <= m_pages);
+        return;
     }
     m_currentPage = page;
-    if(groupCount == group) {
-        // Last page
-        last();
-    } else if(group < groupCount){
-        // Requires buttons First ad leftHidden
-        clearAllButtons();
-        if(group > 1) {
-            addButton(ScrollButtonHelper::FirstButton, 1, "1");
-            addButton(ScrollButtonHelper::LeftHiddenButton, from - 1, ScrollButtonHelper::leftHiddenButtonText);
-        }
-        addPages(from, to, m_pages);
-    }
+    const int from = windowStartForPage(page, m_pages, ScrollButtonHelper::maxPages);
+    rebuildWindow(from);
 }
 
 ScrollableButton::ScrollableButton(ScrollButtonHelper::Type type, int numInQueue, const QString & text, QWidget * parent)
