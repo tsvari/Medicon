@@ -34,39 +34,41 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
 
     // Init actions
     m_actionRefresh = new QAction(tr("&Refresh"), this);
+    m_actionRefresh->setObjectName("actionRefresh");
     m_actionRefresh->setIcon(QIcon(":/icons/refresh.png"));
     m_actionRefresh->setShortcut(QKeySequence("F5"));
     m_actionRefresh->setStatusTip(tr("Refresh table"));
     connect(m_actionRefresh, &QAction::triggered, this, &GrpcTemplateController::refresh_all);
 
     m_actionAddNew = new QAction(tr("Add &New"), this);
+    m_actionAddNew->setObjectName("actionAddNew");
     m_actionAddNew->setIcon(QIcon(":/icons/add_new.png"));
     m_actionAddNew->setShortcut(QKeySequence("Ctrl+n"));
     m_actionAddNew->setStatusTip(tr("Add current record"));
     connect(m_actionAddNew, &QAction::triggered, this, &GrpcTemplateController::add_new_record);
 
     m_actionEdit = new QAction(tr("&Edit"), this);
+    m_actionEdit->setObjectName("actionEdit");
     m_actionEdit->setIcon(QIcon(":/icons/edit.png"));
     m_actionEdit->setShortcut(QKeySequence("Ctrl+e"));
     m_actionEdit->setStatusTip(tr("Edit current record"));
     connect(m_actionEdit, &QAction::triggered, this, &GrpcTemplateController::edit_record);
 
     m_actionDelete = new QAction(tr("&Delete"), this);
+    m_actionDelete->setObjectName("actionDelete");
     m_actionDelete->setIcon(QIcon(":/icons/delete.png"));
     m_actionDelete->setShortcut(QKeySequence("Del"));
     m_actionDelete->setStatusTip(tr("Delete current record"));
     connect(m_actionDelete, &QAction::triggered, this, &GrpcTemplateController::delete_record);
 
     m_actionSave = new QAction(tr("&Save"), this);
+    m_actionSave->setObjectName("actionSave");
     m_actionSave->setIcon(QIcon(":/icons/save.png"));
     m_actionSave->setShortcut(QKeySequence("Ctrl+s"));
     m_actionSave->setStatusTip(tr("Save Changes"));
     connect(m_actionSave, &QAction::triggered, this, &GrpcTemplateController::save_record);
+    connect(view, &GrpcTableView::escapePressed, this, &GrpcTemplateController::escape);
 
-    m_actionEscape = new QAction(tr("Escape Action"), this);
-    m_actionEscape->setShortcut(QKeySequence(Qt::Key_Escape));
-    connect(m_actionEscape, &QAction::triggered, this, &GrpcTemplateController::escape);
-    m_actionEscape->setShortcutContext(Qt::WidgetShortcut);
 
     // Context menu
     m_contextMenu = new QMenu(view);
@@ -78,7 +80,9 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     m_contextMenu->addAction(m_actionSave);
 
     connect(view, &GrpcTableView::customContextMenuRequested, this, [this, view](const QPoint & point){
-        m_contextMenu->exec(view->mapToGlobal(point));
+        if (m_contextMenu) {
+            m_contextMenu->exec(view->mapToGlobal(point));
+        }
     });
 
     sourceModel->initializeModel();
@@ -86,8 +90,6 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     form->initilizeWidgets();
     form->makeReadonly(true);
     view->setModel(proxyModel);
-
-    view->addAction(m_actionEscape);
 
     m_grpcLoader = new GrpcLoader(":/icons/loaderSmall.gif", GrpcLoader::Center, view);
     m_grpcLoader->showLoader(false);
@@ -113,6 +115,14 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
         connect(this, &GrpcTemplateController::masterRowChanged, form, &GrpcForm::masterChanged);
         connect(this, &GrpcTemplateController::masterRowChanged, this, &GrpcTemplateController::masterChanged);    
     }
+    // Tie the view->form focus wiring to the controller lifetime so it cannot
+    // call into a partially-destructed form during widget teardown.
+    QPointer<GrpcForm> formPtr(form);
+    connect(view, &GrpcTableView::focusIn, this, [formPtr]() {
+        if (formPtr) {
+            formPtr->hideAllButThis();
+        }
+    });
 
     connect(view, &GrpcTableView::focusIn, form, &GrpcForm::hideAllButThis);
     connect(view, &GrpcTableView::focusIn, this, &GrpcTemplateController::showMenuAndToolbar);
@@ -134,6 +144,31 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
 
 GrpcTemplateController::~GrpcTemplateController()
 {
+    // Menus/toolbars are typically owned by the view/main window and can outlive
+    // this controller. Actions are owned by this controller, so proactively remove
+    // them from external containers to avoid dangling references during teardown.
+    if (m_contextMenu) {
+        m_contextMenu->clear();
+        m_contextMenu->deleteLater();
+        m_contextMenu = nullptr;
+    }
+    if (m_templateMenu) {
+        m_templateMenu->clear();
+        m_templateMenu = nullptr;
+    }
+    if (m_templateToolBar) {
+        m_templateToolBar->clear();
+        m_templateToolBar->setVisible(false);
+        m_templateToolBar = nullptr;
+    }
+
+    if (m_grpcLoader) {
+        m_grpcLoader->deleteLater();
+        m_grpcLoader = nullptr;
+    }
+
+    // Background work is launched via QPointer-guarded lambdas, so it will not
+    // dereference this object after destruction.
 }
 
 void GrpcTemplateController::addSearchForm(GrpcSearchForm * searchForm)
@@ -308,7 +343,7 @@ bool GrpcTemplateController::masterValid()
     if(!m_masterObjectWrapper) {
         return false;
     }
-    return true;
+    return m_masterObjectWrapper->hasObject();
 }
 
 void GrpcTemplateController::startLoadingData()

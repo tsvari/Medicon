@@ -3,16 +3,20 @@
 
 #include <QTableView>
 
+class QAction;
+
 class GrpcTableView : public QTableView
 {
     Q_OBJECT
 public:
-    GrpcTableView(QWidget * parent = nullptr);
+    explicit GrpcTableView(QWidget * parent = nullptr);
+    ~GrpcTableView() override;
 
 signals:
     void focusIn();
     void focusOut();
     void resizeToAdjustLoader();
+    void escapePressed();
 
 public slots:
     void select(int row);
@@ -22,6 +26,8 @@ public slots:
 protected:
     void focusInEvent(QFocusEvent * event) override;
     void focusOutEvent(QFocusEvent * event) override;
+
+    QAction * m_actionEscape = nullptr;
 };
 
 #endif // GRPCTABLEVIEW_H

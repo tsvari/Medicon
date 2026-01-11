@@ -1,6 +1,7 @@
 #include "GrpcTableView.h"
+
+#include <QAction>
 #include <QDebug>
-#include <QHeaderView>
 #include <QMessageBox>
 
 GrpcTableView::GrpcTableView(QWidget * parent)
@@ -13,19 +14,50 @@ GrpcTableView::GrpcTableView(QWidget * parent)
     setVerticalScrollMode(ScrollPerPixel);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
+    m_actionEscape = new QAction(tr("Escape Action"), this);
+    m_actionEscape->setObjectName("actionEscape");
+    m_actionEscape->setShortcut(QKeySequence(Qt::Key_Escape));
+    m_actionEscape->setShortcutContext(Qt::WidgetShortcut);
+    addAction(m_actionEscape);
+    connect(m_actionEscape, &QAction::triggered, this, [this] {
+        emit escapePressed();
+    });
+}
+
+GrpcTableView::~GrpcTableView()
+{
+    if (m_actionEscape) {
+        removeAction(m_actionEscape);
+    }
 }
 
 void GrpcTableView::select(int row)
 {
+    if (!model() || !selectionModel()) {
+        return;
+    }
+
+    if (row < 0 || row >= model()->rowCount()) {
+        return;
+    }
+
     clearRowSelection();
 
-    scrollToBottom();
-    QModelIndex indexToSelect = model()->index(row, 0);
-    selectionModel()->select(indexToSelect, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+    const QModelIndex indexToSelect = model()->index(row, 0);
+    if (!indexToSelect.isValid()) {
+        return;
+    }
+
+    selectionModel()->setCurrentIndex(indexToSelect, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    scrollTo(indexToSelect, QAbstractItemView::PositionAtCenter);
 }
 
 void GrpcTableView::clearRowSelection()
 {
+    if (!selectionModel()) {
+        return;
+    }
     clearSelection();
     setCurrentIndex(QModelIndex());
 }
@@ -46,6 +78,6 @@ void GrpcTableView::focusOutEvent(QFocusEvent * event)
 {
     emit focusOut();
     //qDebug()<<"Focus Out"<<this->objectName();
-    QTableView::focusInEvent(event);
+    QTableView::focusOutEvent(event);
 }
 

@@ -132,12 +132,11 @@ private:
     QToolBar * m_templateToolBar = nullptr;
     GrpcLoader * m_grpcLoader = nullptr;
 
-    QAction * m_actionRefresh;
-    QAction * m_actionAddNew;
-    QAction * m_actionEdit;
-    QAction * m_actionDelete;
-    QAction * m_actionSave;
-    QAction * m_actionEscape;
+    QAction * m_actionRefresh = nullptr;
+    QAction * m_actionAddNew = nullptr;
+    QAction * m_actionEdit = nullptr;
+    QAction * m_actionDelete = nullptr;
+    QAction * m_actionSave = nullptr;
 
     QFutureWatcher<void> m_watcherLoad;
     QFutureWatcher<QVariant> m_watcherAddNew;
