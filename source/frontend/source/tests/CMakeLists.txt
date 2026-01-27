@@ -51,6 +51,7 @@ set(HEADER_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcProxySortFilterModel.h
     ${FRONTEND_INCLUDE_DIR}/GrpcTableView.h
     ${FRONTEND_INCLUDE_DIR}/GrpcTemplateController.h
+    ${FRONTEND_INCLUDE_DIR}/GrpcMasterSlaveController.h
     ${FRONTEND_INCLUDE_DIR}/GrpcSearchForm.h
 
     ${FRONTEND_INCLUDE_DIR}/GrpcThreadWorker.h
@@ -71,6 +72,7 @@ set(SOURCE_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcProxySortFilterModel.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcTableView.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcTemplateController.cpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcMasterSlaveController.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcSearchForm.cpp
 )
 
@@ -86,6 +88,8 @@ add_executable(FrontendTestProject
     GrpcViewNavigatorTests.cpp
     GrpcLoaderTests.cpp
     GrpcTemplateControllerTests.cpp
+    GrpcMasterSlaveControllerTests.cpp
+    GrpcMasterSlaveIntegrationTests.cpp
 )
 
 target_compile_definitions(FrontendTestProject PRIVATE
