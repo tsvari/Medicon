@@ -299,7 +299,6 @@ public:
         wrapper->addProperty("heightEdit", DataInfo::Int, &MasterObject::set_height, &MasterObject::height);
         wrapper->addProperty("salaryEdit", DataInfo::Double, &MasterObject::set_salary, &MasterObject::salary);
         wrapper->addProperty("marriedCheckBox", DataInfo::Bool, &MasterObject::set_married, &MasterObject::married);
-        wrapper->addProperty("marriedCheckBox", DataInfo::Bool, &MasterObject::set_married, &MasterObject::married);
         wrapper->addProperty("levelCombo", DataInfo::Int, &MasterObject::set_level, &MasterObject::level);
         wrapper->addProperty("levelCombo", DataInfo::String, &MasterObject::set_level_name, &MasterObject::level_name, DataMask::ComboEditMask);
         wrapper->addProperty("marriedCheckBox", DataInfo::String, &MasterObject::set_married_name, &MasterObject::married_name, DataMask::CheckBoxMask, "Yes", "No");
@@ -395,7 +394,7 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
         // Dont need master object in thinscase
 
         // Simulating waiting for a response from the server
-        QThread::msleep(5000);
+        QThread::msleep(500);
 
         std::vector<MasterObject> dataSource;
         int nameInt = 0;
@@ -480,7 +479,7 @@ private slots:
 
     }
 private:
-    QAction * m_testAction;
+    QAction * m_testAction = nullptr;
 };
 
 
@@ -507,7 +506,7 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
             std::vector<SlaveObject> filteredData,
                 slaveData = TestModelData::slaveData();
 
-            std::copy_if(slaveData.begin(), slaveData.end(), std::back_inserter(filteredData), [masterObject](SlaveObject & ob) {
+            std::copy_if(slaveData.begin(), slaveData.end(), std::back_inserter(filteredData), [masterObject](const SlaveObject & ob) {
                 return ob.link_uid() == masterObject.uid();
             });
 
@@ -528,6 +527,9 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
 
     bool masterValid() override {
         QVariant varObject = masterVariantObject();
+        if(!varObject.isValid()) {
+            return false;
+        }
         MasterObject masterObject = varObject.value<MasterObject>();
         return masterObject.uid() > 0;
     }
