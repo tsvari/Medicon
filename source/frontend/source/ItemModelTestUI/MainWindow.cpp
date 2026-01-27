@@ -31,8 +31,8 @@ MainWindow::MainWindow(QWidget *parent)
     SlaveTemplate * slaveTemplate = new SlaveTemplate(slaveProxy, ui->slaveTableView, ui->slaveForm, this);
     slaveTemplate->addActionBars(this, ui->mainMenuBar, ui->mainToolBar, ui->mainStatusBAr);
 
-    // Controller
-    GrpcMasterSlaveController * controller = new GrpcMasterSlaveController(masterTemplate, slaveTemplate, this);
+    // Master Slave Controller
+    new GrpcMasterSlaveController(masterTemplate, slaveTemplate, this);
 
     masterTemplate->addSearchForm(ui->searchForm);
     connect(ui->searchButton, &QPushButton::clicked, ui->searchForm, &GrpcSearchForm::submit);
