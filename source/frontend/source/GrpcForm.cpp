@@ -190,7 +190,12 @@ void GrpcForm::prepareObject()
 void GrpcForm::startInsert()
 {
     clear();
-    tabBar()->setTabIcon(tabIndex(), m_saveIcon);
+    if (auto * bar = tabBar()) {
+        const int index = tabIndex();
+        if (index >= 0) {
+            bar->setTabIcon(index, m_saveIcon);
+        }
+    }
     if(!m_formWidgets.empty()) {
         m_formWidgets.at(0)->setFocus();
     }
@@ -198,13 +203,23 @@ void GrpcForm::startInsert()
 
 void GrpcForm::startEdit()
 {
-    tabBar()->setTabIcon(tabIndex(), m_saveIcon);
+    if (auto * bar = tabBar()) {
+        const int index = tabIndex();
+        if (index >= 0) {
+            bar->setTabIcon(index, m_saveIcon);
+        }
+    }
     m_formFillingFinished = true;
 }
 
 void GrpcForm::finishSave()
 {
-    tabBar()->setTabIcon(tabIndex(), QIcon());
+    if (auto * bar = tabBar()) {
+        const int index = tabIndex();
+        if (index >= 0) {
+            bar->setTabIcon(index, QIcon());
+        }
+    }
 }
 
 bool GrpcForm::eventFilter(QObject *watched, QEvent *event)

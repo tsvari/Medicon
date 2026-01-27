@@ -136,7 +136,7 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
     connect(this, &GrpcTemplateController::updateObject, sourceModel, &GrpcObjectTableModel::updateObject);
     connect(this, &GrpcTemplateController::deleteObject, sourceModel, &GrpcObjectTableModel::deleteObject);
 
-    connect(&m_watcherLoad, &QFutureWatcher<IBaseDataContainer *>::finished, this, &GrpcTemplateController::handleRefreshGrpc);
+    connect(&m_watcherLoad, &QFutureWatcher<void>::finished, this, &GrpcTemplateController::handleRefreshGrpc);
     connect(&m_watcherAddNew, &QFutureWatcher<QVariant>::finished, this, &GrpcTemplateController::handleAddNewGrpc);
     connect(&m_watcherEdit, &QFutureWatcher<QVariant>::finished, this, &GrpcTemplateController::handleEditGrpc);
     connect(&m_watcherDelete, &QFutureWatcher<QVariant>::finished, this, &GrpcTemplateController::handleDeleteGrpc);
@@ -227,7 +227,11 @@ void GrpcTemplateController::addActionBars(QMainWindow * mainWindow, QMenuBar * 
 void GrpcTemplateController::showMenuAndToolbar()
 {
     emit hideOthers(this);
-    if(m_templateToolBar->isHidden() || m_templateMenu->isHidden()) {
+    if (!m_templateToolBar || !m_templateMenu) {
+        return;
+    }
+
+    if (m_templateToolBar->isHidden() || !m_templateMenu->menuAction()->isVisible()) {
         m_templateToolBar->setVisible(true);
         m_templateMenu->menuAction()->setVisible(true);
     }
@@ -236,7 +240,11 @@ void GrpcTemplateController::showMenuAndToolbar()
 
 void GrpcTemplateController::hideMenuAndToolbar()
 {
-    if(m_templateToolBar->isVisible() || m_templateMenu->isVisible()) {
+    if (!m_templateToolBar || !m_templateMenu) {
+        return;
+    }
+
+    if (m_templateToolBar->isVisible() || m_templateMenu->menuAction()->isVisible()) {
         m_templateToolBar->setVisible(false);
         m_templateMenu->menuAction()->setVisible(false);
     }
