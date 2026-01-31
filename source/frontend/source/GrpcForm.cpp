@@ -17,6 +17,7 @@
 #include <QFocusEvent>
 
 #include "GrpcImagePickerWidget.h"
+#include "GrpcDateTimeEditReadOnlyStyler.h"
 
 #include <QDebug>
 
@@ -472,13 +473,7 @@ void GrpcForm::makeReadonly(bool readOnly)
         } else if(QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget)) {
             checkBox->setEnabled(!readOnly);
         } else if(QDateTimeEdit * dateTimeEdit = qobject_cast<QDateTimeEdit*>(widget)) {
-            if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(dateTimeEdit)) {
-                dateEdit->setReadOnly(readOnly);
-            } else if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(dateTimeEdit)) {
-                timeEdit->setReadOnly(readOnly);
-            } else {
-                dateTimeEdit->setReadOnly(readOnly);
-            }
+            GrpcDateTimeEditReadOnlyStyler::apply(dateTimeEdit, readOnly);
         } else if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
             textEdit->setReadOnly(readOnly);
         } else if (GrpcImagePickerWidget * picker = qobject_cast<GrpcImagePickerWidget *>(widget)) {
