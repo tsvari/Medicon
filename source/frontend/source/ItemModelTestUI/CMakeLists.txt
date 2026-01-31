@@ -37,6 +37,8 @@ set(HEADER_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcThreadWorker.h
     ${FRONTEND_INCLUDE_DIR}/GrpcViewNavigator.h
 
+    ${FRONTEND_INCLUDE_DIR}/GrpcImagePickerWidget.h
+
 
     ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.h
     ${FRONTEND_GRPC_DIR}/front_common.h
@@ -59,6 +61,8 @@ set(SOURCE_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcTableView.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcThreadWorker.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcViewNavigator.cpp
+
+    ${FRONTEND_INCLUDE_DIR}/GrpcImagePickerWidget.cpp
 
     ${FRONTEND_INCLUDE_DIR}/TestSharedUtility.cpp
 )

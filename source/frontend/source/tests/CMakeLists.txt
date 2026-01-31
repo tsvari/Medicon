@@ -4,6 +4,8 @@ project(FrontendTestProject LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+enable_testing()
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -11,7 +13,7 @@ include(../../../cmake/global-settings.cmake)
 # Use project name in c++ code
 add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")
 
-set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVER_MODE PRE_TEST)
+set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVERY_MODE PRE_TEST)
 include(GoogleTest)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Test)
@@ -55,6 +57,8 @@ set(HEADER_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcSearchForm.h
 
     ${FRONTEND_INCLUDE_DIR}/GrpcThreadWorker.h
+
+    ${FRONTEND_INCLUDE_DIR}/GrpcImagePickerWidget.h
 )
 
 set(SOURCE_FILES
@@ -74,6 +78,8 @@ set(SOURCE_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcTemplateController.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcMasterSlaveController.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcSearchForm.cpp
+
+    ${FRONTEND_INCLUDE_DIR}/GrpcImagePickerWidget.cpp
 )
 
 add_executable(FrontendTestProject
@@ -90,6 +96,8 @@ add_executable(FrontendTestProject
     GrpcTemplateControllerTests.cpp
     GrpcMasterSlaveControllerTests.cpp
     GrpcMasterSlaveIntegrationTests.cpp
+
+    GrpcImagePickerWidgetTests.cpp
 )
 
 target_compile_definitions(FrontendTestProject PRIVATE
@@ -112,6 +120,8 @@ target_link_libraries(FrontendTestProject
     Qt6::Gui
     Qt6::Test
 )
+
+gtest_discover_tests(FrontendTestProject DISCOVERY_MODE PRE_TEST)
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(FrontendTestProject)

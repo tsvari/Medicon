@@ -15,12 +15,17 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // Ensure long-lived controllers/templates are parented to the UI lifetime.
+    // MainWindow deletes `ui` in its destructor before QObject child teardown,
+    // so parenting to `this` can make controllers outlive widgets.
+    QObject * uiLifetime = ui->centralwidget ? static_cast<QObject*>(ui->centralwidget) : static_cast<QObject*>(this);
+
     // Master Template classes
     GrpcProxySortFilterModel * masterProxy = new GrpcProxySortFilterModel(
         new  GrpcTestObjectTableModel(ui->masterTableView),
                                     {0, 8, 10}, // Uid, Married Uid and Level Uid
                                     ui->masterTableView);
-    MasterTemplate * masterTemplate = new MasterTemplate(masterProxy, ui->masterTableView, ui->masterForm, this);
+    MasterTemplate * masterTemplate = new MasterTemplate(masterProxy, ui->masterTableView, ui->masterForm, uiLifetime);
     masterTemplate->addActionBars(this, ui->mainMenuBar, ui->mainToolBar, ui->mainStatusBAr);
 
     // Slave Template classes
@@ -28,11 +33,11 @@ MainWindow::MainWindow(QWidget *parent)
         new GrpcTestSlaveObjectTableModel(ui->slaveTableView),
                                         {0, 1}, // Uid and LinkUid to master
                                         ui->slaveTableView);
-    SlaveTemplate * slaveTemplate = new SlaveTemplate(slaveProxy, ui->slaveTableView, ui->slaveForm, this);
+    SlaveTemplate * slaveTemplate = new SlaveTemplate(slaveProxy, ui->slaveTableView, ui->slaveForm, uiLifetime);
     slaveTemplate->addActionBars(this, ui->mainMenuBar, ui->mainToolBar, ui->mainStatusBAr);
 
     // Master Slave Controller
-    new GrpcMasterSlaveController(masterTemplate, slaveTemplate, this);
+    new GrpcMasterSlaveController(masterTemplate, slaveTemplate, uiLifetime);
 
     masterTemplate->addSearchForm(ui->searchForm);
     connect(ui->searchButton, &QPushButton::clicked, ui->searchForm, &GrpcSearchForm::submit);

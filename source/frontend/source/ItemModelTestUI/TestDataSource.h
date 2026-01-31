@@ -11,6 +11,14 @@
 #include <QMenu>
 #include <QThread>
 #include <QRandomGenerator>
+#include <QBuffer>
+#include <QImage>
+#include <QPainter>
+#include <QFont>
+#include <QColor>
+#include <QPushButton>
+
+#include "GrpcImagePickerWidget.h"
 
 #include "GrpcObjectTableModel.h"
 #include "GrpcDataContainer.hpp"
@@ -49,6 +57,32 @@ private:
 };
 
 namespace TestModelData {
+static std::string demoPngDataUrl(const QString & text)
+{
+    QImage img(64, 64, QImage::Format_ARGB32_Premultiplied);
+    const int hue = QRandomGenerator::global()->bounded(360);
+    const QColor bg = QColor::fromHsv(hue, 160, 220);
+    img.fill(bg);
+
+    QPainter painter(&img);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+
+    QFont font = painter.font();
+    font.setBold(true);
+    font.setPointSize(18);
+    painter.setFont(font);
+    painter.setPen(Qt::white);
+    painter.drawText(img.rect(), Qt::AlignCenter, text.left(3));
+    painter.end();
+
+    QByteArray bytes;
+    QBuffer buffer(&bytes);
+    buffer.open(QIODevice::WriteOnly);
+    img.save(&buffer, "PNG");
+
+    return std::string("data:image/png;base64,") + bytes.toBase64().toStdString();
+}
+
 static std::vector<MasterObject> masterData(int & nameInt) {
     std::vector<MasterObject> objects;
     auto currentDateTime = [=]() {
@@ -74,6 +108,7 @@ static std::vector<MasterObject> masterData(int & nameInt) {
     obj1.set_married_name("No");
     obj1.set_level(2);
     obj1.set_level_name("Level2");
+    obj1.set_image(demoPngDataUrl(QString::number(obj1.uid())));
     objects.push_back(obj1);
 
     MasterObject obj2;
@@ -90,6 +125,7 @@ static std::vector<MasterObject> masterData(int & nameInt) {
     obj2.set_married_name("Yes");
     obj2.set_level(1);
     obj2.set_level_name("Level1");
+    obj2.set_image(demoPngDataUrl(QString::number(obj2.uid())));
     objects.push_back(obj2);
 
     MasterObject obj3;
@@ -106,6 +142,7 @@ static std::vector<MasterObject> masterData(int & nameInt) {
     obj3.set_married_name("Yes");
     obj3.set_level(3);
     obj3.set_level_name("Level3");
+    obj3.set_image(demoPngDataUrl(QString::number(obj3.uid())));
     objects.push_back(obj3);
 
     MasterObject obj4;
@@ -122,6 +159,7 @@ static std::vector<MasterObject> masterData(int & nameInt) {
     obj4.set_married_name("No");
     obj4.set_level(5);
     obj4.set_level_name("Level5");
+    obj4.set_image(demoPngDataUrl(QString::number(obj4.uid())));
     objects.push_back(obj4);
 
     MasterObject obj5;
@@ -138,6 +176,7 @@ static std::vector<MasterObject> masterData(int & nameInt) {
     obj5.set_married_name("Yes");
     obj5.set_level(4);
     obj5.set_level_name("Level4");
+    obj5.set_image(demoPngDataUrl(QString::number(obj5.uid())));
     objects.push_back(obj5);
 
     MasterObject obj6;
@@ -154,6 +193,7 @@ static std::vector<MasterObject> masterData(int & nameInt) {
     obj6.set_married_name("Yes");
     obj6.set_level(4);
     obj6.set_level_name("Level4");
+    obj6.set_image(demoPngDataUrl(QString::number(obj6.uid())));
     objects.push_back(obj6);
 
     return objects;
@@ -302,12 +342,23 @@ public:
         wrapper->addProperty("levelCombo", DataInfo::Int, &MasterObject::set_level, &MasterObject::level);
         wrapper->addProperty("levelCombo", DataInfo::String, &MasterObject::set_level_name, &MasterObject::level_name, DataMask::ComboEditMask);
         wrapper->addProperty("marriedCheckBox", DataInfo::String, &MasterObject::set_married_name, &MasterObject::married_name, DataMask::CheckBoxMask, "Yes", "No");
+
+        // Bind image to the composite widget (stores a dataUrl).
+        wrapper->addProperty("imagePickerWidget", DataInfo::String, &MasterObject::set_image, &MasterObject::image);
+
+        if (GrpcImagePickerWidget * picker = findChild<GrpcImagePickerWidget*>("imagePickerWidget")) {
+            picker->setClearDataUrl(QString::fromStdString(TestModelData::demoPngDataUrl("...")));
+        }
     }
 
     QVariant defaultObject() override {
         MasterObject object;
+        object.set_image(TestModelData::demoPngDataUrl("..."));
         return QVariant::fromValue<MasterObject>(object);
     }
+
+private slots:
+    // no custom slots
 };
 
 class SlaveForm : public GrpcForm
@@ -456,6 +507,11 @@ public: explicit MasterTemplate(GrpcProxySortFilterModel * model,
 
         // We send the object to the server and, if there are no exceptions, return it to the game
         masterFormObject.set_uid(randomInt(1000, 100000));
+
+        // Ensure new inserts always have a demo image.
+        if (masterFormObject.image().empty()) {
+            masterFormObject.set_image(TestModelData::demoPngDataUrl(QString::number(masterFormObject.uid())));
+        }
 
         return QVariant::fromValue<MasterObject>(masterFormObject);
     }
