@@ -32,10 +32,45 @@ class GrpcTableView;
 class GrpcLoader;
 class GrpcThreadWorker;
 class GrpcViewNavigator;
+
+/**
+ * @brief Base controller for a CRUD-style table + form template.
+ *
+ * `GrpcTemplateController` coordinates:
+ * - A table view (via a proxy model) for row selection
+ * - A form for viewing/editing/inserting the current record
+ * - Asynchronous loading of model data (via `workerModelData()`)
+ *
+ * The controller supports master/slave templates:
+ * - A *master* controller emits `rowChanged()` as the user changes selection.
+ * - A *slave* controller receives master row changes via `masterChanged()` (or
+ *   `masterRowChanged` signal wiring) and reloads its own data based on the
+ *   current master object.
+ *
+ * Selection clearing is meaningful:
+ * - An invalid `QModelIndex` indicates “no selection / selection cleared”.
+ * - Slaves must tolerate the master becoming invalid (e.g. model reset).
+ *
+ * Threading note:
+ * - `startLoadingData()` runs `workerModelData()` using `QtConcurrent::run`.
+ * - Derived implementations of `workerModelData()` should ensure that
+ *   `populateModel()` is emitted on the controller's thread (e.g. by using
+ *   `QMetaObject::invokeMethod(..., Qt::QueuedConnection)`), because emitting
+ *   Qt signals from a worker thread can otherwise update UI/models from the
+ *   wrong thread.
+ */
 class GrpcTemplateController : public QObject
 {
     Q_OBJECT
 public:
+    /**
+     * @param proxyModel Proxy model set on the table view.
+     *                 Its `sourceModel()` is expected to be a `GrpcObjectTableModel`.
+     * @param tableView  View that shows the records.
+     * @param form       Form bound to the current record (and optionally a master record).
+     * @param masterObjectWrapper If non-null, this controller is a slave and uses the
+     *                            wrapper to store the currently selected master object.
+     */
     explicit GrpcTemplateController(GrpcProxySortFilterModel * proxyModel,
                                     GrpcTableView  * tableView, GrpcForm * form, IBaseGrpcObjectWrapper * masterObjectWrapper, QObject *parent = nullptr);
     virtual ~GrpcTemplateController();
@@ -47,8 +82,25 @@ public:
     enum State {Unselected = 0, Browsing, Edit, Insert};
 
 signals:
+    /**
+     * @brief Emitted when the current row selection changed.
+     *
+     * For "no selection", the controller emits an invalid `QModelIndex()`.
+     */
     void rowChanged(const QModelIndex & index);
+
+    /**
+     * @brief Replaces the underlying data container of the source model.
+     *
+     * Typically emitted after `workerModelData()` completes.
+     */
     void populateModel(std::shared_ptr<IBaseDataContainer> container);
+
+    /**
+     * @brief Forwards the master's selected row to a slave controller.
+     *
+     * Wiring is usually done by `GrpcMasterSlaveController`.
+     */
     void masterRowChanged(const QModelIndex & index);
 
     /**
@@ -89,6 +141,12 @@ signals:
     void navigatorRecordCount(int count);
 
 public slots:
+    /**
+     * @brief Called in a slave template when the master selection changes.
+     *
+     * If @p index is invalid, the master is considered cleared; the slave clears its
+     * own model/selection state and does not attempt to load data.
+     */
     virtual void masterChanged(const QModelIndex & index);
 
     /**
@@ -133,8 +191,22 @@ private slots:
 protected:
     // be sure to override it in the child
     virtual void workerModelData() = 0;
+
+    /**
+     * @brief Worker used to add a new object to backend.
+     * @param promise Form object payload.
+     * @return Backend-confirmed object (e.g. with assigned uid).
+     */
     virtual QVariant workerAddNewObject(const QVariant & promise) = 0;
+
+    /**
+     * @brief Worker used to edit an object in backend.
+     */
     virtual QVariant workerEditObject(const QVariant & promise) = 0;
+
+    /**
+     * @brief Worker used to delete an object in backend.
+     */
     virtual QVariant workerDeleteObject(const QVariant & promise) = 0;
 
     // Override in child class for custom states
