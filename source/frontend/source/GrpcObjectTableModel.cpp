@@ -152,6 +152,16 @@ void GrpcObjectTableModel::setModelData(std::shared_ptr<IBaseDataContainer> cont
     endResetModel();
 }
 
+void GrpcObjectTableModel::clearModelData()
+{
+    if (!m_container) {
+        return;
+    }
+
+    auto empty = m_container->createEmpty();
+    setModelData(std::shared_ptr<IBaseDataContainer>(empty.release()));
+}
+
 void GrpcObjectTableModel::initializeContainer()
 {
     m_container->initialize();

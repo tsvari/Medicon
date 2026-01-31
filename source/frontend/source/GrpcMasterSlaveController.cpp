@@ -11,6 +11,9 @@ void GrpcMasterSlaveController::addMasterSlave(GrpcTemplateController * master, 
 {
     connect(master, &GrpcTemplateController::rowChanged, slave, &GrpcTemplateController::masterRowChanged);
 
+    // Clear slave data as soon as the master begins reloading.
+    connect(master, &GrpcTemplateController::loadingStarted, slave, &GrpcTemplateController::clearForMasterReload);
+
     connect(master, &GrpcTemplateController::hideOthers, this, &GrpcMasterSlaveController::hideAllMenuToolbars);
     connect(slave, &GrpcTemplateController::hideOthers, this, &GrpcMasterSlaveController::hideAllMenuToolbars);
 

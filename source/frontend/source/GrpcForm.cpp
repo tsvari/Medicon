@@ -129,8 +129,8 @@ void GrpcForm::masterChanged(const QModelIndex &index)
     }
     
     if(!index.isValid()) {
-        qCritical() << "GrpcForm::masterChanged - Invalid index provided";
-        Q_ASSERT(index.isValid());
+        // Master selection cleared (e.g., model reset). Clear master wrapper.
+        m_masterObjectWrapper->setObject(QVariant());
         return;
     }
     

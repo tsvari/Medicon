@@ -143,6 +143,11 @@ public:
 
     void setObject(const QVariant & data) override
     {
+        if(!data.isValid() || !data.canConvert<GrpcObject>()) {
+            grpcObject.reset();
+            return;
+        }
+
         grpcObject = std::move(data.value<GrpcObject>());
         bindSettersGetters();
     }
