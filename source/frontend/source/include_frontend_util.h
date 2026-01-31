@@ -220,6 +220,7 @@ public:
                 break;
             case DataInfo::Int64:
             case DataInfo::Date:
+            case DataInfo::Time:
             case DataInfo::DateTime:
             case DataInfo::DateTimeNoSec:
                 if (data.canConvert<int64_t>()) {
