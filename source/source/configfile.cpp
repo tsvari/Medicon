@@ -1,7 +1,9 @@
 #include "configfile.h"
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 #include <nlohmann/json.hpp>
 
 namespace fs = std::filesystem;

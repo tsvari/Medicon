@@ -4,6 +4,7 @@
 #include <string_view>
 #include <cstdint>
 #include <filesystem>
+#include <stdexcept>
 
 /**
  * @brief Data information structure with type metadata

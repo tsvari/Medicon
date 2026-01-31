@@ -1,7 +1,12 @@
 #ifndef SQLAPPLET_H
 #define SQLAPPLET_H
 
+#include <chrono>
+#include <map>
+#include <string>
+#include <string_view>
 #include <stdexcept>
+
 #include "include_util.h"
 #include "JsonParameterFormatter.h"
 
@@ -16,8 +21,6 @@ inline constexpr const char* APPLET_ERR_PARAM_NO_VALUE = "SQLApplet: Required pa
 inline constexpr const char* APPLET_ERR_PARAM_NO_CODE = "SQLApplet: SQL code block not found in applet XML";
 inline constexpr const char* APPLET_ERR_PARAM_XML = "SQLApplet: XML parsing error";
 inline constexpr const char* APPLET_ERR_WRONG_TYPE_NAME = "SQLApplet: Unknown parameter type. Valid types: FIELD, NUMERIC, STRING, DATETIME, DATE, TIME";
-
-class DataInfo;
 
 /**
  * @brief Exception for SQLApplet errors

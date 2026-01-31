@@ -8,6 +8,8 @@
 #include <optional>
 #include <unordered_map>
 #include <map>
+#include <stdexcept>
+#include <vector>
 
 // Error messages as inline constexpr
 inline constexpr const char* ERR_STRING_FORMAT = "Format should be {:%Y-%m-%d %H:%M:%S}!";

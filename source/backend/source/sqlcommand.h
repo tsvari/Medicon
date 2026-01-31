@@ -8,7 +8,6 @@
 #include <chrono>
 
 #include "sqlapplet.h"
-#include "include_util.h"
 
 class SqlConnection;
 
