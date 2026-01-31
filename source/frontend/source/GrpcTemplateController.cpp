@@ -2,7 +2,6 @@
 
 #include <QAction>
 #include <QMainWindow>
-#include <QTableView>
 #include <QMenu>
 #include <QMenuBar>
 #include <QToolBar>
@@ -368,6 +367,11 @@ void GrpcTemplateController::updateState()
         m_actionSave->setEnabled(true);
         break;
     }
+}
+
+QToolBar * GrpcTemplateController::templateToolBar()
+{
+    return m_templateToolBar.data();
 }
 
 bool GrpcTemplateController::masterValid()

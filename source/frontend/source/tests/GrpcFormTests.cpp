@@ -17,6 +17,7 @@
 #include <QLabel>
 #include <QBuffer>
 #include <QImage>
+#include <QTabBar>
 #include <QTabWidget>
 #include <QSignalSpy>
 #include <QTest>

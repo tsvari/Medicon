@@ -1,9 +1,7 @@
 #pragma once
 
-#include "include_util.h"
-#include "configfile.h"
-
 #include <SQLAPI.h>
+#include <string>
 
 /**
  * @brief Binary data conversion utilities for SQLAPI

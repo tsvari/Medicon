@@ -1,6 +1,5 @@
 #include "GrpcForm.h"
 #include "GrpcObjectTableModel.h"
-#include "GrpcTemplateController.h"
 
 #include <QApplication>
 #include <QLineEdit>

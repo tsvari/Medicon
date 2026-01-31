@@ -1,7 +1,6 @@
 #include "GrpcObjectTableModel.h"
 #include "include_frontend_util.h"
 #include "GrpcDataContainer.hpp"
-#include "GrpcTemplateController.h"
 #include <stdexcept>
 
 
