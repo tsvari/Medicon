@@ -14,6 +14,9 @@
 #include <QApplication>
 #include <QLineEdit>
 #include <QCheckBox>
+#include <QLabel>
+#include <QBuffer>
+#include <QImage>
 #include <QTabWidget>
 #include <QSignalSpy>
 #include <QTest>
@@ -78,11 +81,16 @@ public:
         m_salaryEdit = new QLineEdit(this);
         m_salaryEdit->setObjectName("salary");
 
+        m_imageLabel = new QLabel(this);
+        m_imageLabel->setObjectName("imageLabel");
+        m_imageLabel->setScaledContents(true);
+
         // Add properties
         wrapper->addProperty("name", DataInfo::String, &MasterObject::set_name, &MasterObject::name);
         wrapper->addProperty("height", DataInfo::Int, &MasterObject::set_height, &MasterObject::height);
         wrapper->addProperty("married", DataInfo::Bool, &MasterObject::set_married, &MasterObject::married, DataMask::CheckBoxMask, "1", "0");
         wrapper->addProperty("salary", DataInfo::Double, &MasterObject::set_salary, &MasterObject::salary);
+        wrapper->addProperty("imageLabel", DataInfo::String, &MasterObject::set_image, &MasterObject::image);
         
         // Initialize widgets after properties are added
         initilizeWidgets();
@@ -107,6 +115,7 @@ public:
     QLineEdit * m_heightEdit = nullptr;
     QCheckBox * m_marriedCheck = nullptr;
     QLineEdit * m_salaryEdit = nullptr;
+    QLabel * m_imageLabel = nullptr;
 };
 
 class GrpcFormTest : public Test
@@ -200,6 +209,82 @@ TEST_F(GrpcFormTest, FillPopulatesWidgetsFromModel)
     double salary = QLocale().toDouble(form.m_salaryEdit->text(), &ok);
     EXPECT_TRUE(ok) << "Failed to parse salary text: " << form.m_salaryEdit->text().toStdString();
     EXPECT_DOUBLE_EQ(salary, 50000.50);
+}
+
+TEST_F(GrpcFormTest, FillPopulatesImageLabelFromDataUrl)
+{
+    TestGrpcForm form;
+
+    TestGrpcObjectTableModel model;
+
+    MasterObject obj;
+    obj.set_name("With Image");
+    obj.set_height(170);
+    obj.set_married(false);
+    obj.set_salary(1.0);
+
+    QImage image(8, 8, QImage::Format_ARGB32);
+    image.fill(QColor(255, 0, 0));
+
+    QByteArray pngBytes;
+    {
+        QBuffer buffer(&pngBytes);
+        ASSERT_TRUE(buffer.open(QIODevice::WriteOnly));
+        ASSERT_TRUE(image.save(&buffer, "PNG"));
+    }
+    obj.set_image(QString("data:image/png;base64,%1").arg(QString::fromLatin1(pngBytes.toBase64())).toStdString());
+
+    model.insertObject(0, QVariant::fromValue(obj));
+
+    form.fill(model.index(0, 0));
+
+    ASSERT_NE(form.m_imageLabel, nullptr);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    const QPixmap pix = form.m_imageLabel->pixmap(Qt::ReturnByValue);
+    EXPECT_FALSE(pix.isNull());
+#else
+    const QPixmap * pix = form.m_imageLabel->pixmap();
+    ASSERT_NE(pix, nullptr);
+    EXPECT_FALSE(pix->isNull());
+#endif
+}
+
+TEST_F(GrpcFormTest, FillPopulatesImageLabelFromJpegDataUrl)
+{
+    TestGrpcForm form;
+
+    TestGrpcObjectTableModel model;
+
+    MasterObject obj;
+    obj.set_name("With JPEG Image");
+    obj.set_height(170);
+    obj.set_married(false);
+    obj.set_salary(1.0);
+
+    QImage image(8, 8, QImage::Format_RGB32);
+    image.fill(QColor(0, 128, 255));
+
+    QByteArray jpegBytes;
+    {
+        QBuffer buffer(&jpegBytes);
+        ASSERT_TRUE(buffer.open(QIODevice::WriteOnly));
+        ASSERT_TRUE(image.save(&buffer, "JPG"));
+    }
+    obj.set_image(QString("data:image/jpeg;base64,%1").arg(QString::fromLatin1(jpegBytes.toBase64())).toStdString());
+
+    model.insertObject(0, QVariant::fromValue(obj));
+
+    form.fill(model.index(0, 0));
+
+    ASSERT_NE(form.m_imageLabel, nullptr);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    const QPixmap pix = form.m_imageLabel->pixmap(Qt::ReturnByValue);
+    EXPECT_FALSE(pix.isNull());
+#else
+    const QPixmap * pix = form.m_imageLabel->pixmap();
+    ASSERT_NE(pix, nullptr);
+    EXPECT_FALSE(pix->isNull());
+#endif
 }
 
 TEST_F(GrpcFormTest, FillWithInvalidIndexDoesNotCrash)

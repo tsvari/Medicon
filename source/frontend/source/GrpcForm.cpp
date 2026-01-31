@@ -10,8 +10,14 @@
 #include <QTimeEdit>
 #include <QDateTimeEdit>
 #include <QTextEdit>
+#include <QLabel>
+#include <QPixmap>
+#include <QBuffer>
+#include <QByteArray>
 #include <QEvent>
 #include <QFocusEvent>
+
+#include "GrpcImagePickerWidget.h"
 
 #include <QDebug>
 
@@ -79,6 +85,12 @@ void GrpcForm::fillObject()
             qCritical() << "GrpcForm::fillObject - Widget not found:" 
                        << m_objectWrapper->propertyWidgetName(i).toString();
             Q_ASSERT(widget);
+            continue;
+        }
+
+        // QLabel is a display-only widget in our forms.
+        // Keep the existing wrapper value (e.g., image data) instead of trying to re-read it.
+        if (qobject_cast<QLabel *>(widget)) {
             continue;
         }
         
@@ -161,6 +173,9 @@ QVariant GrpcForm::widgetData(QWidget *widget, const DataInfo::Type & type)
         return dateTime.toMSecsSinceEpoch();
     } else if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
         return textEdit->toPlainText();
+    } else if (GrpcImagePickerWidget * picker = qobject_cast<GrpcImagePickerWidget *>(widget)) {
+        Q_ASSERT(type == DataInfo::String);
+        return picker->dataUrl();
     }
     return QVariant();
 }
@@ -381,6 +396,8 @@ void GrpcForm::initilizeWidgets()
             }
         } else if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
             connect(textEdit, &QTextEdit::textChanged, this, &GrpcForm::contentChanged);
+        } else if (GrpcImagePickerWidget * picker = qobject_cast<GrpcImagePickerWidget *>(widget)) {
+            connect(picker, &GrpcImagePickerWidget::dataUrlChanged, this, &GrpcForm::contentChanged);
         } else {
             // It's not known managed widget yet
         }
@@ -420,6 +437,12 @@ void GrpcForm::clear()
             }
         } else if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
             textEdit->setText("");
+        } else if (GrpcImagePickerWidget * picker = qobject_cast<GrpcImagePickerWidget *>(widget)) {
+            // For inserts, keep default-object image visible (if any).
+            picker->setDataUrl(m_objectWrapper->data(i).toString());
+        } else if(QLabel * label = qobject_cast<QLabel*>(widget)) {
+            label->setPixmap(QPixmap());
+            label->setText("");
         } else {
             // It's not known managed widget yet
         }
@@ -459,6 +482,8 @@ void GrpcForm::makeReadonly(bool readOnly)
             }
         } else if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
             textEdit->setReadOnly(readOnly);
+        } else if (GrpcImagePickerWidget * picker = qobject_cast<GrpcImagePickerWidget *>(widget)) {
+            picker->setReadOnly(readOnly);
         } else {
             // It's not known managed widget yet
         }
@@ -519,6 +544,45 @@ void GrpcForm::fillWidget(QWidget * widget, const DataInfo::Type & type, const Q
         // Check type should be suitable
         Q_ASSERT(type == DataInfo::String);
         textEdit->setText(data.toString());
+    } else if (GrpcImagePickerWidget * picker = qobject_cast<GrpcImagePickerWidget *>(widget)) {
+        Q_ASSERT(type == DataInfo::String);
+        picker->setDataUrl(data.toString());
+    } else if(QLabel * label = qobject_cast<QLabel*>(widget)) {
+        Q_ASSERT(type == DataInfo::String);
+
+        const QString s = data.toString();
+        if (s.isEmpty()) {
+            label->setPixmap(QPixmap());
+            label->setText("");
+            return;
+        }
+
+        // Support data urls: data:image/png;base64,... and data:image/jpeg;base64,...
+        static const QString dataPrefix = QStringLiteral("data:image/");
+        static const QString base64Marker = QStringLiteral(";base64,");
+        if (s.startsWith(dataPrefix)) {
+            const int markerPos = s.indexOf(base64Marker);
+            if (markerPos > 0) {
+                const int payloadStart = markerPos + base64Marker.size();
+                const QByteArray b64 = s.mid(payloadStart).toLatin1();
+                const QByteArray bytes = QByteArray::fromBase64(b64);
+                QPixmap pix;
+                if (pix.loadFromData(bytes)) {
+                    label->setPixmap(pix);
+                    return;
+                }
+            }
+        }
+
+        // Fallback: treat as resource/file path.
+        QPixmap pix(s);
+        if (!pix.isNull()) {
+            label->setPixmap(pix);
+            return;
+        }
+
+        // Final fallback: show as text.
+        label->setText(s);
     }
 }
 

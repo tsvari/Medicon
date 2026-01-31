@@ -144,18 +144,6 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
 
 GrpcTemplateController::~GrpcTemplateController()
 {
-    // Menus/toolbars are typically owned by the view/main window and can outlive
-    // this controller. Actions are owned by this controller, so proactively remove
-    // them from external containers to avoid dangling references during teardown.
-    if (m_contextMenu) {
-        m_contextMenu->clear();
-        m_contextMenu->deleteLater();
-        m_contextMenu = nullptr;
-    }
-    if (m_templateMenu) {
-        m_templateMenu->clear();
-        m_templateMenu = nullptr;
-    }
     if (m_templateToolBar) {
         m_templateToolBar->clear();
         m_templateToolBar->setVisible(false);
@@ -163,7 +151,8 @@ GrpcTemplateController::~GrpcTemplateController()
     }
 
     if (m_grpcLoader) {
-        m_grpcLoader->deleteLater();
+        m_grpcLoader->showLoader(false);
+        m_grpcLoader->hide();
         m_grpcLoader = nullptr;
     }
 

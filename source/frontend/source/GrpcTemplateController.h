@@ -2,10 +2,17 @@
 #define GRPCTEMPLATECONTROLLER_H
 
 #include <QObject>
+#include <QPointer>
 #include <QVariant>
 #include <QFutureWatcher>
 
+#include <QMenu>
+#include <QToolBar>
+
 #include "JsonParameterFormatter.h"
+
+// GrpcLoader is declared in this header.
+#include "GrpcThreadWorker.h"
 
 class GrpcForm;
 class GrpcProxySortFilterModel;
@@ -114,7 +121,7 @@ protected:
 
     QMenu * templateMenu(){return m_templateMenu;}
     QMenu * contextMenu(){return m_contextMenu;}
-    QToolBar * templateToolBar(){return m_templateToolBar;}
+    QToolBar * templateToolBar(){return m_templateToolBar.data();}
 
     int currentNavigatorPage(){return m_currentPage;}
     int maxPages(){return m_maxPages;}
@@ -129,8 +136,8 @@ private:
 
     QMenu * m_templateMenu = nullptr;
     QMenu * m_contextMenu = nullptr;
-    QToolBar * m_templateToolBar = nullptr;
-    GrpcLoader * m_grpcLoader = nullptr;
+    QPointer<QToolBar> m_templateToolBar;
+    QPointer<GrpcLoader> m_grpcLoader;
 
     QAction * m_actionRefresh = nullptr;
     QAction * m_actionAddNew = nullptr;
