@@ -2,7 +2,7 @@
 #define GRPCOBJECTTABLEMODEL_H
 
 #include <QAbstractTableModel>
-#include <stdexcept>
+#include <memory>
 
 class IBaseDataContainer;
 

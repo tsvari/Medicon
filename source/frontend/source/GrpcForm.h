@@ -2,12 +2,12 @@
 #define GRPCFORM_H
 
 #include <QWidget>
-#include <QTabBar>
-#include <QTabWidget>
 
 #include "GrpcObjectWrapper.hpp"
 
 class QEvent;
+class QTabBar;
+class QTabWidget;
 
 /**
  * @brief Base class for GRPC object forms with automatic widget binding

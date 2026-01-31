@@ -6,13 +6,7 @@
 #include <QVariant>
 #include <QFutureWatcher>
 
-#include <QMenu>
-#include <QToolBar>
-
 #include "JsonParameterFormatter.h"
-
-// GrpcLoader is declared in this header.
-#include "GrpcThreadWorker.h"
 
 class GrpcForm;
 class GrpcProxySortFilterModel;
@@ -30,7 +24,6 @@ class QStatusBar;
 class QMainWindow;
 class GrpcTableView;
 class GrpcLoader;
-class GrpcThreadWorker;
 class GrpcViewNavigator;
 
 /**
@@ -227,7 +220,7 @@ protected:
 
     QMenu * templateMenu(){return m_templateMenu;}
     QMenu * contextMenu(){return m_contextMenu;}
-    QToolBar * templateToolBar(){return m_templateToolBar.data();}
+    QToolBar * templateToolBar();
 
     int currentNavigatorPage(){return m_currentPage;}
     int maxPages(){return m_maxPages;}

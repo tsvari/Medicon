@@ -21,7 +21,6 @@
 #define SQLCONNECTION_H
 
 #include <SQLAPI.h>
-#include <memory>
 #include <string>
 #include <mutex>
 
