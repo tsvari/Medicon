@@ -14,6 +14,9 @@
 #include <QApplication>
 #include <QLineEdit>
 #include <QCheckBox>
+#include <QDateEdit>
+#include <QTimeEdit>
+#include <QDateTimeEdit>
 #include <QLabel>
 #include <QBuffer>
 #include <QImage>
@@ -119,6 +122,56 @@ public:
     QLabel * m_imageLabel = nullptr;
 };
 
+// Form implementation including date/time widgets
+class TestGrpcFormWithDateTime : public GrpcForm
+{
+    Q_OBJECT
+public:
+    TestGrpcFormWithDateTime(QWidget * parent = nullptr)
+        : GrpcForm(new GrpcObjectWrapper<MasterObject>(), nullptr, parent)
+    {
+        initializeForm();
+    }
+
+    void initializeForm() override
+    {
+        auto * wrapper = dynamic_cast<GrpcObjectWrapper<MasterObject>*>(objectWrapper());
+        if (!wrapper) return;
+
+        m_dateEdit = new QDateEdit(this);
+        m_dateEdit->setObjectName("date");
+
+        m_timeEdit = new QTimeEdit(this);
+        m_timeEdit->setObjectName("time");
+
+        m_dateTimeEdit = new QDateTimeEdit(this);
+        m_dateTimeEdit->setObjectName("date_time");
+
+        wrapper->addProperty("date", DataInfo::Date, &MasterObject::set_date, &MasterObject::date);
+        wrapper->addProperty("time", DataInfo::Time, &MasterObject::set_time, &MasterObject::time);
+        wrapper->addProperty("date_time", DataInfo::DateTime, &MasterObject::set_date_time, &MasterObject::date_time);
+
+        initilizeWidgets();
+
+        // Ensure wrapper has an object so fillObject() does work.
+        wrapper->setObject(defaultObject());
+    }
+
+    QVariant defaultObject() override
+    {
+        MasterObject obj;
+        obj.set_date(0);
+        obj.set_time(0);
+        obj.set_date_time(0);
+        return QVariant::fromValue(obj);
+    }
+
+public:
+    QDateEdit * m_dateEdit = nullptr;
+    QTimeEdit * m_timeEdit = nullptr;
+    QDateTimeEdit * m_dateTimeEdit = nullptr;
+};
+
 class GrpcFormTest : public Test
 {
 protected:
@@ -210,6 +263,31 @@ TEST_F(GrpcFormTest, FillPopulatesWidgetsFromModel)
     double salary = QLocale().toDouble(form.m_salaryEdit->text(), &ok);
     EXPECT_TRUE(ok) << "Failed to parse salary text: " << form.m_salaryEdit->text().toStdString();
     EXPECT_DOUBLE_EQ(salary, 50000.50);
+}
+
+TEST_F(GrpcFormTest, FillObjectReadsDateTimeWidgets)
+{
+    TestGrpcFormWithDateTime form;
+
+    const QDate date(2026, 1, 31);
+    const QTime time(12, 34, 56);
+    const QDateTime dateTime(date, time);
+
+    form.m_dateEdit->setDate(date);
+    form.m_timeEdit->setTime(time);
+    form.m_dateTimeEdit->setDateTime(dateTime);
+
+    form.fillObject();
+
+    const MasterObject obj = form.object().value<MasterObject>();
+
+    const qint64 expectedDateMs = QDateTime(date, QTime(0, 0)).toMSecsSinceEpoch();
+    const qint64 expectedTimeMs = QDateTime(QDate::currentDate(), time).toMSecsSinceEpoch();
+    const qint64 expectedDateTimeMs = dateTime.toMSecsSinceEpoch();
+
+    EXPECT_EQ(obj.date(), expectedDateMs);
+    EXPECT_EQ(obj.time(), expectedTimeMs);
+    EXPECT_EQ(obj.date_time(), expectedDateTimeMs);
 }
 
 TEST_F(GrpcFormTest, FillPopulatesImageLabelFromDataUrl)

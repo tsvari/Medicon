@@ -159,18 +159,19 @@ QVariant GrpcForm::widgetData(QWidget *widget, const DataInfo::Type & type)
         }
     } else if(QCheckBox * checkBox = qobject_cast<QCheckBox*>(widget)) {
         return checkBox->isChecked();
-    } else if(QDateEdit * dateEdit = qobject_cast<QDateEdit*>(widget);
-        QDateTimeEdit * dateTimeEdit = qobject_cast<QDateTimeEdit*>(widget)) {
-        QDateTime dateTime;
-        if(dateEdit) {
-            dateTime = dateEdit->dateTime();
-        } else {
-            dateTime = dateTimeEdit->dateTime();
+    } else if(QDateTimeEdit * dateTimeEdit = qobject_cast<QDateTimeEdit*>(widget)) {
+        // NOTE: QTimeEdit and QDateEdit inherit QDateTimeEdit, so handle the
+        // specific subclasses first.
+        if (QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(dateTimeEdit)) {
+            QDateTime dateTime(QDate::currentDate(), timeEdit->time());
+            return dateTime.toMSecsSinceEpoch();
         }
-        return dateTime.toSecsSinceEpoch();
-    } else if(QTimeEdit * timeEdit = qobject_cast<QTimeEdit*>(widget)) {
-        QDateTime dateTime(QDate::currentDate(), timeEdit->time());
-        return dateTime.toMSecsSinceEpoch();
+        if (QDateEdit * dateEdit = qobject_cast<QDateEdit*>(dateTimeEdit)) {
+            QDateTime dateTime(dateEdit->date(), QTime(0, 0));
+            return dateTime.toMSecsSinceEpoch();
+        }
+
+        return dateTimeEdit->dateTime().toMSecsSinceEpoch();
     } else if(QTextEdit * textEdit = qobject_cast<QTextEdit*>(widget)) {
         return textEdit->toPlainText();
     } else if (GrpcImagePickerWidget * picker = qobject_cast<GrpcImagePickerWidget *>(widget)) {
