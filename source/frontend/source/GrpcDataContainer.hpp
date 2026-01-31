@@ -10,6 +10,13 @@
 struct IBaseDataContainer {
     virtual ~IBaseDataContainer() = default;
 
+    /**
+     * @brief Creates an empty container instance of the same concrete type.
+     *
+     * Used to clear models generically without knowing the template parameter.
+     */
+    virtual std::unique_ptr<IBaseDataContainer> createEmpty() const = 0;
+
     virtual int propertyCount() const = 0;
     virtual int count() const = 0;
 
@@ -37,6 +44,11 @@ template<typename GrpcObject>
 class GrpcDataContainer : public IBaseDataContainer
 {
 public:
+    std::unique_ptr<IBaseDataContainer> createEmpty() const override
+    {
+        return std::make_unique<GrpcDataContainer<GrpcObject>>();
+    }
+
     // Use type aliases from shared helper
     using Grpc32Set = typename GrpcPropertyBinder<GrpcObject>::Grpc32Set;
     using Grpc32Get = typename GrpcPropertyBinder<GrpcObject>::Grpc32Get;

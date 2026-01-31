@@ -16,6 +16,7 @@
 
 class GrpcForm;
 class GrpcProxySortFilterModel;
+class GrpcObjectTableModel;
 class QAbstractItemView;
 class QTabWidget;
 class IBaseGrpcObjectWrapper;
@@ -50,6 +51,22 @@ signals:
     void populateModel(std::shared_ptr<IBaseDataContainer> container);
     void masterRowChanged(const QModelIndex & index);
 
+    /**
+     * @brief Requests clearing the underlying source model data.
+     *
+     * This is connected in the constructor to the source model's
+     * GrpcObjectTableModel::clearModelData().
+     */
+    void clearModelDataRequested();
+
+    /**
+     * @brief Emitted when this controller is about to start loading model data.
+     *
+     * This is emitted before launching @ref workerModelData.
+     * Useful for dependent controllers (e.g., slave templates) to clear stale data.
+     */
+    void loadingStarted();
+
     void showStatusMessage(const QString & message, int timeOut = 0);
 
     void startInsert();
@@ -73,6 +90,23 @@ signals:
 
 public slots:
     virtual void masterChanged(const QModelIndex & index);
+
+    /**
+     * @brief Clears the view selection, form and model data.
+     *
+     * This does not modify the master wrapper (if any).
+     */
+    void clearModel();
+
+    /**
+     * @brief Clears this controller's model when its master is reloading.
+     *
+     * Clears the table model immediately to avoid stale dependent rows.
+     * The form is cleared only when there is a valid master (for slave forms that
+     * require a master selection to build their default object).
+     */
+    void clearForMasterReload();
+
     void applySearchCriterias( const JsonParameterFormatter & searchCriterias);
     void showMenuAndToolbar();
     void hideMenuAndToolbar();

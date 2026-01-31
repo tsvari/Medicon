@@ -200,6 +200,14 @@ public slots:
      */
     void setModelData(std::shared_ptr<IBaseDataContainer> container);
 
+    /**
+     * @brief Clears the model by replacing its container data with an empty dataset.
+     *
+     * The concrete container type is preserved.
+     * @note Calls beginResetModel()/endResetModel()
+     */
+    void clearModelData();
+
 protected:
     friend class GrpcTemplateController;
     

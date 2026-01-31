@@ -31,6 +31,7 @@ GrpcTemplateController::GrpcTemplateController(GrpcProxySortFilterModel * proxyM
 
     GrpcObjectTableModel * sourceModel = qobject_cast<GrpcObjectTableModel*>(proxyModel->sourceModel());
     Q_ASSERT(sourceModel);
+    connect(this, &GrpcTemplateController::clearModelDataRequested, sourceModel, &GrpcObjectTableModel::clearModelData);
 
     // Init actions
     m_actionRefresh = new QAction(tr("&Refresh"), this);
@@ -243,6 +244,13 @@ void GrpcTemplateController::masterChanged(const QModelIndex & index)
 {
     // Will only be called in the slave template
     // A template can be both a master and a slave at the same time
+    if (!index.isValid()) {
+        m_masterObjectWrapper->setObject(QVariant());
+        emit clearModelDataRequested();
+        clearSelection();
+        return;
+    }
+
     m_masterObjectWrapper->setObject(index.data(GlobalRoles::VariantObjectRole));
     startLoadingData();
 }
@@ -253,10 +261,35 @@ void GrpcTemplateController::applySearchCriterias(const JsonParameterFormatter &
     startLoadingData();
 }
 
+void GrpcTemplateController::clearModel()
+{
+    emit clearModelDataRequested();
+    clearSelection();
+}
+
+void GrpcTemplateController::clearForMasterReload()
+{
+    emit clearModelDataRequested();
+
+    // Reset selection/state, but only clear the form if a valid master exists.
+    m_currentRow = -1;
+    m_state = Unselected;
+    updateState();
+    emit clearViewSelection();
+    if (!m_masterObjectWrapper || masterValid()) {
+        emit clearForm();
+    }
+    emit rowChanged(QModelIndex());
+}
+
 
 void GrpcTemplateController::currentChanged(const QModelIndex & current, const QModelIndex & previous)
 {
-    if(!current.isValid()) {
+    if (!current.isValid()) {
+        // Selection cleared (e.g., model reset). Reset UI state.
+        if (m_currentRow != -1 || m_state != Unselected) {
+            clearSelection();
+        }
         return;
     }
     if(current.row() != previous.row()) {
@@ -285,7 +318,9 @@ void GrpcTemplateController::clearSelection()
     m_state = Unselected;
     updateState();
     emit clearViewSelection();
-    emit clearForm();
+    if (!m_masterObjectWrapper || masterValid()) {
+        emit clearForm();
+    }
     emit rowChanged(QModelIndex());
 }
 
@@ -345,6 +380,7 @@ bool GrpcTemplateController::masterValid()
 
 void GrpcTemplateController::startLoadingData()
 {
+    emit loadingStarted();
     emit finishSave();
     emit clearForm();
     m_grpcLoader->showLoader(true);
