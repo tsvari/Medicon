@@ -327,8 +327,8 @@ TEST_F(SqlQueryTests, Query_StringWithSpecialChars_HandlesCorrectly)
     
     std::string sql = query.getSqlWithParameters();
     
-    // Verify the name with quote is in the SQL
-    EXPECT_NE(sql.find("O'Malley"), std::string::npos);
+    // Verify the name is correctly escaped in the SQL literal
+    EXPECT_NE(sql.find("O''Malley"), std::string::npos);
 }
 
 /**

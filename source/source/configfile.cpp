@@ -4,12 +4,39 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <algorithm>
+#include <cctype>
 #include <nlohmann/json.hpp>
 
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 using std::string;
 using std::map;
+
+namespace {
+string toLowerCopy(string s)
+{
+    std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) {
+        return static_cast<char>(std::tolower(c));
+    });
+    return s;
+}
+
+bool parseBool(string raw, bool& out)
+{
+    raw = toLowerCopy(raw);
+
+    if (raw == "true" || raw == "1" || raw == "yes" || raw == "on") {
+        out = true;
+        return true;
+    }
+    if (raw == "false" || raw == "0" || raw == "no" || raw == "off") {
+        out = false;
+        return true;
+    }
+    return false;
+}
+}
 
 // ============================================================================
 // ConfigFileBase Implementation
@@ -91,6 +118,38 @@ string ConfigFileBase::value(const char* key) const
     return m_jsonData.at(key);
 }
 
+string ConfigFileBase::valueOr(const char* key, string defaultValue) const
+{
+    if (!key) {
+        return defaultValue;
+    }
+    auto it = m_jsonData.find(key);
+    if (it == m_jsonData.end()) {
+        return defaultValue;
+    }
+    return it->second;
+}
+
+bool ConfigFileBase::boolValueOr(const char* key, bool defaultValue) const
+{
+    if (!key) {
+        return defaultValue;
+    }
+
+    auto it = m_jsonData.find(key);
+    if (it == m_jsonData.end()) {
+        return defaultValue;
+    }
+
+    bool parsed = false;
+    if (!parseBool(it->second, parsed)) {
+        std::ostringstream err;
+        err << "Config: Key '" << key << "' is not a valid boolean value: '" << it->second << "'";
+        throw std::runtime_error(err.str());
+    }
+    return parsed;
+}
+
 bool ConfigFileBase::contains(const char* key) const
 {
     return m_jsonData.contains(key);
@@ -115,13 +174,28 @@ void ConfigFileBase::load()
         throw std::runtime_error(err.str());
     }
 
-    try {
-        m_jsonData = doc.get<map<string, string>>();
-    } catch (const json::type_error& ex) {
+    if (!doc.is_object()) {
         std::ostringstream err;
-        err << "Config file must contain string key-value pairs: "
-            << m_configFilePath << " Error: " << ex.what();
+        err << "Config file must contain a JSON object at root: " << m_configFilePath;
         throw std::runtime_error(err.str());
+    }
+
+    m_jsonData.clear();
+    for (auto& [key, value] : doc.items()) {
+        if (value.is_string()) {
+            m_jsonData[key] = value.get<string>();
+        } else if (value.is_number_integer()) {
+            m_jsonData[key] = std::to_string(value.get<int64_t>());
+        } else if (value.is_number_float()) {
+            m_jsonData[key] = std::to_string(value.get<double>());
+        } else if (value.is_boolean()) {
+            m_jsonData[key] = value.get<bool>() ? "true" : "false";
+        } else if (value.is_null()) {
+            m_jsonData[key] = "NULL";
+        } else {
+            // Arrays/objects: serialize to string
+            m_jsonData[key] = value.dump();
+        }
     }
 }
 

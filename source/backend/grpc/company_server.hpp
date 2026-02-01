@@ -44,6 +44,31 @@ using CompanyEdit::TotalCount;
 
 // Logic and data behind the server's behavior.
 class CompanyServiceImpl final : public CompanyEditor::Service {
+public:
+    explicit CompanyServiceImpl(bool logSql) : m_logSql(logSql) {}
+
+private:
+    [[nodiscard]] bool shouldLogSql() const noexcept
+    {
+#if defined(NDEBUG)
+        return false;
+#else
+        return m_logSql;
+#endif
+    }
+
+    void logSqlOnError(const char* appletName, const std::string& sqlText) const
+    {
+        if (shouldLogSql()) {
+            LOG(INFO) << sqlText;
+        } else {
+            LOG(INFO) << "SQL applet: " << appletName;
+        }
+    }
+
+private:
+    bool m_logSql = false;
+
     Status AddCompany(ServerContext * context, const Company * company,
                     CompanyResult * result) override {
 
@@ -81,7 +106,7 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
             }
         } catch(SAException & x) {
             LOG(ERROR) << x.ErrText().GetMultiByteChars();
-            LOG(INFO) << sqlStd;
+            logSqlOnError("company_insert.xml", sqlStd);
             try {
                 con.rollback();
             }
@@ -147,7 +172,7 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
             }
         } catch(SAException & x) {
             LOG(ERROR) << x.ErrText().GetMultiByteChars();
-            LOG(INFO) << sqlStd;
+            logSqlOnError("company_update.xml", sqlStd);
             try {
                 con.rollback();
             }
@@ -198,7 +223,11 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
             }
         } catch(SAException & x) {
             LOG(ERROR) << x.ErrText().GetMultiByteChars();
-            LOG(INFO) << command.sql();
+            if (shouldLogSql()) {
+                LOG(INFO) << command.sql();
+            } else {
+                LOG(INFO) << "SQL applet: company_delete.xml";
+            }
             try {
                 con.rollback();
             }
@@ -253,7 +282,11 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
             }
         } catch(SAException & x) {
             LOG(ERROR) << x.ErrText().GetMultiByteChars();
-            LOG(INFO) << cmd.sql();
+            if (shouldLogSql()) {
+                LOG(INFO) << cmd.sql();
+            } else {
+                LOG(INFO) << "SQL applet: company_select.xml";
+            }
             try {
                 con.rollback();
             }
@@ -309,7 +342,11 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
             }
         } catch(SAException & x) {
             LOG(ERROR) << x.ErrText().GetMultiByteChars();
-            LOG(INFO) << cmd.sql();
+            if (shouldLogSql()) {
+                LOG(INFO) << cmd.sql();
+            } else {
+                LOG(INFO) << "SQL applet: company_select_by_uid.xml";
+            }
             try {
                 con.rollback();
             }
@@ -340,7 +377,11 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
             }
         } catch(SAException & x) {
             LOG(ERROR) << x.ErrText().GetMultiByteChars();
-            LOG(INFO) << cmd.sql();
+            if (shouldLogSql()) {
+                LOG(INFO) << cmd.sql();
+            } else {
+                LOG(INFO) << "SQL applet: company_count.xml";
+            }
             try {
                 con.rollback();
             }
@@ -360,9 +401,9 @@ class CompanyServiceImpl final : public CompanyEditor::Service {
     }
 };
 
-void RunCompanyServer(uint16_t port) {
+void RunCompanyServer(uint16_t port, bool logSql) {
     std::string server_address = absl::StrFormat("127.0.0.1:%d", port);
-    CompanyServiceImpl service;
+    CompanyServiceImpl service(logSql);
 
     grpc::EnableDefaultHealthCheckService(true);
     grpc::reflection::InitProtoReflectionServerBuilderPlugin();

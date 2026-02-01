@@ -4,6 +4,9 @@ project(BackendTestProject LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+include(CTest)
+enable_testing()
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -103,6 +106,10 @@ target_link_libraries(BackendTestProject
     sqlapi
     gtest::gtest
     easyloggingpp::easyloggingpp
+)
+
+gtest_discover_tests(BackendTestProject
+    DISCOVERY_TIMEOUT 60
 )
 
 IF(WIN32)

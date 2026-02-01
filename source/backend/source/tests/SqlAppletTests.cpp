@@ -6,6 +6,16 @@
 
 using std::string;
 
+namespace {
+class SqlAppletTestFixture : public ::testing::Test {
+protected:
+    void SetUp() override
+    {
+        SQLApplet::InitPathToApplets(ALL_BACKEND_TEST_APPDATA_PATH);
+    }
+};
+}
+
 // ============================================================================
 // Initialization Tests
 // ============================================================================
@@ -50,7 +60,7 @@ TEST(AppletTests, InitAppletsAndParseConfig)
 // SQL Generation Tests
 // ============================================================================
 
-TEST(AppletTests, SqlTest)
+TEST_F(SqlAppletTestFixture, SqlTest)
 {
 
     string input = "2007-01-20 10:11:12";
@@ -70,7 +80,7 @@ TEST(AppletTests, SqlTest)
     EXPECT_TRUE(applet.sql().find(actual) != std::string::npos);
 }
 
-TEST(AppletTests, SqlHybridDataTest)
+TEST_F(SqlAppletTestFixture, SqlHybridDataTest)
 {
 
     std::string input = "2007-01-20 10:11:12";
@@ -89,7 +99,7 @@ TEST(AppletTests, SqlHybridDataTest)
     EXPECT_TRUE(applet.sql().find(actual) != string::npos);
 }
 
-TEST(AppletTests, SqlOnliInnerDataTest)
+TEST_F(SqlAppletTestFixture, SqlOnliInnerDataTest)
 {
 
     string input = "2007-01-20 10:11:12";
@@ -322,7 +332,7 @@ TEST(AppletTests, SpecialCharactersInValue)
     });
     
     EXPECT_NO_THROW(applet.parse());
-    EXPECT_TRUE(applet.sql().find("O'Brien") != std::string::npos);
+    EXPECT_TRUE(applet.sql().find("O''Brien") != std::string::npos);
 }
 
 TEST(AppletTests, MultipleParseCalls)
