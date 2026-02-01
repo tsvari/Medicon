@@ -9,6 +9,25 @@ using std::map;
 namespace {
     static string AppletPath;
     static bool UseDefaultValue = false;
+
+    string escapeSqlStringLiteral(std::string_view input)
+    {
+        string out;
+        out.reserve(input.size() + 8);
+
+        for (char ch : input) {
+            if (ch == '\0') {
+                throw SQLAppletException("SQLApplet: string literal contains NUL character");
+            }
+            if (ch == '\'') {
+                out += "''";
+            } else {
+                out += ch;
+            }
+        }
+
+        return out;
+    }
     
     // Type mapping table
     const map<string, DataInfo::Type> xmlTypeToDataInfo = {
@@ -142,7 +161,11 @@ void SQLApplet::parse()
             ob.type == DataInfo::DateTime || 
             ob.type == DataInfo::Date || 
             ob.type == DataInfo::Time) {
-            value = (value != "NULL") ? ("'" + value + "'") : "NULL";
+            if (value != "NULL") {
+                value = "'" + escapeSqlStringLiteral(value) + "'";
+            } else {
+                value = "NULL";
+            }
         }
 
         // Replace all occurrences

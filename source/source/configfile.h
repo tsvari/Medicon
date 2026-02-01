@@ -53,6 +53,18 @@ public:
      * @throws std::out_of_range if key doesn't exist
      */
     virtual std::string value(const char* key) const;
+
+    /**
+     * @brief Get configuration value by key, or default if missing
+     */
+    virtual std::string valueOr(const char* key, std::string defaultValue) const;
+
+    /**
+     * @brief Parse a boolean configuration value, or return default if missing
+     *
+     * Accepts (case-insensitive): true/false, 1/0, yes/no, on/off.
+     */
+    virtual bool boolValueOr(const char* key, bool defaultValue = false) const;
     
     /**
      * @brief Get mutable reference to configuration value

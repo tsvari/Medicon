@@ -79,10 +79,8 @@ TEST_F(SqlCommandTests, AddParameter_StringWithQuotes_EscapesCorrectly)
     
     std::string sql = command.getSqlWithParameters();
     
-    // SQLApplet doesn't escape quotes - it passes them as-is
-    // The database driver handles escaping during execution
-    // So we should just verify the parameter is substituted
-    EXPECT_NE(sql.find("O'Brien"), std::string::npos) << "Parameter should be substituted";
+    // SQLApplet escapes single quotes for safe SQL literals (Postgres compatible)
+    EXPECT_NE(sql.find("O''Brien"), std::string::npos) << "Parameter should be substituted and escaped";
 }
 
 /**
