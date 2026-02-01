@@ -35,7 +35,8 @@ int main()
                                         config->value("user").c_str(),
                                         config->value("pass").c_str());
 
-    RunCompanyServer(12345);
+    const bool logSql = config->boolValueOr("log_sql", false);
+    RunCompanyServer(12345, logSql);
 
     return 0;
 }
