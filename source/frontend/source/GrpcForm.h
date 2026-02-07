@@ -159,6 +159,14 @@ protected:
      * @note Must be implemented by derived classes
      */
     virtual void initializeForm() = 0;
+
+    /**
+     * @brief Initializes and connects all form widgets
+     *
+     * @note Sets up validators, event filters, and change signals
+     * @note Must be called after widgets are created
+     */
+    void initilizeWidgets();
     
     /**
      * @brief Pure virtual method to provide default object
@@ -238,14 +246,6 @@ private:
      * @note Handles type-specific extraction and conversion
      */
     QVariant widgetData(QWidget * widget, const DataInfo::Type & type);
-    
-    /**
-     * @brief Initializes and connects all form widgets
-     * 
-     * @note Sets up validators, event filters, and change signals
-     * @note Must be called after widgets are created
-     */
-    void initilizeWidgets();
     
     /**
      * @brief Returns the tab bar containing this form

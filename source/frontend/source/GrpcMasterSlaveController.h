@@ -11,7 +11,6 @@ public:
     explicit GrpcMasterSlaveController(GrpcTemplateController * master, GrpcTemplateController * slave, QObject *parent = nullptr);
 
     void addMasterSlave(GrpcTemplateController * master, GrpcTemplateController * slave);
-
     struct MasterSlave {
         MasterSlave(GrpcTemplateController * master, GrpcTemplateController * slave)
             : master(master)
@@ -19,6 +18,14 @@ public:
         GrpcTemplateController * master = nullptr;
         GrpcTemplateController * slave = nullptr;
     };
+
+public slots:
+    /**
+     * @brief Clears all linked templates (masters first), propagating resets to slaves.
+     *
+     * This calls GrpcTemplateController::clearModel() on each unique master controller.
+     */
+    void clearAll();
 
 private slots:
     void hideAllMenuToolbars(GrpcTemplateController * controller);

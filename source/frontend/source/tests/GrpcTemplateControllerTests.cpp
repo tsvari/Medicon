@@ -10,6 +10,8 @@
 #include "GrpcObjectWrapper.hpp"
 #include "TestSharedUtility.h"
 
+#include "GrpcViewNavigator.h"
+
 #include <QApplication>
 #include <QCoreApplication>
 #include <QElapsedTimer>
@@ -129,6 +131,11 @@ public:
 
     int workerModelDataCalls = 0;
     QStringList validityErrors;
+
+    int currentPageForTest()
+    {
+        return currentNavigatorPage();
+    }
 
 protected:
     void workerModelData() override
@@ -256,6 +263,22 @@ TEST_F(GrpcTemplateControllerFixture, ConstructorCreatesStandardActions)
     EXPECT_FALSE(edit->isEnabled());
     EXPECT_FALSE(del->isEnabled());
     EXPECT_FALSE(save->isEnabled());
+}
+
+TEST_F(GrpcTemplateControllerFixture, ClearModelResetsNavigator)
+{
+    GrpcViewNavigator navigator;
+    controller->addNavigator(&navigator);
+
+    navigator.addPages(3);
+    navigator.selectPage(2);
+    ASSERT_EQ(navigator.currentPage(), 2);
+
+    controller->clearModel();
+    QCoreApplication::processEvents();
+
+    EXPECT_EQ(navigator.currentPage(), -1);
+    EXPECT_EQ(controller->currentPageForTest(), 1);
 }
 
 TEST_F(GrpcTemplateControllerFixture, AddNewTransitionsToInsertState)
