@@ -246,6 +246,8 @@ void GrpcTemplateController::masterChanged(const QModelIndex & index)
     if (!index.isValid()) {
         m_masterObjectWrapper->setObject(QVariant());
         emit clearModelDataRequested();
+        m_currentPage = 1;
+        emit navigatorRecordCount(0);
         clearSelection();
         return;
     }
@@ -263,12 +265,16 @@ void GrpcTemplateController::applySearchCriterias(const JsonParameterFormatter &
 void GrpcTemplateController::clearModel()
 {
     emit clearModelDataRequested();
+    m_currentPage = 1;
+    emit navigatorRecordCount(0);
     clearSelection();
 }
 
 void GrpcTemplateController::clearForMasterReload()
 {
     emit clearModelDataRequested();
+    m_currentPage = 1;
+    emit navigatorRecordCount(0);
 
     // Reset selection/state, but only clear the form if a valid master exists.
     m_currentRow = -1;

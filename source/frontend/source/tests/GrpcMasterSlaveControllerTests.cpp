@@ -233,6 +233,18 @@ TEST_F(GrpcMasterSlaveControllerFixture, MasterRowChangedPropagatesToSlaveMaster
     EXPECT_EQ(received.column(), index.column());
 }
 
+TEST_F(GrpcMasterSlaveControllerFixture, ClearAllClearsMasterSelectionAndPropagatesToSlave)
+{
+    QSignalSpy spy(slave.controller.get(), SIGNAL(masterRowChanged(QModelIndex)));
+
+    msController->clearAll();
+    QCoreApplication::processEvents();
+
+    ASSERT_GE(spy.count(), 1);
+    const QModelIndex received = spy.takeFirst().at(0).value<QModelIndex>();
+    EXPECT_FALSE(received.isValid());
+}
+
 TEST_F(GrpcMasterSlaveControllerFixture, ShowingMasterMenuHidesSlaveMenu)
 {
     EXPECT_FALSE(master.controller->menuVisible());
