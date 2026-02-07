@@ -555,12 +555,11 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
 
         // Simulating waiting for a response from the server
         QThread::msleep(500);
-
+        std::vector<SlaveObject> filteredData;
         if(masterValid()) {
             QVariant varObject = masterVariantObject();
             MasterObject masterObject = varObject.value<MasterObject>();
-            std::vector<SlaveObject> filteredData,
-                slaveData = TestModelData::slaveData();
+            std::vector<SlaveObject> slaveData = TestModelData::slaveData();
 
             std::copy_if(slaveData.begin(), slaveData.end(), std::back_inserter(filteredData), [masterObject](const SlaveObject & ob) {
                 return ob.link_uid() == masterObject.uid();
@@ -571,14 +570,12 @@ public: explicit SlaveTemplate(GrpcProxySortFilterModel * proxyModel, GrpcTableV
                     std::move(filteredData)
                     )
                 );
-        } else {
-            std::vector<SlaveObject> filteredData;
-            emit populateModel(
-                std::make_shared<GrpcDataContainer<SlaveObject>>(
-                    std::move(filteredData)
-                    )
-                );
         }
+        emit populateModel(
+            std::make_shared<GrpcDataContainer<SlaveObject>>(
+                std::move(filteredData)
+                )
+            );
     }
 
     bool masterValid() override {

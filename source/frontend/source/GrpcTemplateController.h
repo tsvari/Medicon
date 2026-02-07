@@ -146,6 +146,7 @@ public slots:
      * @brief Clears the view selection, form and model data.
      *
      * This does not modify the master wrapper (if any).
+      * If a navigator is attached, this also resets it (record count becomes 0).
      */
     void clearModel();
 

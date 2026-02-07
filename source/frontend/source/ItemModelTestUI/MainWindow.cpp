@@ -37,10 +37,12 @@ MainWindow::MainWindow(QWidget *parent)
     slaveTemplate->addActionBars(this, ui->mainMenuBar, ui->mainToolBar, ui->mainStatusBAr);
 
     // Master Slave Controller
-    new GrpcMasterSlaveController(masterTemplate, slaveTemplate, uiLifetime);
+    GrpcMasterSlaveController * masterSlaveController = new GrpcMasterSlaveController(masterTemplate, slaveTemplate, uiLifetime);
 
     masterTemplate->addSearchForm(ui->searchForm);
     connect(ui->searchButton, &QPushButton::clicked, ui->searchForm, &GrpcSearchForm::submit);
+    connect(ui->clearAllButton, &QPushButton::clicked, masterSlaveController, &GrpcMasterSlaveController::clearAll);
+
 
     GrpcTestLevelObjectTableModel * comboModel = new  GrpcTestLevelObjectTableModel(std::move(TestModelData::comboLevelData()), ui->levelCombo);
     ui->levelCombo->setModel(comboModel);

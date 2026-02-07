@@ -62,7 +62,7 @@
              </rect>
             </property>
            </widget>
-           <widget class="GrpcImagePickerWidget" name="imagePickerWidget">
+           <widget class="GrpcImagePickerWidget" name="imagePickerWidget" native="true">
             <property name="geometry">
              <rect>
               <x>400</x>
@@ -306,6 +306,19 @@
         </property>
         <property name="text">
          <string>Search</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="clearAllButton">
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>10</y>
+          <width>83</width>
+          <height>29</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Clear All</string>
         </property>
        </widget>
       </widget>
