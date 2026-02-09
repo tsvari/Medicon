@@ -1,11 +1,46 @@
 #include "include_frontend_util.h"
 
 #include <QVariant>
+#include <QDateTime>
 #include <QLocale>
-#include <chrono>
-#include <format>
 #include <iostream>
-#include <locale>
+
+namespace {
+
+QString stripSecondsFromQtTimeFormat(QString format)
+{
+    for (;;) {
+        int pos = format.indexOf("ss");
+        int len = 2;
+        if (pos < 0) {
+            pos = format.indexOf('s');
+            len = 1;
+        }
+        if (pos < 0) {
+            break;
+        }
+
+        if (pos > 0) {
+            const QChar prev = format.at(pos - 1);
+            if (prev == ':' || prev == '.' || prev == ' ') {
+                format.remove(pos - 1, len + 1);
+                continue;
+            }
+        }
+        format.remove(pos, len);
+    }
+
+    while (format.contains("::")) {
+        format.replace("::", ":");
+    }
+    while (format.contains("..")) {
+        format.replace("..", ".");
+    }
+
+    return format.trimmed();
+}
+
+}
 
 namespace FrontConverter {
 QString to_str(const std::string & source) {
@@ -69,26 +104,25 @@ QVariant to_qvariant_by_type(const QVariant & qVariantData, DataInfo::Type type)
     case DataInfo::DateTimeNoSec:
     case DataInfo::Date:
     case DataInfo::Time: {
-        using namespace std::chrono;
-        milliseconds ms_since_epoch{qVariantData.toLongLong()};
-        sys_seconds tp_s = time_point_cast<seconds>(sys_time<milliseconds>{ms_since_epoch});
-        std::chrono::zoned_time local{std::chrono::current_zone(), tp_s};
-        std::locale loc(""); // system locale
-        if(type == DataInfo::Date) {
-            retData = std::format(loc, "{:L%x}", local);
-        } else if(type == DataInfo::Time) {
-            retData = std::format(loc, "{:L%X}", local);
-        } else if(type == DataInfo::DateTime) {
-            retData = std::format(loc, "{:L%c}", local);
-        } else if(type == DataInfo::DateTimeNoSec) {
-            retData = std::format(loc, "{:L%c}", local); // full locale date+time
-            // Find last colon (start of seconds field in time portion)
-            auto pos = retData.rfind(':');
-            if (pos != std::string::npos && pos + 3 <= retData.size()) {
-                retData.erase(pos, 3);  // erase ":ss"
-            }
+        const QLocale locale = QLocale::system();
+        const qint64 msSinceEpoch = qVariantData.toLongLong();
+
+        const QDateTime utc = QDateTime::fromMSecsSinceEpoch(msSinceEpoch, Qt::UTC);
+        const QDateTime local = utc.toLocalTime();
+
+        if (type == DataInfo::Date) {
+            return locale.toString(local.date(), QLocale::ShortFormat);
         }
-        return QString::fromStdString(retData);
+        if (type == DataInfo::Time) {
+            return locale.toString(local.time(), QLocale::ShortFormat);
+        }
+        if (type == DataInfo::DateTime) {
+            return locale.toString(local, QLocale::ShortFormat);
+        }
+
+        QString fmt = locale.dateTimeFormat(QLocale::ShortFormat);
+        fmt = stripSecondsFromQtTimeFormat(std::move(fmt));
+        return locale.toString(local, fmt);
     }
     default:
         return qVariantData;
