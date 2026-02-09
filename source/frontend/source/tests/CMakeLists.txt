@@ -87,6 +87,7 @@ add_executable(FrontendTestProject
     ${SOURCE_FILES}
 
     GrpcObjectTableModelTests.cpp
+    IncludeFrontendUtilTests.cpp
     GrpcDataContainerTests.cpp
     GrpcObjectWrapperTests.cpp
     TestSharedUtilityTests.cpp
