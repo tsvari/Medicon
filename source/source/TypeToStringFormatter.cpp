@@ -16,20 +16,34 @@ using std::string_view;
 namespace timeFormatter {
 
 string toString(std::chrono::milliseconds timePoint, DataInfo::Type type) {
-    auto seconds = std::chrono::floor<std::chrono::seconds>(
-        std::chrono::sys_time<std::chrono::milliseconds>{timePoint}
-        );
-
     try {
+        using namespace std::chrono;
+
+        const sys_time<milliseconds> tpMs{timePoint};
+        const auto tpSec = floor<seconds>(tpMs);
+
+        const auto dayPoint = floor<days>(tpSec);
+        const year_month_day ymd{dayPoint};
+        const hh_mm_ss timeOfDay{tpSec - dayPoint};
+
+        const int year = int(ymd.year());
+        const unsigned month = unsigned(ymd.month());
+        const unsigned day = unsigned(ymd.day());
+        const auto hours = timeOfDay.hours().count();
+        const auto minutes = timeOfDay.minutes().count();
+        const auto secs = timeOfDay.seconds().count();
+
         switch (type) {
         case DataInfo::DateTime:
-            return std::format("{:%Y-%m-%d %H:%M:%S}", seconds);
+            return std::format("{:04}-{:02}-{:02} {:02}:{:02}:{:02}",
+                               year, month, day, hours, minutes, secs);
         case DataInfo::DateTimeNoSec:
-            return std::format("{:%Y-%m-%d %H:%M}", seconds);
+            return std::format("{:04}-{:02}-{:02} {:02}:{:02}",
+                               year, month, day, hours, minutes);
         case DataInfo::Date:
-            return std::format("{:%Y-%m-%d}", seconds);
+            return std::format("{:04}-{:02}-{:02}", year, month, day);
         case DataInfo::Time:
-            return std::format("{:%H:%M:%S}", seconds);
+            return std::format("{:02}:{:02}:{:02}", hours, minutes, secs);
         default:
             throw FormatterException(ERR_WRONG_DATE_TIME_TYPE);
         }
