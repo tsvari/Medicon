@@ -77,7 +77,11 @@ TEST_F(SqlAppletTestFixture, SqlTest)
     string actual = "Money=122.123000,Height=175,BirthTime='10:11:12',WholeDateTime='2007-01-20 10:11:12',BirthDate='2007-01-20',Name='Givi'";
 
     EXPECT_NO_THROW(applet.parse());
-    EXPECT_TRUE(applet.sql().find(actual) != std::string::npos);
+    // sql() now returns parameterized SQL with :name markers; use getDebugSql() for human-readable check
+    EXPECT_TRUE(applet.getDebugSql().find(actual) != std::string::npos);
+    // Verify parameterized SQL has markers, not inline values
+    EXPECT_TRUE(applet.sql().find(":Money") != std::string::npos);
+    EXPECT_TRUE(applet.sql().find(":Name") != std::string::npos);
 }
 
 TEST_F(SqlAppletTestFixture, SqlHybridDataTest)
@@ -95,8 +99,8 @@ TEST_F(SqlAppletTestFixture, SqlHybridDataTest)
     string actual = "Money=122.123000,Height=175,BirthTime='10:11:12',WholeDateTime='2007-01-20 10:11:12',BirthDate='2007-01-20',Name='Givi'";
     EXPECT_NO_THROW(applet.parse());
 
-    string expected = applet.sql();
-    EXPECT_TRUE(applet.sql().find(actual) != string::npos);
+    string expected = applet.getDebugSql();
+    EXPECT_TRUE(applet.getDebugSql().find(actual) != string::npos);
 }
 
 TEST_F(SqlAppletTestFixture, SqlOnliInnerDataTest)
@@ -114,12 +118,11 @@ TEST_F(SqlAppletTestFixture, SqlOnliInnerDataTest)
                                 {"Name", "Givi"}
                                  });
 
-    // Data with quotes
+    // Data with quotes (debug SQL shows escaped values for logging)
     string actual = "Money=122.123000,Height=175,BirthTime='10:11:12',WholeDateTime='2007-01-20 10:11:12',BirthDate='2007-01-20',Name='Givi'";
     EXPECT_NO_THROW(applet.parse());
 
-    string expected = applet.sql();
-    EXPECT_TRUE(applet.sql().find(actual) != string::npos);
+    EXPECT_TRUE(applet.getDebugSql().find(actual) != string::npos);
 }
 
 // ============================================================================
@@ -135,7 +138,7 @@ TEST(AppletTests, SqlDefaultDataTest)
     SQLApplet applet("test.xml");
 
     EXPECT_NO_THROW(applet.parse());
-    EXPECT_TRUE(applet.sql().find(actual) != string::npos);
+    EXPECT_TRUE(applet.getDebugSql().find(actual) != string::npos);
 }
 
 // ============================================================================
@@ -282,7 +285,7 @@ TEST(AppletTests, ConstructorWithJsonParameters)
     
     SQLApplet applet("test.xml", jsonParams);
     EXPECT_NO_THROW(applet.parse());
-    EXPECT_TRUE(applet.sql().find("JsonUser") != std::string::npos);
+    EXPECT_TRUE(applet.getDebugSql().find("'JsonUser'") != std::string::npos);
 }
 
 // ============================================================================
@@ -302,8 +305,8 @@ TEST(AppletTests, NullStringValue)
     });
     
     EXPECT_NO_THROW(applet.parse());
-    std::string sql = applet.sql();
-    EXPECT_TRUE(sql.find("Name=NULL") != std::string::npos);
+    // In parameterized SQL, NULL value means the :Name marker is bound as null, not inlined
+    EXPECT_TRUE(applet.getDebugSql().find("Name=NULL") != std::string::npos);
 }
 
 // ============================================================================
@@ -332,7 +335,10 @@ TEST(AppletTests, SpecialCharactersInValue)
     });
     
     EXPECT_NO_THROW(applet.parse());
-    EXPECT_TRUE(applet.sql().find("O''Brien") != std::string::npos);
+    // Debug SQL should show proper escaping for O'Brien
+    EXPECT_TRUE(applet.getDebugSql().find("O''Brien") != std::string::npos);
+    // Parameterized SQL should have :Name marker, not inline value
+    EXPECT_TRUE(applet.sql().find(":Name") != std::string::npos);
 }
 
 TEST(AppletTests, MultipleParseCalls)
@@ -364,16 +370,118 @@ TEST(AppletTests, ParameterSubstitution)
     
     applet.parse();
     
+    // Parameterized SQL uses :name markers (SQLAPI++ format), not inline values
     std::string sql = applet.sql();
-    EXPECT_TRUE(sql.find("999.99") != std::string::npos);
-    EXPECT_TRUE(sql.find("200") != std::string::npos);
-    EXPECT_TRUE(sql.find("12:34:56") != std::string::npos);
-    EXPECT_TRUE(sql.find("2000-01-01 00:00:00") != std::string::npos);
-    EXPECT_TRUE(sql.find("2000-01-01") != std::string::npos);
-    EXPECT_TRUE(sql.find("CustomName") != std::string::npos);
+    EXPECT_TRUE(sql.find(":Money") != std::string::npos);
+    EXPECT_TRUE(sql.find(":Height") != std::string::npos);
+    EXPECT_TRUE(sql.find(":BirthTime") != std::string::npos);
+    EXPECT_TRUE(sql.find(":WholeDateTime") != std::string::npos);
+    EXPECT_TRUE(sql.find(":BirthDate") != std::string::npos);
+    EXPECT_TRUE(sql.find(":Name") != std::string::npos);
     
-    // Ensure placeholders are replaced
+    // Ensure old :Name: placeholders are replaced
     EXPECT_FALSE(sql.find(":Money:") != std::string::npos);
     EXPECT_FALSE(sql.find(":Name:") != std::string::npos);
+    
+    // Debug SQL should contain the actual values for logging
+    std::string debugSql = applet.getDebugSql();
+    EXPECT_TRUE(debugSql.find("999.99") != std::string::npos);
+    EXPECT_TRUE(debugSql.find("200") != std::string::npos);
+    EXPECT_TRUE(debugSql.find("'12:34:56'") != std::string::npos);
+    EXPECT_TRUE(debugSql.find("'CustomName'") != std::string::npos);
+}
+
+// ============================================================================
+// SQL Injection Prevention Tests
+// ============================================================================
+
+TEST(AppletTests, IsValidIdentifier_ValidNames)
+{
+    EXPECT_TRUE(SQLApplet::isValidIdentifier("id"));
+    EXPECT_TRUE(SQLApplet::isValidIdentifier("user_name"));
+    EXPECT_TRUE(SQLApplet::isValidIdentifier("_private"));
+    EXPECT_TRUE(SQLApplet::isValidIdentifier("COLUMN1"));
+    EXPECT_TRUE(SQLApplet::isValidIdentifier("camelCase"));
+    EXPECT_TRUE(SQLApplet::isValidIdentifier("a")); // single char
+}
+
+TEST(AppletTests, IsValidIdentifier_InvalidNames)
+{
+    // SQL injection attempts via identifiers
+    EXPECT_FALSE(SQLApplet::isValidIdentifier("1;DROP TABLE users;--"));
+    EXPECT_FALSE(SQLApplet::isValidIdentifier("name' OR '1'='1"));
+    EXPECT_FALSE(SQLApplet::isValidIdentifier("name; DELETE FROM users"));
+    EXPECT_FALSE(SQLApplet::isValidIdentifier("1name"));       // starts with digit
+    EXPECT_FALSE(SQLApplet::isValidIdentifier(""));             // empty
+    EXPECT_FALSE(SQLApplet::isValidIdentifier("col umn"));      // space
+    EXPECT_FALSE(SQLApplet::isValidIdentifier("col-umn"));      // hyphen
+    EXPECT_FALSE(SQLApplet::isValidIdentifier("col.umn"));      // dot
+    EXPECT_FALSE(SQLApplet::isValidIdentifier("col\"umn"));     // double quote
+    EXPECT_FALSE(SQLApplet::isValidIdentifier("col'umn"));      // single quote
+    EXPECT_FALSE(SQLApplet::isValidIdentifier(std::string(64, 'a'))); // too long (>63)
+}
+
+TEST(AppletTests, SqlInjection_StringParameter_NotInlined)
+{
+    // Verify that string parameters are NOT inlined in parameterized SQL
+    SQLApplet::InitPathToApplets(ALL_BACKEND_TEST_APPDATA_PATH);
+    SQLApplet applet("test.xml", {{"Money", "100"}, {"Height", "180"},
+                                  {"BirthTime", "10:11:12"}, {"WholeDateTime", "2007-01-20 10:11:12"},
+                                  {"BirthDate", "2007-01-20"}});
+    // SQL injection attempt via string parameter
+    applet.addParameter("Name", "Givi' OR '1'='1");
+    
+    EXPECT_NO_THROW(applet.parse());
+    
+    // Parameterized SQL must NOT contain the injected value inline
+    std::string paramSql = applet.sql();
+    EXPECT_FALSE(paramSql.find("Givi' OR '1'='1") != std::string::npos)
+        << "SQL injection string must NOT appear in parameterized SQL!";
+    EXPECT_TRUE(paramSql.find(":Name") != std::string::npos)
+        << "Parameter must be represented as a :Name marker, not inline value";
+    
+    // Debug SQL should still show the escaped value (safe for logging)
+    std::string debugSql = applet.getDebugSql();
+    EXPECT_TRUE(debugSql.find("Givi'' OR ''1''=''1") != std::string::npos)
+        << "Debug SQL should show escaped version of the value";
+}
+
+TEST(AppletTests, SqlInjection_NumericParameter_NotStringInjection)
+{
+    // Verify that passing a string to a NUMERIC parameter won't allow injection
+    SQLApplet::InitPathToApplets(ALL_BACKEND_TEST_APPDATA_PATH);
+    SQLApplet applet("test.xml", {{"Height", "180"},
+                                  {"BirthTime", "10:11:12"}, {"WholeDateTime", "2007-01-20 10:11:12"},
+                                  {"BirthDate", "2007-01-20"}, {"Name", "Test"}});
+    // Attempt SQL injection via numeric parameter
+    applet.addParameter("Money", "1; DROP TABLE users;--");
+    
+    EXPECT_NO_THROW(applet.parse());
+    
+    // Parameterized SQL must use :name marker, not inline value
+    std::string paramSql = applet.sql();
+    EXPECT_TRUE(paramSql.find(":Money") != std::string::npos)
+        << "Numeric parameter must use :name marker";
+    EXPECT_FALSE(paramSql.find("DROP TABLE") != std::string::npos)
+        << "SQL injection attempt must NOT appear in parameterized SQL!";
+}
+
+TEST(AppletTests, ParamBindings_PopulatedAfterParse)
+{
+    SQLApplet::InitPathToApplets(ALL_BACKEND_TEST_APPDATA_PATH);
+    SQLApplet applet("test.xml", {{"Money", "100"}, {"Height", "180"},
+                                  {"BirthTime", "10:11:12"}, {"WholeDateTime", "2007-01-20 10:11:12"},
+                                  {"BirthDate", "2007-01-20"}, {"Name", "TestUser"}});
+    
+    EXPECT_TRUE(applet.paramBindings().empty());
+    applet.parse();
+    
+    // All 6 parameters should have bindings (none are FIELD type)
+    EXPECT_EQ(applet.paramBindings().size(), 6);
+    
+    // Check first binding
+    const auto& first = applet.paramBindings()[0];
+    EXPECT_FALSE(first.name.empty());
+    EXPECT_FALSE(first.value.empty());
 }
 

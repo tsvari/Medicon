@@ -84,13 +84,52 @@ private:
             applet.addParameter("JOINT_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->joint_date())), DataInfo::Date);
             applet.addParameter("LICENSE", company->license().c_str());
             applet.parse();
-            // To log if eror
-            sqlStd = applet.sql();
+            // Store debug SQL for logging on error
+            sqlStd = applet.getDebugSql();
 
-            SAString sql(sqlStd.c_str());
+            SAString sql(applet.sql().c_str());
             SACommand cmd(con.connectionSa(),  sql);
             con.connect();
             con.setAutoCommit(true);
+            
+            // Bind all SQLApplet parameters via Param() API (SQL injection safe)
+            for (const auto& binding : applet.paramBindings()) {
+                if (binding.value == "NULL") {
+                    cmd.Param(_TSA(binding.name.c_str())).setAsNull();
+                } else {
+                    switch (binding.type) {
+                        case DataInfo::Int: {
+                            if (binding.value.find('.') != std::string::npos) {
+                                cmd.Param(_TSA(binding.name.c_str())).setAsDouble() = std::stod(binding.value);
+                            } else {
+                                cmd.Param(_TSA(binding.name.c_str())).setAsLong() = std::stoll(binding.value);
+                            }
+                            break;
+                        }
+                        case DataInfo::Int64:
+                            cmd.Param(_TSA(binding.name.c_str())).setAsLong() = std::stoll(binding.value);
+                            break;
+                        case DataInfo::Double:
+                            cmd.Param(_TSA(binding.name.c_str())).setAsDouble() = std::stod(binding.value);
+                            break;
+                        case DataInfo::Bool: {
+                            bool b = (binding.value == "true" || binding.value == "1");
+                            cmd.Param(_TSA(binding.name.c_str())).setAsBool() = b;
+                            break;
+                        }
+                        case DataInfo::String:
+                        case DataInfo::DateTime:
+                        case DataInfo::DateTimeNoSec:
+                        case DataInfo::Date:
+                        case DataInfo::Time:
+                        default:
+                            cmd.Param(_TSA(binding.name.c_str())).setAsString() = SAString(binding.value.c_str());
+                            break;
+                    }
+                }
+            }
+            
+            // Bind binary logo parameter (not managed by SQLApplet)
             cmd.Param(_TSA("logo")).setAsLongBinary() = SaBinary::toSaString(company->logo());
             cmd.Execute();
 
@@ -148,13 +187,52 @@ private:
             applet.addParameter("JOINT_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->joint_date())), DataInfo::Date);
             applet.addParameter("LICENSE", company->license().c_str());
             applet.parse();
-            // To log if eror
-            sqlStd = applet.sql();
+            // Store debug SQL for logging on error
+            sqlStd = applet.getDebugSql();
 
-            SAString sql(sqlStd.c_str());
+            SAString sql(applet.sql().c_str());
             SACommand cmd(con.connectionSa(),  sql);
             con.connect();
             con.setAutoCommit(true);
+            
+            // Bind all SQLApplet parameters via Param() API (SQL injection safe)
+            for (const auto& binding : applet.paramBindings()) {
+                if (binding.value == "NULL") {
+                    cmd.Param(_TSA(binding.name.c_str())).setAsNull();
+                } else {
+                    switch (binding.type) {
+                        case DataInfo::Int: {
+                            if (binding.value.find('.') != std::string::npos) {
+                                cmd.Param(_TSA(binding.name.c_str())).setAsDouble() = std::stod(binding.value);
+                            } else {
+                                cmd.Param(_TSA(binding.name.c_str())).setAsLong() = std::stoll(binding.value);
+                            }
+                            break;
+                        }
+                        case DataInfo::Int64:
+                            cmd.Param(_TSA(binding.name.c_str())).setAsLong() = std::stoll(binding.value);
+                            break;
+                        case DataInfo::Double:
+                            cmd.Param(_TSA(binding.name.c_str())).setAsDouble() = std::stod(binding.value);
+                            break;
+                        case DataInfo::Bool: {
+                            bool b = (binding.value == "true" || binding.value == "1");
+                            cmd.Param(_TSA(binding.name.c_str())).setAsBool() = b;
+                            break;
+                        }
+                        case DataInfo::String:
+                        case DataInfo::DateTime:
+                        case DataInfo::DateTimeNoSec:
+                        case DataInfo::Date:
+                        case DataInfo::Time:
+                        default:
+                            cmd.Param(_TSA(binding.name.c_str())).setAsString() = SAString(binding.value.c_str());
+                            break;
+                    }
+                }
+            }
+            
+            // Bind binary logo parameter (not managed by SQLApplet)
             std::string logo = company->logo();
             cmd.Param(_TSA("logo")).setAsLongBinary() = SaBinary::toSaString(company->logo());
             cmd.Execute();
@@ -224,7 +302,7 @@ private:
         } catch(SAException & x) {
             LOG(ERROR) << x.ErrText().GetMultiByteChars();
             if (shouldLogSql()) {
-                LOG(INFO) << command.sql();
+                LOG(INFO) << command.getSqlWithParameters();
             } else {
                 LOG(INFO) << "SQL applet: company_delete.xml";
             }
@@ -283,7 +361,7 @@ private:
         } catch(SAException & x) {
             LOG(ERROR) << x.ErrText().GetMultiByteChars();
             if (shouldLogSql()) {
-                LOG(INFO) << cmd.sql();
+                LOG(INFO) << cmd.getSqlWithParameters();
             } else {
                 LOG(INFO) << "SQL applet: company_select.xml";
             }
@@ -343,7 +421,7 @@ private:
         } catch(SAException & x) {
             LOG(ERROR) << x.ErrText().GetMultiByteChars();
             if (shouldLogSql()) {
-                LOG(INFO) << cmd.sql();
+                LOG(INFO) << cmd.getSqlWithParameters();
             } else {
                 LOG(INFO) << "SQL applet: company_select_by_uid.xml";
             }
@@ -378,7 +456,7 @@ private:
         } catch(SAException & x) {
             LOG(ERROR) << x.ErrText().GetMultiByteChars();
             if (shouldLogSql()) {
-                LOG(INFO) << cmd.sql();
+                LOG(INFO) << cmd.getSqlWithParameters();
             } else {
                 LOG(INFO) << "SQL applet: company_count.xml";
             }

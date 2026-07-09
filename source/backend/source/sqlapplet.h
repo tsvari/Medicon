@@ -6,6 +6,7 @@
 #include <string>
 #include <string_view>
 #include <stdexcept>
+#include <vector>
 
 #include "include_util.h"
 #include "JsonParameterFormatter.h"
@@ -21,6 +22,7 @@ inline constexpr const char* APPLET_ERR_PARAM_NO_VALUE = "SQLApplet: Required pa
 inline constexpr const char* APPLET_ERR_PARAM_NO_CODE = "SQLApplet: SQL code block not found in applet XML";
 inline constexpr const char* APPLET_ERR_PARAM_XML = "SQLApplet: XML parsing error";
 inline constexpr const char* APPLET_ERR_WRONG_TYPE_NAME = "SQLApplet: Unknown parameter type. Valid types: FIELD, NUMERIC, STRING, DATETIME, DATE, TIME";
+inline constexpr const char* APPLET_ERR_INVALID_IDENTIFIER = "SQLApplet: FIELD parameter contains invalid SQL identifier characters";
 
 /**
  * @brief Exception for SQLApplet errors
@@ -64,6 +66,18 @@ private:
 class SQLApplet
 {
 public:
+    /**
+     * @brief Parameter binding info for SQLAPI++ Param() calls
+     * 
+     * Carries the parameter name, its formatted string value,
+     * and its declared type from the XML applet.
+     */
+    struct ParamBinding {
+        std::string name;
+        std::string value;       ///< Formatted string value (as would appear in SQL literal)
+        DataInfo::Type type;     ///< Declared parameter type from XML
+    };
+
     /**
      * @brief Construct SQLApplet with optional pre-formatted parameters
      * @param appletName Name of the XML applet file (relative to InitPathToApplets path)
@@ -135,12 +149,47 @@ public:
      * @brief Parse the XML applet and generate SQL with substituted parameters
      * @throws SQLAppletException if file not found, XML malformed, or required parameters missing
      * 
-     * Loads XML, validates parameters, substitutes placeholders (:name:) with values,
-     * and stores the result accessible via sql()
+     * Loads XML, validates parameters, and generates parameterized SQL:
+     * - FIELD type parameters are validated as SQL identifiers and substituted inline
+     * - All other types (STRING, NUMERIC, DATETIME, DATE, TIME) are replaced with
+     *   SQLAPI++ named parameter markers (:name) for safe binding via Param() API
      * 
      * @note Can be called multiple times, regenerates SQL each time
      */
     void parse();
+    
+    /**
+     * @brief Validate an SQL identifier (column name, table name, etc.)
+     * @param identifier The identifier string to validate
+     * @return true if the identifier is safe for SQL inline substitution
+     * 
+     * Allows: alphanumeric, underscore, starts with letter or underscore.
+     * PostgreSQL also allows quoted identifiers with any characters,
+     * but we require callers to use the unquoted safe form for FIELD params.
+     * Max length: 63 characters (PostgreSQL identifier limit).
+     */
+    [[nodiscard]] static bool isValidIdentifier(std::string_view identifier);
+    
+    /**
+     * @brief Get parameter bindings for SQLAPI++ Param() calls
+     * @return Vector of parameter name/value/type bindings
+     * 
+     * Only populated after parse() is called.
+     * FIELD type parameters that were validated and substituted inline
+     * are NOT included (they don't need binding).
+     */
+    [[nodiscard]] const std::vector<ParamBinding>& paramBindings() const noexcept { return m_paramBindings; }
+    
+    /**
+     * @brief Get human-readable SQL with all parameters substituted (for debugging/logging)
+     * @return SQL string with actual parameter values inlined
+     * 
+     * Unlike sql() which returns parameterized SQL with :name markers,
+     * this returns the fully substituted SQL suitable for human inspection.
+     * NOTE: This is for DEBUGGING ONLY. Do NOT use for execution — use
+     * sql() + paramBindings() with SACommand::Param() for safe execution.
+     */
+    [[nodiscard]] std::string getDebugSql() const;
     
     /**
      * @brief Get applet description
@@ -148,7 +197,10 @@ public:
     [[nodiscard]] const std::string& description() const noexcept { return m_description; }
     
     /**
-     * @brief Get generated SQL with substituted parameters
+     * @brief Get generated SQL with parameter markers
+     * 
+     * Returns SQL with :name markers for SQLAPI++ binding.
+     * FIELD type parameters are inlined (they cannot be parameterized).
      */
     [[nodiscard]] const std::string& sql() const noexcept { return m_sqlSource; }
     
@@ -168,6 +220,8 @@ private:
     std::string m_appletPath;
     std::string m_description;
     std::string m_sqlSource;
+    std::string m_debugSql;       ///< Human-readable SQL with all values inlined (for logging)
+    std::vector<ParamBinding> m_paramBindings; ///< Bindings for SQLAPI++ Param() after parse()
     bool m_isParsed = false;
 
 };

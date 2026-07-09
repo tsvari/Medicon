@@ -2,6 +2,7 @@
 #include "Markup/Markup.h"
 #include <format>
 #include <filesystem>
+#include <regex>
 
 using std::string;
 using std::map;
@@ -38,6 +39,11 @@ namespace {
         {"DATE", DataInfo::Date},
         {"TIME", DataInfo::Time}
     };
+    
+    // Regex for SQL identifier validation (unquoted identifiers only)
+    // Must start with letter or underscore, followed by alphanumeric or underscore
+    // Max 63 characters (PostgreSQL limit)
+    const std::regex SQL_IDENTIFIER_RE(R"(^[a-zA-Z_][a-zA-Z0-9_]{0,62}$)");
 }
 
 namespace fs = std::filesystem;
@@ -151,31 +157,90 @@ void SQLApplet::parse()
     }
     m_sqlSource = parser.GetChildData();
 
-    // Substitute parameters
+    // Clear previous bindings
+    m_paramBindings.clear();
+    
+    // Build debug SQL (fully substituted, for logging only)
+    m_debugSql = m_sqlSource;
+
+    // Process parameters: FIELD → validate+inline, all others → parameterize
     for (const DataInfo& ob : xmlDataInfoParams) {
         string placeholder = std::format(":{0}:", ob.param);
         string value = ob.value;
 
-        // Add quotes for string and date/time types
-        if (ob.type == DataInfo::String || 
-            ob.type == DataInfo::DateTime || 
-            ob.type == DataInfo::Date || 
-            ob.type == DataInfo::Time) {
-            if (value != "NULL") {
-                value = "'" + escapeSqlStringLiteral(value) + "'";
-            } else {
-                value = "NULL";
+        if (ob.type == DataInfo::Zero) {
+            // FIELD type: MUST be a valid SQL identifier (cannot be parameterized)
+            if (!isValidIdentifier(value)) {
+                throw SQLAppletException(std::format("{}: FIELD parameter '{}' value '{}' is not a valid SQL identifier",
+                                                     APPLET_ERR_INVALID_IDENTIFIER, ob.param, value));
             }
-        }
-
-        // Replace all occurrences
-        size_t pos = 0;
-        while ((pos = m_sqlSource.find(placeholder, pos)) != string::npos) {
-            m_sqlSource.replace(pos, placeholder.length(), value);
-            pos += value.length();
+            
+            // Substitute FIELD inline (identifiers cannot be parameterized in SQL)
+            size_t pos = 0;
+            while ((pos = m_sqlSource.find(placeholder, pos)) != string::npos) {
+                m_sqlSource.replace(pos, placeholder.length(), value);
+                pos += value.length();
+            }
+            
+            // Also substitute in debug SQL
+            pos = 0;
+            while ((pos = m_debugSql.find(placeholder, pos)) != string::npos) {
+                m_debugSql.replace(pos, placeholder.length(), value);
+                pos += value.length();
+            }
+        } else {
+            // Value types (STRING, NUMERIC, DATETIME, DATE, TIME):
+            // Use SQLAPI++ named parameter markers for safe binding
+            
+            // Build the SQLAPI++ parameter marker (single colon prefix)
+            string paramMarker = ":" + ob.param;
+            
+            // Store binding for later use by SACommand::Param()
+            m_paramBindings.push_back({ob.param, value, ob.type});
+            
+            // Replace :Name: with :Name in parameterized SQL
+            size_t pos = 0;
+            while ((pos = m_sqlSource.find(placeholder, pos)) != string::npos) {
+                m_sqlSource.replace(pos, placeholder.length(), paramMarker);
+                pos += paramMarker.length();
+            }
+            
+            // Build debug SQL with actual values inlined (for logging only)
+            string debugValue;
+            if (value == "NULL") {
+                debugValue = "NULL";
+            } else if (ob.type == DataInfo::String || 
+                       ob.type == DataInfo::DateTime || 
+                       ob.type == DataInfo::Date || 
+                       ob.type == DataInfo::Time) {
+                debugValue = "'" + escapeSqlStringLiteral(value) + "'";
+            } else {
+                // NUMERIC
+                debugValue = value;
+            }
+            
+            pos = 0;
+            while ((pos = m_debugSql.find(placeholder, pos)) != string::npos) {
+                m_debugSql.replace(pos, placeholder.length(), debugValue);
+                pos += debugValue.length();
+            }
         }
     }
     
     m_sqlSource = Trimmer::trim(m_sqlSource);
+    m_debugSql = Trimmer::trim(m_debugSql);
     m_isParsed = true;
+}
+
+bool SQLApplet::isValidIdentifier(std::string_view identifier)
+{
+    if (identifier.empty() || identifier.length() > 63) {
+        return false;
+    }
+    return std::regex_match(identifier.begin(), identifier.end(), SQL_IDENTIFIER_RE);
+}
+
+std::string SQLApplet::getDebugSql() const
+{
+    return m_debugSql;
 }

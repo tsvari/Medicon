@@ -50,12 +50,17 @@ TEST_F(SqlCommandTests, AddParameter_AllTypes_GeneratesCorrectSQL)
     // Should throw because connection is not established
     EXPECT_THROW(command.execute(), SAException);
 
-    // Verify parameter substitution
+    // Verify parameter substitution via debug SQL (human-readable, for logging)
     std::string expected = "Money=122.123000,Height=175,BirthTime='10:11:12',"
                           "WholeDateTime='2007-01-20 10:11:12',BirthDate='2007-01-20',Name='Givi'";
-    std::string actual = command.CommandText().GetMultiByteChars();
+    std::string actual = command.getSqlWithParameters();
 
     EXPECT_NE(actual.find(expected), std::string::npos);
+    
+    // Verify that CommandText contains parameterized SQL (with :name markers, not inline values)
+    std::string cmdText = command.CommandText().GetMultiByteChars();
+    EXPECT_NE(cmdText.find(":Money"), std::string::npos);
+    EXPECT_NE(cmdText.find(":Name"), std::string::npos);
 }
 
 /**

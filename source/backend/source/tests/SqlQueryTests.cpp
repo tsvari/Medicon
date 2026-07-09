@@ -297,14 +297,20 @@ TEST_F(SqlQueryTests, Query_BeforeExecution_GeneratesCorrectSQL)
     query.addParameter("BirthDate", sysSecs, DataInfo::Date);
     query.addParameter("Name", "Alice");
     
-    // Use getSqlWithParameters to get SQL without executing
+    // Use getSqlWithParameters to get debug SQL without executing
     std::string sql = query.getSqlWithParameters();
     
-    // Verify parameters are substituted
+    // Verify parameters are substituted in debug SQL
+    // NUMERIC values appear unquoted; STRING/DATE values appear quoted
     EXPECT_NE(sql.find("99.99"), std::string::npos);
     EXPECT_NE(sql.find("170"), std::string::npos);
-    EXPECT_NE(sql.find("Alice"), std::string::npos);
-    EXPECT_NE(sql.find("2007-01-20"), std::string::npos);
+    EXPECT_NE(sql.find("'Alice'"), std::string::npos);
+    EXPECT_NE(sql.find("'2007-01-20'"), std::string::npos);
+    
+    // Verify parameterized SQL has :name markers
+    std::string paramSql = query.sql();
+    EXPECT_NE(paramSql.find(":Money"), std::string::npos);
+    EXPECT_NE(paramSql.find(":Name"), std::string::npos);
 }
 
 /**
