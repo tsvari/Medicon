@@ -2,20 +2,8 @@
 # Set common compiler flags
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-# Platform-specific settings
-if(WIN32)
-    # Windows-specific settings
-    set(ALL_PROJECT_PATH "C:/projects/MediCon")
-elseif(APPLE)
-    # macOS-specific settings
-    set(ALL_PROJECT_PATH "")
-else()
-    # Linux or other Unix-like systems
-    set(ALL_PROJECT_PATH "/home/tsvari/Projects/Medicon")
-endif()
-
-# All project definations
-set(ALL_PROJECT_PATH ${ALL_PROJECT_PATH})
+# Derive project root from this file's location
+get_filename_component(ALL_PROJECT_PATH "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
 set(ALL_PROJECT_APPDATA_PATH ${ALL_PROJECT_PATH}/assets/app-data/)
 set(ALL_PROJECT_TEST_APPDATA_PATH ${ALL_PROJECT_PATH}/source/source/tests/app-data/)
 set(ALL_PROJECT_GRPC_PROTOS_PATH ${ALL_PROJECT_PATH}/source/grpc/protos/)
