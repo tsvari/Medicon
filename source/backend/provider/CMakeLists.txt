@@ -2,11 +2,6 @@ cmake_minimum_required(VERSION 3.16)
 
 project(provider LANGUAGES CXX)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 include(../../../source/cmake/global-settings.cmake)
 
 # Markup should compile with STL
@@ -22,26 +17,8 @@ add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")
 # Tests turn on/off
 set(BUILD_TESTS ON CACHE BOOL "If enabled, build 'provider' unit tests")
 
-# one level above CMAKE_CURRENT_SOURCE_DIR
-#get_filename_component(PARENT_CURRENT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}" DIRECTORY)
-
 # Import SQLAPI the prebuilt static library
-add_library(sqlapi STATIC IMPORTED)
-IF (WIN32)
-    include_directories(${BACKEND_THIRD_PARTY_DIR}/SQLAPI/windows/include)
-    # Set SQLAPI paths for debug and release configurations
-    set_target_properties(sqlapi PROPERTIES
-      IMPORTED_LOCATION_DEBUG "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/windows/vs2022/x86_64/lib/sqlapisd.lib"
-      IMPORTED_LOCATION_RELEASE "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/windows/vs2022/x86_64/lib/sqlapis.lib"
-    )
-ELSE()
-    include_directories(${BACKEND_THIRD_PARTY_DIR}/SQLAPI/linux/sqlapi-5.3.5/include)
-    # set stuff for other systems
-    set_target_properties(sqlapi PROPERTIES
-      IMPORTED_LOCATION_DEBUG "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/linux/sqlapi-5.3.5/lib/libsqlapi.a"
-      IMPORTED_LOCATION_RELEASE "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/linux/sqlapi-5.3.5/lib/libsqlapi.a"
-    )
-ENDIF()
+include(../../../source/cmake/sqlapi-config.cmake)
 
 set(HEADER_FILES
     ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.h
@@ -106,6 +83,9 @@ endif(WIN32)
 
 target_link_libraries(provider_lib
     PRIVATE
+        # Project-wide includes and definitions
+        medicon_global_includes
+
         # SQL API
         sqlapi
 

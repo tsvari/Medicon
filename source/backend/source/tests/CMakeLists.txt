@@ -2,13 +2,8 @@ cmake_minimum_required(VERSION 3.16)
 
 project(BackendTestProject LANGUAGES CXX)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 include(CTest)
 enable_testing()
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(../../../cmake/global-settings.cmake)
 
@@ -21,29 +16,8 @@ add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")
 set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVER_MODE PRE_TEST)
 include(GoogleTest)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-# sqlapi static
-add_compile_definitions(SA_STATIC_PQSQL)
-# Easylogging should compile with STL
-add_compile_definitions(ELPP_STL_LOGGING)
 # Import SQLAPI the prebuilt static library
-add_library(sqlapi STATIC IMPORTED)
-IF (WIN32)
-    include_directories(${BACKEND_THIRD_PARTY_DIR}/SQLAPI/windows/include)
-    # Set SQLAPI paths for debug and release configurations
-    set_target_properties(sqlapi PROPERTIES
-        IMPORTED_LOCATION_DEBUG "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/windows/vs2022/x86_64/lib/sqlapisd.lib"
-        IMPORTED_LOCATION_RELEASE "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/windows/vs2022/x86_64/lib/sqlapis.lib"
-    )
-ELSE()
-    include_directories(${BACKEND_THIRD_PARTY_DIR}/SQLAPI/linux/sqlapi-5.3.5/include)
-    # set stuff for other systems
-    set_target_properties(sqlapi PROPERTIES
-      IMPORTED_LOCATION_DEBUG "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/linux/sqlapi-5.3.5/lib/libsqlapi.a"
-      IMPORTED_LOCATION_RELEASE "${BACKEND_INCLUDE_DIR}/3party/SQLAPI/linux/sqlapi-5.3.5/lib/libsqlapi.a"
-    )
-ENDIF()
+include(../../../cmake/sqlapi-config.cmake)
 
 set(HEADER_FILES
     ${INCLUDE_DIR}/TypeToStringFormatter.h

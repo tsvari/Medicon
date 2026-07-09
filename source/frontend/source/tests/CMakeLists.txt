@@ -2,12 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(FrontendTestProject LANGUAGES CXX)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 enable_testing()
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(../../../cmake/global-settings.cmake)
 # Use project name in c++ code
@@ -26,8 +21,6 @@ find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 
 find_package(GTest REQUIRED)
-
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(TEST_DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/app-data/)
 include_directories(${TEST_DATA_DIR})

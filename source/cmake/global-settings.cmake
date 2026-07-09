@@ -1,7 +1,7 @@
 # global_settings.cmake
 # Set common compiler flags
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+include(${CMAKE_CURRENT_LIST_DIR}/compiler-settings.cmake)
 # Derive project root from this file's location
 get_filename_component(ALL_PROJECT_PATH "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
 set(ALL_PROJECT_APPDATA_PATH ${ALL_PROJECT_PATH}/assets/app-data/)
@@ -32,6 +32,15 @@ include_directories(${BACKEND_INCLUDE_DIR})
 include_directories(${BACKEND_THIRD_PARTY_DIR})
 include_directories(${BACKEND_GRPC_DIR})
 
+# SQLAPI headers — needed by most backend targets
+if(WIN32)
+    include_directories(${BACKEND_THIRD_PARTY_DIR}/SQLAPI/windows/include)
+elseif(UNIX AND NOT APPLE)
+    include_directories(${BACKEND_THIRD_PARTY_DIR}/SQLAPI/linux/sqlapi-5.3.5/include)
+else()
+    # unsupported platform — SQLAPI headers not available
+endif()
+
 set(ALL_BACKEND_PROJECT_PATH ${ALL_PROJECT_PATH}/source/backend/)
 set(ALL_BACKEND_TEST_APPDATA_PATH ${BACKEND_INCLUDE_DIR}/tests/app-data/)
 
@@ -55,18 +64,50 @@ add_definitions("-DALL_FRONTEND_PROJECT_PATH=\"${ALL_FRONTEND_PROJECT_PATH}\"")
 add_definitions("-DALL_FRONTEND_TEST_APPDATA_PATH=\"${ALL_FRONTEND_TEST_APPDATA_PATH}\"")
 add_definitions("-DFRONTEND_GRPC_DIR=\"${FRONTEND_GRPC_DIR}\"")
 
-#list(APPEND CMAKE_PREFIX_PATH ${ALL_PROJECT_PATH}/source/source/3party/grpc/build/windows/lib/cmake)
+# ============================================================================
+# medicon_global_includes — INTERFACE library bundling all project-wide
+# include directories and compile definitions for targets that opt in.
+# Targets can link this via: target_link_libraries(my_target PRIVATE medicon_global_includes)
+# ============================================================================
+add_library(medicon_global_includes INTERFACE)
+target_include_directories(medicon_global_includes INTERFACE
+    ${ALL_PROJECT_GRPC_CPP_SOURCE}
+    ${INCLUDE_DIR}
+    ${THIRD_PARTY_INCLUDE_DIR}
+    ${THIRD_PARTY_INCLUDE_DIR}/markup
+    ${THIRD_PARTY_INCLUDE_DIR}/json-develop/include
+    ${BACKEND_INCLUDE_DIR}
+    ${BACKEND_THIRD_PARTY_DIR}
+    ${BACKEND_GRPC_DIR}
+    ${BACKEND_THIRD_PARTY_DIR}/SQLAPI/windows/include
+    ${BACKEND_THIRD_PARTY_DIR}/SQLAPI/linux/sqlapi-5.3.5/include
+    ${FRONTEND_INCLUDE_DIR}
+    ${FRONTEND_THIRD_PARTY_DIR}
+    ${FRONTEND_GRPC_DIR}
+)
+target_compile_definitions(medicon_global_includes INTERFACE
+    ALL_PROJECT_PATH="${ALL_PROJECT_PATH}"
+    ALL_PROJECT_APPDATA_PATH="${ALL_PROJECT_APPDATA_PATH}"
+    ALL_PROJECT_TEST_APPDATA_PATH="${ALL_PROJECT_TEST_APPDATA_PATH}"
+    ALL_BACKEND_PROJECT_PATH="${ALL_BACKEND_PROJECT_PATH}"
+    ALL_BACKEND_TEST_APPDATA_PATH="${ALL_BACKEND_TEST_APPDATA_PATH}"
+    ALL_FRONTEND_PROJECT_PATH="${ALL_FRONTEND_PROJECT_PATH}"
+    ALL_FRONTEND_TEST_APPDATA_PATH="${ALL_FRONTEND_TEST_APPDATA_PATH}"
+    FRONTEND_GRPC_DIR="${FRONTEND_GRPC_DIR}"
+)
 
-IF (WIN32)
+if(WIN32)
     #if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         include_directories(${ALL_PROJECT_PATH}/source/source/3party/grpc/build/windows/Debug/include/)
         list(APPEND CMAKE_PREFIX_PATH ${THIRD_PARTY_INCLUDE_DIR}/grpc/build/windows/Debug/lib/cmake)
     #elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
         #list(APPEND CMAKE_PREFIX_PATH ${THIRD_PARTY_INCLUDE_DIR}/grpc/build/windows/Release/lib/cmake)
     #endif()
-ELSE()
+elseif(UNIX AND NOT APPLE)
     list(APPEND CMAKE_PREFIX_PATH ${THIRD_PARTY_INCLUDE_DIR}/grpc/build/linux/lib/cmake)
-ENDIF()
+else()
+    # unsupported platform — no gRPC prebuilt path
+endif()
 
 # This branch assumes that gRPC and all its dependencies are already installed
 # on this system, so they can be located by find_package().

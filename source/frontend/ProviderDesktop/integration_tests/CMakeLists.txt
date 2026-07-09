@@ -2,11 +2,6 @@ cmake_minimum_required(VERSION 3.16)
 
 project(FrontendIntegrationTests LANGUAGES CXX)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 include(../../../cmake/global-settings.cmake)
 # Use project name in c++ code
 add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")
@@ -24,14 +19,10 @@ find_package(gRPC CONFIG REQUIRED)
 
 find_package(GTest REQUIRED)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 set(TEST_DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/app-data/)
 include_directories(${TEST_DATA_DIR})
 add_definitions("-DTEST_DATA_DIR=\"${TEST_DATA_DIR}\"")
-
-
-set(HEADER_FILES
+HEADER_FILES
     ${INCLUDE_DIR}/include_util.h
     ${INCLUDE_DIR}/TypeToStringFormatter.h
     ${INCLUDE_DIR}/JsonParameterFormatter.h

@@ -2,11 +2,6 @@ cmake_minimum_required(VERSION 3.16)
 
 project(GlobalTestProject LANGUAGES CXX)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 include(../../cmake/global-settings.cmake)
 # Use project name in c++ code
 add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")
@@ -17,13 +12,9 @@ add_compile_definitions(MARKUP_STL)
 set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVER_MODE PRE_TEST)
 include(GoogleTest)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 set(HEADER_FILES
     ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.h
 
-    ${INCLUDE_DIR}/include_util.h
-    ${INCLUDE_DIR}/configfile.h
     ${INCLUDE_DIR}/TypeToStringFormatter.h
     ${INCLUDE_DIR}/JsonParameterFormatter.h
 )
