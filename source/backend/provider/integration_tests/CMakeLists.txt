@@ -1,18 +1,12 @@
+cmake_minimum_required(VERSION 3.16)
+
 set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVER_MODE PRE_TEST)
 include(GoogleTest)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(TEST_GENERATED_ROOT ${CMAKE_CURRENT_BINARY_DIR}/generated)
-file(MAKE_DIRECTORY ${TEST_GENERATED_ROOT})
-
 add_executable(integration_tests
     ConfigFileIntegrationTests.cpp
-)
-
-target_compile_definitions(integration_tests PRIVATE
-    TEST_GENERATED_ROOT="${TEST_GENERATED_ROOT}"
-    TEST_REFRERENCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/reference"
 )
 
 find_package(GTest REQUIRED)

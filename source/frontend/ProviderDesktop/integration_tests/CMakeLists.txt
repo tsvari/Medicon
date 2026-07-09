@@ -26,9 +26,6 @@ find_package(GTest REQUIRED)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(TEST_GENERATED_ROOT ${CMAKE_CURRENT_BINARY_DIR}/generated)
-file(MAKE_DIRECTORY ${TEST_GENERATED_ROOT})
-
 set(TEST_DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/app-data/)
 include_directories(${TEST_DATA_DIR})
 add_definitions("-DTEST_DATA_DIR=\"${TEST_DATA_DIR}\"")
@@ -96,12 +93,6 @@ add_executable(FrontendTestProject
     ${HEADER_FILES}
     ${SOURCE_FILES}
 )
-
-target_compile_definitions(FrontendTestProject PRIVATE
-    TEST_GENERATED_ROOT="${TEST_GENERATED_ROOT}"
-    TEST_REFRERENCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/reference"
-)
-
 
 target_link_libraries(FrontendTestProject
     PRIVATE

@@ -23,9 +23,6 @@ include(GoogleTest)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(TEST_GENERATED_ROOT ${CMAKE_CURRENT_BINARY_DIR}/generated)
-file(MAKE_DIRECTORY ${TEST_GENERATED_ROOT})
-
 # sqlapi static
 add_compile_definitions(SA_STATIC_PQSQL)
 # Easylogging should compile with STL
@@ -88,11 +85,6 @@ set(SOURCE_FILES
 add_executable(BackendTestProject
     ${HEADER_FILES}
     ${SOURCE_FILES}
-)
-
-target_compile_definitions(BackendTestProject PRIVATE
-    TEST_GENERATED_ROOT="${TEST_GENERATED_ROOT}"
-    TEST_REFRERENCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/reference"
 )
 
 # easylogging++
