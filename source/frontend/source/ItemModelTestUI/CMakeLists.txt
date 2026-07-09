@@ -6,7 +6,8 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-include(../../../cmake/global-settings.cmake)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake")
+include(global-settings)
 
 # Use project name in c++ code
 add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")

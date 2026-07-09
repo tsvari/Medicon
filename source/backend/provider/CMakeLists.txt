@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.16)
 
 project(provider LANGUAGES CXX)
 
-include(../../../source/cmake/global-settings.cmake)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake")
+include(global-settings)
 
 # Markup should compile with STL
 add_compile_definitions(MARKUP_STL)
@@ -18,7 +19,7 @@ add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")
 set(BUILD_TESTS ON CACHE BOOL "If enabled, build 'provider' unit tests")
 
 # Import SQLAPI the prebuilt static library
-include(../../../source/cmake/sqlapi-config.cmake)
+include(sqlapi-config)
 
 set(HEADER_FILES
     ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.h

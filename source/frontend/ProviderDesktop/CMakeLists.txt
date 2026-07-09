@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.19)
 project(ProviderDesktop LANGUAGES CXX)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../cmake")
+include(global-settings)
+
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
 
 qt_standard_project_setup()

@@ -5,7 +5,8 @@ project(BackendTestProject LANGUAGES CXX)
 include(CTest)
 enable_testing()
 
-include(../../../cmake/global-settings.cmake)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake")
+include(global-settings)
 
 # Markup should compile with STL
 add_compile_definitions(MARKUP_STL)
@@ -17,7 +18,7 @@ set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVER_MODE PRE_TEST)
 include(GoogleTest)
 
 # Import SQLAPI the prebuilt static library
-include(../../../cmake/sqlapi-config.cmake)
+include(sqlapi-config)
 
 set(HEADER_FILES
     ${INCLUDE_DIR}/TypeToStringFormatter.h

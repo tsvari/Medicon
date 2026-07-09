@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.16)
 
 project(GlobalTestProject LANGUAGES CXX)
 
-include(../../cmake/global-settings.cmake)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
+include(global-settings)
 # Use project name in c++ code
 add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")
 

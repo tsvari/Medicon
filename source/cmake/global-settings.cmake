@@ -2,6 +2,7 @@
 # Set common compiler flags
 
 include(${CMAKE_CURRENT_LIST_DIR}/compiler-settings.cmake)
+
 # Derive project root from this file's location
 get_filename_component(ALL_PROJECT_PATH "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
 set(ALL_PROJECT_APPDATA_PATH ${ALL_PROJECT_PATH}/assets/app-data/)
