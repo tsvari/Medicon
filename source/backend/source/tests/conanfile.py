@@ -1,11 +1,7 @@
-import os
 from conan import ConanFile
-from conan.tools.files import get, copy, download
-from conan.errors import ConanInvalidConfiguration
-from conan.tools.scm import Version
-from conan.tools.cmake import CMake, CMakeDeps, cmake_layout
+from conan.tools.cmake import cmake_layout, CMakeDeps
 
-class GlobalTestProject(ConanFile):
+class BackendTestProject(ConanFile):
     name = "BackendTestProject"
     version = "0.1.0"
     
@@ -14,8 +10,8 @@ class GlobalTestProject(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
  
     requires = (
-    "easyloggingpp/9.97.1",
-    "gtest/1.16.0"
+        "easyloggingpp/9.97.1",
+        "gtest/1.16.0"
     )
 
     generators = "CMakeToolchain"
@@ -25,4 +21,4 @@ class GlobalTestProject(ConanFile):
         deps.generate()
 
     def layout(self):
-       cmake_layout(self)
+        cmake_layout(self)
