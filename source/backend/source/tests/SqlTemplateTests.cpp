@@ -74,9 +74,7 @@ TEST(ColumnAllowListTest, ValidNames_ReturnsFormattedString)
 
 class SqlTemplateTest : public ::testing::Test {
 protected:
-    void SetUp() override {
-        SqlTemplate::setSearchPath(ALL_BACKEND_TEST_APPDATA_PATH);
-    }
+    // SqlTemplate now takes full paths — no setSearchPath needed
 };
 
 /**
@@ -84,7 +82,7 @@ protected:
  */
 TEST_F(SqlTemplateTest, LoadAndParseBasicFile)
 {
-    SqlTemplate tpl("test.sql");
+    SqlTemplate tpl(ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     EXPECT_NO_THROW(tpl.parse());
     EXPECT_TRUE(tpl.isParsed());
     EXPECT_NE(tpl.description().find("Query"), std::string::npos) << "description='" << tpl.description() << "'";
@@ -95,7 +93,7 @@ TEST_F(SqlTemplateTest, LoadAndParseBasicFile)
  */
 TEST_F(SqlTemplateTest, ParameterSubstitution_Basic)
 {
-    SqlTemplate tpl("test.sql");
+    SqlTemplate tpl(ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     tpl.addParameter("Money", 122.123);
     tpl.addParameter("Height", 175);
     tpl.addParameter("Name", "Givi");
@@ -118,7 +116,7 @@ TEST_F(SqlTemplateTest, ParameterSubstitution_Basic)
  */
 TEST_F(SqlTemplateTest, StringQuotes_EscapesCorrectly)
 {
-    SqlTemplate tpl("test.sql");
+    SqlTemplate tpl(ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     tpl.addParameter("Money", 100.0);
     tpl.addParameter("Height", 175);
     tpl.addParameter("Name", "O'Brien");
@@ -140,7 +138,7 @@ TEST_F(SqlTemplateTest, IdentifierSigil_InlinesColumn)
 {
     static constexpr ColumnAllowList<3> COLS({"UID", "NAME", "ADDRESS"});
 
-    SqlTemplate tpl("test.sql");
+    SqlTemplate tpl(ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     tpl.addParameter("Money", 100.0);
     tpl.addParameter("Height", 175);
     tpl.addParameter("Name", "O'Brien");
@@ -162,7 +160,7 @@ TEST_F(SqlTemplateTest, IdentifierSigil_InlinesColumn)
  */
 TEST_F(SqlTemplateTest, UnknownPlaceholder_Preserved)
 {
-    SqlTemplate tpl("test.sql");
+    SqlTemplate tpl(ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     // Don't add all required params — the unknown ones will use defaults
     // Actually test.sql requires certain params. Let's use a minimal approach:
     // The template has :Money etc. If we don't add them, defaults kick in.
@@ -178,17 +176,16 @@ TEST_F(SqlTemplateTest, UnknownPlaceholder_Preserved)
  */
 TEST_F(SqlTemplateTest, MissingFile_ThrowsException)
 {
-    SqlTemplate tpl("nonexistent.sql");
+    SqlTemplate tpl(ALL_BACKEND_TEST_APPDATA_PATH "nonexistent.sql");
     EXPECT_THROW(tpl.parse(), SqlTemplateException);
 }
 
 /**
- * @test Verify SqlTemplate path resolution with setSearchPath
+ * @test Verify SqlTemplate constructs with explicit full path
  */
-TEST_F(SqlTemplateTest, SearchPathResolvesRelativePath)
+TEST_F(SqlTemplateTest, ExplicitFullPath_ConstructsCorrectly)
 {
-    // Clear search path and use absolute path directly
-    SqlTemplate tpl("test.sql");
+    SqlTemplate tpl(ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     EXPECT_NO_THROW(tpl.parse());
 }
 
@@ -201,7 +198,7 @@ TEST_F(SqlTemplateTest, FormattedParamsConstructor_InitializesCorrectly)
         {"Money", "100.0"}, {"Height", "180"}, {"Name", "Test"}
     };
     // Need all params from test.sql — use empty map and expect default values
-    SqlTemplate tpl("test.sql", std::map<std::string, std::string>());
+    SqlTemplate tpl(ALL_BACKEND_TEST_APPDATA_PATH "test.sql", std::map<std::string, std::string>());
     EXPECT_NO_THROW(tpl.parse());
 }
 
@@ -213,7 +210,7 @@ TEST_F(SqlTemplateTest, DebugSql_FormatsTypesCorrectly)
     std::string input = "2007-01-20 10:11:12";
     auto sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
-    SqlTemplate tpl("test.sql");
+    SqlTemplate tpl(ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     tpl.addParameter("Money", 99.99);
     tpl.addParameter("Height", 42);
     tpl.addParameter("BirthDate", sysSecs, DataInfo::Date);
@@ -229,3 +226,4 @@ TEST_F(SqlTemplateTest, DebugSql_FormatsTypesCorrectly)
     EXPECT_NE(debug.find("'2007-01-20'"), std::string::npos);
     EXPECT_NE(debug.find("'Hello'"), std::string::npos);
 }
+

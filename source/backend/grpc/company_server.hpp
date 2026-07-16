@@ -46,7 +46,17 @@ using CompanyEdit::TotalCount;
 // Logic and data behind the server's behavior.
 class CompanyServiceImpl final : public CompanyEditor::Service {
 public:
-    explicit CompanyServiceImpl(bool logSql) : m_logSql(logSql) {}
+    explicit CompanyServiceImpl(bool logSql,
+                                const std::string& appletPath,
+                                const std::string& dbHost,
+                                const std::string& dbUser,
+                                const std::string& dbPass)
+        : m_logSql(logSql)
+        , m_appletPath(appletPath)
+        , m_dbHost(dbHost)
+        , m_dbUser(dbUser)
+        , m_dbPass(dbPass)
+    {}
 
 private:
     [[nodiscard]] bool shouldLogSql() const noexcept
@@ -67,16 +77,25 @@ private:
         }
     }
 
+    [[nodiscard]] std::string sqlPath(const char* name) const
+    {
+        return m_appletPath + name;
+    }
+
 private:
     bool m_logSql = false;
+    std::string m_appletPath;
+    std::string m_dbHost;
+    std::string m_dbUser;
+    std::string m_dbPass;
 
     Status AddCompany(ServerContext * context, const Company * company,
                     CompanyResult * result) override {
 
-        SqlConnection con;
+        SqlConnection con(SA_PostgreSQL_Client, m_dbHost.c_str(), m_dbUser.c_str(), m_dbPass.c_str());
         std::string sqlStd;
         try {
-            SqlTemplate tpl("company_insert.sql");
+            SqlTemplate tpl(sqlPath("company_insert.sql"));
             tpl.addParameter("SERVER_UID", (int)company->server_uid());
             tpl.addParameter("COMPANY_TYPE", (int)company->company_type());
             tpl.addParameter("NAME", company->name().c_str());
@@ -175,10 +194,10 @@ private:
                       CompanyResult * result) override {
         std::cout<<"EditCompany: runned"<<std::endl;
 
-        SqlConnection con;
+        SqlConnection con(SA_PostgreSQL_Client, m_dbHost.c_str(), m_dbUser.c_str(), m_dbPass.c_str());
         std::string sqlStd;
         try {
-            SqlTemplate tpl("company_update.sql");
+            SqlTemplate tpl(sqlPath("company_update.sql"));
             tpl.addParameter("UID", company->uid().c_str());
             tpl.addParameter("SERVER_UID", (int)company->server_uid());
             tpl.addParameter("COMPANY_TYPE", (int)company->company_type());
@@ -279,8 +298,8 @@ private:
     Status DeleteCompany(ServerContext * context, const Company * company,
                       CompanyResult * result) override {
 
-        SqlConnection con;
-        SqlCommand command(con, "company_delete.sql");
+        SqlConnection con(SA_PostgreSQL_Client, m_dbHost.c_str(), m_dbUser.c_str(), m_dbPass.c_str());
+        SqlCommand command(con, sqlPath("company_delete.sql"));
         try {
             con.connect();
             con.setAutoCommit(true);
@@ -332,8 +351,8 @@ private:
     }
 
     Status QueryCompanies(ServerContext * context, const JsonParameters * params, CompanyList * list) override {
-        SqlConnection con;
-        SqlQuery cmd(con, "company_select.sql", JsonParameterFormatter::fromJsonString(params->jsonparams()));
+        SqlConnection con(SA_PostgreSQL_Client, m_dbHost.c_str(), m_dbUser.c_str(), m_dbPass.c_str());
+        SqlQuery cmd(con, sqlPath("company_select.sql"), JsonParameterFormatter::fromJsonString(params->jsonparams()));
         cmd.setColumnValidator("FILTER_FIELD", &COMPANY_COLUMNS);
         try {
             con.connect();
@@ -387,8 +406,8 @@ private:
 
     Status QueryCompanyByUid(ServerContext * context, const CompanyUid * request, Company * response) override
     {
-        SqlConnection con;
-        SqlQuery cmd(con, "company_select_by_uid.sql");
+        SqlConnection con(SA_PostgreSQL_Client, m_dbHost.c_str(), m_dbUser.c_str(), m_dbPass.c_str());
+        SqlQuery cmd(con, sqlPath("company_select_by_uid.sql"));
         try {
             con.connect();
             cmd.addParameter("UID", request->uid().c_str());
@@ -444,8 +463,8 @@ private:
     }
 
     Status QueryCompanyTotalCount(ServerContext * context, const JsonParameters * request, TotalCount * response) override {
-        SqlConnection con;
-        SqlQuery cmd(con, "company_count.sql", JsonParameterFormatter::fromJsonString(request->jsonparams()));
+        SqlConnection con(SA_PostgreSQL_Client, m_dbHost.c_str(), m_dbUser.c_str(), m_dbPass.c_str());
+        SqlQuery cmd(con, sqlPath("company_count.sql"), JsonParameterFormatter::fromJsonString(request->jsonparams()));
         cmd.setColumnValidator("FILTER_FIELD", &COMPANY_COLUMNS);
         try {
             con.connect();
@@ -480,9 +499,13 @@ private:
     }
 };
 
-void RunCompanyServer(uint16_t port, bool logSql) {
+void RunCompanyServer(uint16_t port, bool logSql,
+                      const std::string& appletPath,
+                      const std::string& dbHost,
+                      const std::string& dbUser,
+                      const std::string& dbPass) {
     std::string server_address = absl::StrFormat("127.0.0.1:%d", port);
-    CompanyServiceImpl service(logSql);
+    CompanyServiceImpl service(logSql, appletPath, dbHost, dbUser, dbPass);
 
     grpc::EnableDefaultHealthCheckService(true);
     grpc::reflection::InitProtoReflectionServerBuilderPlugin();

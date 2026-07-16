@@ -1,8 +1,6 @@
 #include "../grpc/company_server.hpp"
 #include "include_backend_util.h"
 #include "configfile.h"
-#include "sqlconnection.h"
-#include "sqltemplate.h"
 
 #include <easylogging++.h>
 INITIALIZE_EASYLOGGINGPP
@@ -26,17 +24,12 @@ int main()
     qGlobalLog.set(el::Level::Global, el::ConfigurationType::ToStandardOutput, "false");
     el::Loggers::setDefaultConfigurations(qGlobalLog, true);
 
-    // Set search path for .sql template files (replaces old SQLApplet::InitPathToApplets)
-    SqlTemplate::setSearchPath(config->appletPath().c_str());
-
-    // Inilialize sql connections with data: host, user, pass
-    SqlConnection::InitAllConnections(SA_PostgreSQL_Client,
-                                        config->value("host").c_str(),
-                                        config->value("user").c_str(),
-                                        config->value("pass").c_str());
-
     const bool logSql = config->boolValueOr("log_sql", false);
-    RunCompanyServer(12345, logSql);
+    RunCompanyServer(12345, logSql,
+                     config->appletPath(),
+                     config->value("host"),
+                     config->value("user"),
+                     config->value("pass"));
 
     return 0;
 }

@@ -10,38 +10,18 @@ using std::string_view;
 using std::vector;
 using std::map;
 
-// Static member initialization
-string SqlTemplate::s_searchPath;
-
 // ============================================================================
 // Construction
 // ============================================================================
 
-void SqlTemplate::setSearchPath(string_view path)
-{
-    s_searchPath = path;
-    // Ensure trailing separator
-    if (!s_searchPath.empty() &&
-        s_searchPath.back() != '/' &&
-        s_searchPath.back() != '\\') {
-        s_searchPath += '/';
-    }
-}
-
 SqlTemplate::SqlTemplate(string_view filePath)
     : m_filePath(filePath)
 {
-    // Resolve relative path against search path
-    if (!s_searchPath.empty() && !m_filePath.empty() &&
-        m_filePath[0] != '/' && m_filePath[0] != '\\' &&
-        !(m_filePath.size() > 1 && m_filePath[1] == ':')) {
-        m_filePath = s_searchPath + m_filePath;
-    }
 }
 
 SqlTemplate::SqlTemplate(string_view filePath,
                          map<string, string> formattedParamValueList)
-    : SqlTemplate(filePath)
+    : m_filePath(filePath)
 {
     for (auto& [key, val] : formattedParamValueList) {
         m_formatter.addParameter(key, val);

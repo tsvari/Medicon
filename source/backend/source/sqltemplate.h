@@ -81,17 +81,8 @@ public:
     };
 
     /**
-     * @brief Set global search path for .sql template files
-     * @param path Directory path (should end with separator)
-     *
-     * If set, relative file paths in constructors are resolved against this path.
-     * Similar to the old SQLApplet::InitPathToApplets().
-     */
-    static void setSearchPath(std::string_view path);
-
-    /**
      * @brief Construct SqlTemplate with a .sql file path
-     * @param filePath Path to the .sql template file (absolute or relative to search path)
+     * @param filePath Path to the .sql template file (absolute or relative to current directory)
      * @throws SqlTemplateException if file cannot be read
      */
     explicit SqlTemplate(std::string_view filePath);
@@ -231,8 +222,6 @@ private:
      * @brief Format a default value according to its type
      */
     [[nodiscard]] std::string formatDefault(const ParamDecl& decl) const;
-
-    static std::string s_searchPath;
 
     std::string m_filePath;
     std::string m_description;

@@ -18,7 +18,6 @@
 class SqlCommandTests : public ::testing::Test {
 protected:
     void SetUp() override {
-        SqlTemplate::setSearchPath(ALL_BACKEND_TEST_APPDATA_PATH);
         SqlConnection::InitAllConnections(SA_PostgreSQL_Client, "host", "user", "pass");
     }
 
@@ -37,7 +36,7 @@ TEST_F(SqlCommandTests, AddParameter_AllTypes_GeneratesCorrectSQL)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SqlConnection con;
-    SqlCommand command(con, "test.sql");
+    SqlCommand command(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     // Add various parameter types
     command.addParameter("Money", 122.123);
@@ -72,7 +71,7 @@ TEST_F(SqlCommandTests, AddParameter_StringWithQuotes_EscapesCorrectly)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
     
     SqlConnection con;
-    SqlCommand command(con, "test.sql");
+    SqlCommand command(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     // Add all required parameters from test.xml
     command.addParameter("Money", 100.0);
@@ -97,7 +96,7 @@ TEST_F(SqlCommandTests, AddParameter_Integer_FormatsCorrectly)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
     
     SqlConnection con;
-    SqlCommand command(con, "test.sql");
+    SqlCommand command(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     // Add all required parameters from test.xml
     command.addParameter("Money", 100.0);
@@ -120,7 +119,7 @@ TEST_F(SqlCommandTests, AddParameter_Double_MaintainsPrecision)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
     
     SqlConnection con;
-    SqlCommand command(con, "test.sql");
+    SqlCommand command(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     // Add all required parameters from test.xml
     command.addParameter("Money", 123.456789); // The parameter we're testing
@@ -149,3 +148,4 @@ TEST_F(SqlCommandTests, SqlDirectCommand_ExecutesDirect)
     std::string sql = command.sql();
     EXPECT_EQ(sql, "SELECT 1");
 }
+

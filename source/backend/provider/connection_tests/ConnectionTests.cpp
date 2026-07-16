@@ -13,7 +13,7 @@ TEST(ConnectionIntegrationTests, LoadAndCheckData)
     EXPECT_NO_THROW(config = ConfigFile::Instance());
     EXPECT_NO_THROW(config->load());
 
-    SqlTemplate::setSearchPath(config->appletPath().c_str());
+    // SqlTemplate takes full paths; no setSearchPath needed
 
     // Inilialize sql connections with data: host, user, pass
     SqlConnection::InitAllConnections(SA_PostgreSQL_Client,

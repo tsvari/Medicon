@@ -19,7 +19,7 @@
 class SqlCommandIntegrationTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        SqlTemplate::setSearchPath(ALL_BACKEND_TEST_APPDATA_PATH);
+        // SqlTemplate takes full paths; no setSearchPath needed
         SqlConnection::ClearAllConnections();
     }
 
