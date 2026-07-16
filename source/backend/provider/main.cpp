@@ -1,8 +1,8 @@
 #include "../grpc/company_server.hpp"
 #include "include_backend_util.h"
 #include "configfile.h"
-#include "sqlapplet.h"
 #include "sqlconnection.h"
+#include "sqltemplate.h"
 
 #include <easylogging++.h>
 INITIALIZE_EASYLOGGINGPP
@@ -26,8 +26,8 @@ int main()
     qGlobalLog.set(el::Level::Global, el::ConfigurationType::ToStandardOutput, "false");
     el::Loggers::setDefaultConfigurations(qGlobalLog, true);
 
-    // Initialize project applet path
-    SQLApplet::InitPathToApplets(config->appletPath().c_str());
+    // Set search path for .sql template files (replaces old SQLApplet::InitPathToApplets)
+    SqlTemplate::setSearchPath(config->appletPath().c_str());
 
     // Inilialize sql connections with data: host, user, pass
     SqlConnection::InitAllConnections(SA_PostgreSQL_Client,

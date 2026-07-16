@@ -28,7 +28,8 @@ set(HEADER_FILES
     ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.h
 
     ${BACKEND_INCLUDE_DIR}/include_backend_util.h
-    ${BACKEND_INCLUDE_DIR}/sqlapplet.h
+    ${BACKEND_INCLUDE_DIR}/sqltemplate.h
+    ${BACKEND_INCLUDE_DIR}/column_allowlist.h
     ${BACKEND_INCLUDE_DIR}/sqlconnection.h
     ${BACKEND_INCLUDE_DIR}/sqlcommand.h
     ${BACKEND_INCLUDE_DIR}/sqlquery.h
@@ -42,12 +43,11 @@ set(SOURCE_FILES
     ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.cpp
 
     ${BACKEND_INCLUDE_DIR}/include_backend_util.cpp
-    ${BACKEND_INCLUDE_DIR}/sqlapplet.cpp
+    ${BACKEND_INCLUDE_DIR}/sqltemplate.cpp
     ${BACKEND_INCLUDE_DIR}/sqlconnection.cpp
     ${BACKEND_INCLUDE_DIR}/sqlcommand.cpp
     ${BACKEND_INCLUDE_DIR}/sqlquery.cpp
 
-    SqlAppletTests.cpp
     SqlConnectionTests.cpp
     SqlConnectionIntegrationTests.cpp
     SqlCommandTests.cpp
@@ -55,6 +55,7 @@ set(SOURCE_FILES
     SaBinaryTests.cpp
     SqlQueryTests.cpp
     SqlQueryIntegrationTests.cpp
+    SqlTemplateTests.cpp
 )
 
 add_executable(BackendTestProject

@@ -19,7 +19,7 @@
 class SqlQueryIntegrationTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        SQLApplet::InitPathToApplets(ALL_BACKEND_TEST_APPDATA_PATH);
+        SqlTemplate::setSearchPath(ALL_BACKEND_TEST_APPDATA_PATH);
         SqlConnection::ClearAllConnections();
     }
 
@@ -297,9 +297,9 @@ TEST_F(SqlQueryIntegrationTest, SqlDirectQuery_WithLimit_ReturnsLimitedRows)
 // ============================================================================
 
 /**
- * @test Verify SqlQuery with applet executes SELECT
+ * @test Verify SqlQuery with inline SQL fetches data
  */
-TEST_F(SqlQueryIntegrationTest, SqlQuery_WithApplet_FetchesData)
+TEST_F(SqlQueryIntegrationTest, SqlQuery_WithInlineSql_FetchesData)
 {
     SqlConnection conn(SA_SQLite_Client, ":memory:", "sqlquser", "sqlqpass");
     conn.connect();
@@ -311,27 +311,22 @@ TEST_F(SqlQueryIntegrationTest, SqlQuery_WithApplet_FetchesData)
     SqlDirectCommand insert(conn, SAString("INSERT INTO users VALUES(1, 'Alice', 30)"));
     insert.execute();
     
-    // Use SqlQuery with applet
-    SqlQuery query(conn, "select_user_test.xml");
-    query.addParameter("min_age", 25);
+    // Use SqlDirectQuery with inline SQL (applet-based path removed in favor of .sql templates)
+    SqlDirectQuery query(conn, SAString("SELECT * FROM users WHERE age >= 25"));
     
-    try {
-        if(query.query()) {
-            EXPECT_EQ(query.Field(1).asLong(), 1);
-            EXPECT_STREQ(query.Field(2).asString().GetMultiByteChars(), "Alice");
-            EXPECT_EQ(query.Field(3).asLong(), 30);
-        } else {
-            GTEST_SKIP() << "Applet file select_user_test.xml not available";
-        }
-    } catch (const SQLAppletException& e) {
-        GTEST_SKIP() << "Applet not found: " << e.what();
+    if(query.query()) {
+        EXPECT_EQ(query.Field(1).asLong(), 1);
+        EXPECT_STREQ(query.Field(2).asString().GetMultiByteChars(), "Alice");
+        EXPECT_EQ(query.Field(3).asLong(), 30);
+    } else {
+        FAIL() << "No result set returned";
     }
 }
 
 /**
- * @test Verify SqlQuery with multiple parameters
+ * @test Verify SqlDirectQuery with multiple conditions
  */
-TEST_F(SqlQueryIntegrationTest, SqlQuery_WithMultipleParams_FiltersCorrectly)
+TEST_F(SqlQueryIntegrationTest, SqlDirectQuery_WithMultipleConditions_FiltersCorrectly)
 {
     SqlConnection conn(SA_SQLite_Client, ":memory:", "paramuser", "parampass");
     conn.connect();
@@ -347,21 +342,15 @@ TEST_F(SqlQueryIntegrationTest, SqlQuery_WithMultipleParams_FiltersCorrectly)
     insert2.execute();
     insert3.execute();
     
-    // Use SqlQuery with multiple parameters
-    SqlQuery query(conn, "select_users_by_city_age_test.xml");
-    query.addParameter("city", "NYC");
-    query.addParameter("min_age", 28);
+    // Use SqlDirectQuery with inline SQL
+    SqlDirectQuery query(conn, SAString("SELECT * FROM users WHERE city = 'NYC' AND age >= 28"));
     
-    try {
-        int count = 0;
-        while(query.query()) {
-            count++;
-            // Should only get Alice (30, NYC), not Charlie (25, NYC)
-        }
-        EXPECT_EQ(count, 1);
-    } catch (const SQLAppletException& e) {
-        GTEST_SKIP() << "Applet not found: " << e.what();
+    int count = 0;
+    while(query.query()) {
+        count++;
+        // Should only get Alice (30, NYC), not Charlie (25, NYC)
     }
+    EXPECT_EQ(count, 1);
 }
 
 /**

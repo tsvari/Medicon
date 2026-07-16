@@ -33,45 +33,40 @@ bool SqlDirectQuery::query()
 // SqlQuery implementation
 // ============================================================================
 
-SqlQuery::SqlQuery(SqlConnection & connection,
-                   const char * appletName,
-                   map<string, string> formattedParamValueList,
-                   const SAString & sCmd,
-                   SACommandType_t eCmdType)
-    : SqlDirectQuery(connection, sCmd, eCmdType)
-    , m_applet(appletName, formattedParamValueList)
+SqlQuery::SqlQuery(SqlConnection& connection,
+                   string_view sqlFilePath,
+                   map<string, string> formattedParamValueList)
+    : SqlDirectQuery(connection, SAString(), SA_CmdUnknown)
+    , m_template(sqlFilePath, std::move(formattedParamValueList))
 {
 }
 
 void SqlQuery::addParameter(string_view name, const std::chrono::milliseconds paramValue, DataInfo::Type nType)
 {
-    m_applet.addParameter(name, paramValue, nType);
+    m_template.addParameter(name, paramValue, nType);
 }
 
 void SqlQuery::addParameter(string_view name, const char* paramValue, DataInfo::Type nType)
 {
-    m_applet.addParameter(name, paramValue, nType);
+    m_template.addParameter(name, paramValue, nType);
 }
 
 void SqlQuery::execute()
 {
     try {
-        m_applet.parse();
-    } catch (const SQLAppletException& e) {
-        throw; // Re-throw to preserve exception type
+        m_template.parse();
+    } catch (const SqlTemplateException& e) {
+        throw;
     }
 
-    // Set the parameterized SQL (with :name markers, not inline values)
-    setCommandText(m_applet.sql().c_str());
-    
-    // Bind all parameters using SQLAPI++ Param() API (SQL injection safe)
-    for (const auto& binding : m_applet.paramBindings()) {
+    setCommandText(m_template.sql().c_str());
+
+    for (const auto& binding : m_template.paramBindings()) {
         if (binding.value == "NULL") {
             Param(_TSA(binding.name.c_str())).setAsNull();
         } else {
             switch (binding.type) {
                 case DataInfo::Int: {
-                    // NUMERIC type: bind as long or double depending on format
                     if (binding.value.find('.') != std::string::npos) {
                         Param(_TSA(binding.name.c_str())).setAsDouble() = std::stod(binding.value);
                     } else {
@@ -98,25 +93,23 @@ void SqlQuery::execute()
                 case DataInfo::Date:
                 case DataInfo::Time:
                 default: {
-                    // String and date/time types: bind as string (already formatted)
                     Param(_TSA(binding.name.c_str())).setAsString() = SAString(binding.value.c_str());
                     break;
                 }
             }
         }
     }
-    
-    // Call base class execute (SqlDirectCommand::execute())
+
     SqlDirectCommand::execute();
 }
 
 string SqlQuery::sql() const
 {
-    return m_applet.sql();
+    return m_template.sql();
 }
 
 string SqlQuery::getSqlWithParameters()
 {
-    m_applet.parse();
-    return m_applet.getDebugSql();
+    m_template.parse();
+    return m_template.getDebugSql();
 }

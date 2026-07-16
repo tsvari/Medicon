@@ -1,10 +1,10 @@
 #include "configfile.h"
 #include "gtest/gtest.h"
 
-#include "sqlapplet.h"
 #include "sqlcommand.h"
 #include "sqlconnection.h"
 #include "sqlquery.h"
+#include "sqltemplate.h"
 #include "JsonParameterFormatter.h"
 
 TEST(ConnectionIntegrationTests, LoadAndCheckData)
@@ -13,7 +13,7 @@ TEST(ConnectionIntegrationTests, LoadAndCheckData)
     EXPECT_NO_THROW(config = ConfigFile::Instance());
     EXPECT_NO_THROW(config->load());
 
-    SQLApplet::InitPathToApplets(config->appletPath().c_str());
+    SqlTemplate::setSearchPath(config->appletPath().c_str());
 
     // Inilialize sql connections with data: host, user, pass
     SqlConnection::InitAllConnections(SA_PostgreSQL_Client,
@@ -30,7 +30,7 @@ TEST(ConnectionIntegrationTests, LoadAndCheckData)
             con.rollback();
         } catch(SAException &) {
         }
-    } catch(const SQLAppletException & e) {
+    } catch(const SqlTemplateException & e) {
         FAIL() << e.what();
     } catch(...) {
         FAIL() << "Unknown error";

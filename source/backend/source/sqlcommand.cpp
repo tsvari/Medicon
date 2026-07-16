@@ -34,44 +34,39 @@ string SqlDirectCommand::sql() const
 // ============================================================================
 
 SqlCommand::SqlCommand(SqlConnection& connection,
-                       const char* appletName,
-                       map<string, string> formattedParamValueList,
-                       const SAString& sCmd,
-                       SACommandType_t eCmdType)
-    : SqlDirectCommand(connection, sCmd, eCmdType)
-    , m_applet(appletName, formattedParamValueList)
+                       string_view sqlFilePath,
+                       map<string, string> formattedParamValueList)
+    : SqlDirectCommand(connection, SAString(), SA_CmdUnknown)
+    , m_template(sqlFilePath, std::move(formattedParamValueList))
 {
 }
 
 void SqlCommand::addParameter(string_view name, const std::chrono::milliseconds paramValue, DataInfo::Type nType)
 {
-    m_applet.addParameter(name, paramValue, nType);
+    m_template.addParameter(name, paramValue, nType);
 }
 
 void SqlCommand::addParameter(string_view name, const char* paramValue, DataInfo::Type nType)
 {
-    m_applet.addParameter(name, paramValue, nType);
+    m_template.addParameter(name, paramValue, nType);
 }
 
 void SqlCommand::execute()
 {
     try {
-        m_applet.parse();
-    } catch (const SQLAppletException& e) {
-        throw; // Re-throw to preserve exception type
+        m_template.parse();
+    } catch (const SqlTemplateException& e) {
+        throw;
     }
 
-    // Set the parameterized SQL (with :name markers, not inline values)
-    setCommandText(m_applet.sql().c_str());
-    
-    // Bind all parameters using SQLAPI++ Param() API (SQL injection safe)
-    for (const auto& binding : m_applet.paramBindings()) {
+    setCommandText(m_template.sql().c_str());
+
+    for (const auto& binding : m_template.paramBindings()) {
         if (binding.value == "NULL") {
             Param(_TSA(binding.name.c_str())).setAsNull();
         } else {
             switch (binding.type) {
                 case DataInfo::Int: {
-                    // NUMERIC type: bind as long or double depending on format
                     if (binding.value.find('.') != std::string::npos) {
                         Param(_TSA(binding.name.c_str())).setAsDouble() = std::stod(binding.value);
                     } else {
@@ -98,28 +93,24 @@ void SqlCommand::execute()
                 case DataInfo::Date:
                 case DataInfo::Time:
                 default: {
-                    // String and date/time types: bind as string (already formatted)
                     Param(_TSA(binding.name.c_str())).setAsString() = SAString(binding.value.c_str());
                     break;
                 }
             }
         }
     }
-    
-    // TODO: Add easylogging support for SQL execution
-    //LOG(INFO) << "Executing SQL: " << m_applet.getDebugSql();
-    
-    SqlDirectCommand::execute(); // Call base class execute()
+
+    SqlDirectCommand::execute();
 }
 
 string SqlCommand::sql() const
 {
-    return m_applet.sql();
+    return m_template.sql();
 }
 
 string SqlCommand::getSqlWithParameters()
 {
-    m_applet.parse();
-    return m_applet.getDebugSql();
+    m_template.parse();
+    return m_template.getDebugSql();
 }
 

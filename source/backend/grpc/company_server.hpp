@@ -14,10 +14,11 @@
 
 #include "company.grpc.pb.h"
 
-#include "sqlapplet.h"
 #include "sqlcommand.h"
 #include "sqlconnection.h"
 #include "sqlquery.h"
+#include "sqltemplate.h"
+#include "company_column_allowlist.h"
 #include "JsonParameterFormatter.h"
 #include "include_backend_util.h"
 #include <easylogging++.h>
@@ -75,25 +76,25 @@ private:
         SqlConnection con;
         std::string sqlStd;
         try {
-            SQLApplet applet("company_insert.xml");
-            applet.addParameter("SERVER_UID", (int)company->server_uid());
-            applet.addParameter("COMPANY_TYPE", (int)company->company_type());
-            applet.addParameter("NAME", company->name().c_str());
-            applet.addParameter("ADDRESS", company->address().c_str());
-            applet.addParameter("REG_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->reg_date())), DataInfo::Date);
-            applet.addParameter("JOINT_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->joint_date())), DataInfo::Date);
-            applet.addParameter("LICENSE", company->license().c_str());
-            applet.parse();
+            SqlTemplate tpl("company_insert.sql");
+            tpl.addParameter("SERVER_UID", (int)company->server_uid());
+            tpl.addParameter("COMPANY_TYPE", (int)company->company_type());
+            tpl.addParameter("NAME", company->name().c_str());
+            tpl.addParameter("ADDRESS", company->address().c_str());
+            tpl.addParameter("REG_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->reg_date())), DataInfo::Date);
+            tpl.addParameter("JOINT_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->joint_date())), DataInfo::Date);
+            tpl.addParameter("LICENSE", company->license().c_str());
+            tpl.parse();
             // Store debug SQL for logging on error
-            sqlStd = applet.getDebugSql();
+            sqlStd = tpl.getDebugSql();
 
-            SAString sql(applet.sql().c_str());
+            SAString sql(tpl.sql().c_str());
             SACommand cmd(con.connectionSa(),  sql);
             con.connect();
             con.setAutoCommit(true);
             
-            // Bind all SQLApplet parameters via Param() API (SQL injection safe)
-            for (const auto& binding : applet.paramBindings()) {
+            // Bind all SqlTemplate parameters via Param() API (SQL injection safe)
+            for (const auto& binding : tpl.paramBindings()) {
                 if (binding.value == "NULL") {
                     cmd.Param(_TSA(binding.name.c_str())).setAsNull();
                 } else {
@@ -129,7 +130,7 @@ private:
                 }
             }
             
-            // Bind binary logo parameter (not managed by SQLApplet)
+            // Bind binary logo parameter (not managed by SqlTemplate)
             cmd.Param(_TSA("logo")).setAsLongBinary() = SaBinary::toSaString(company->logo());
             cmd.Execute();
 
@@ -145,7 +146,7 @@ private:
             }
         } catch(SAException & x) {
             LOG(ERROR) << x.ErrText().GetMultiByteChars();
-            logSqlOnError("company_insert.xml", sqlStd);
+            logSqlOnError("company_insert.sql", sqlStd);
             try {
                 con.rollback();
             }
@@ -156,7 +157,7 @@ private:
             result->set_error(x.ErrText().GetMultiByteChars());
             result->set_uid("");
             return Status::CANCELLED;
-        } catch(const SQLAppletException & e) {
+        } catch(const SqlTemplateException & e) {
             LOG(ERROR) << e.what();
             result->set_success(false);
             result->set_error(e.what());
@@ -177,26 +178,26 @@ private:
         SqlConnection con;
         std::string sqlStd;
         try {
-            SQLApplet applet("company_update.xml");
-            applet.addParameter("UID", company->uid().c_str());
-            applet.addParameter("SERVER_UID", (int)company->server_uid());
-            applet.addParameter("COMPANY_TYPE", (int)company->company_type());
-            applet.addParameter("NAME", company->name().c_str());
-            applet.addParameter("ADDRESS", company->address().c_str());
-            applet.addParameter("REG_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->reg_date())), DataInfo::Date);
-            applet.addParameter("JOINT_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->joint_date())), DataInfo::Date);
-            applet.addParameter("LICENSE", company->license().c_str());
-            applet.parse();
+            SqlTemplate tpl("company_update.sql");
+            tpl.addParameter("UID", company->uid().c_str());
+            tpl.addParameter("SERVER_UID", (int)company->server_uid());
+            tpl.addParameter("COMPANY_TYPE", (int)company->company_type());
+            tpl.addParameter("NAME", company->name().c_str());
+            tpl.addParameter("ADDRESS", company->address().c_str());
+            tpl.addParameter("REG_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->reg_date())), DataInfo::Date);
+            tpl.addParameter("JOINT_DATE", std::chrono::milliseconds(std::chrono::milliseconds(company->joint_date())), DataInfo::Date);
+            tpl.addParameter("LICENSE", company->license().c_str());
+            tpl.parse();
             // Store debug SQL for logging on error
-            sqlStd = applet.getDebugSql();
+            sqlStd = tpl.getDebugSql();
 
-            SAString sql(applet.sql().c_str());
+            SAString sql(tpl.sql().c_str());
             SACommand cmd(con.connectionSa(),  sql);
             con.connect();
             con.setAutoCommit(true);
             
-            // Bind all SQLApplet parameters via Param() API (SQL injection safe)
-            for (const auto& binding : applet.paramBindings()) {
+            // Bind all SqlTemplate parameters via Param() API (SQL injection safe)
+            for (const auto& binding : tpl.paramBindings()) {
                 if (binding.value == "NULL") {
                     cmd.Param(_TSA(binding.name.c_str())).setAsNull();
                 } else {
@@ -232,7 +233,7 @@ private:
                 }
             }
             
-            // Bind binary logo parameter (not managed by SQLApplet)
+            // Bind binary logo parameter (not managed by SqlTemplate)
             std::string logo = company->logo();
             cmd.Param(_TSA("logo")).setAsLongBinary() = SaBinary::toSaString(company->logo());
             cmd.Execute();
@@ -250,7 +251,7 @@ private:
             }
         } catch(SAException & x) {
             LOG(ERROR) << x.ErrText().GetMultiByteChars();
-            logSqlOnError("company_update.xml", sqlStd);
+            logSqlOnError("company_update.sql", sqlStd);
             try {
                 con.rollback();
             }
@@ -261,7 +262,7 @@ private:
             result->set_error(x.ErrText().GetMultiByteChars());
             result->set_uid("");
             return Status::CANCELLED;
-        } catch(const SQLAppletException & e) {
+        } catch(const SqlTemplateException & e) {
             LOG(ERROR) << e.what();
             result->set_success(false);
             result->set_error(e.what());
@@ -279,7 +280,7 @@ private:
                       CompanyResult * result) override {
 
         SqlConnection con;
-        SqlCommand command(con, "company_delete.xml");
+        SqlCommand command(con, "company_delete.sql");
         try {
             con.connect();
             con.setAutoCommit(true);
@@ -304,7 +305,7 @@ private:
             if (shouldLogSql()) {
                 LOG(INFO) << command.getSqlWithParameters();
             } else {
-                LOG(INFO) << "SQL applet: company_delete.xml";
+                LOG(INFO) << "SQL applet: company_delete.sql";
             }
             try {
                 con.rollback();
@@ -316,7 +317,7 @@ private:
             result->set_error(x.ErrText().GetMultiByteChars());
             result->set_uid("");
             return Status::CANCELLED;
-        } catch(const SQLAppletException & e) {
+        } catch(const SqlTemplateException & e) {
             LOG(ERROR) << e.what();
             result->set_success(false);
             result->set_error(e.what());
@@ -332,7 +333,8 @@ private:
 
     Status QueryCompanies(ServerContext * context, const JsonParameters * params, CompanyList * list) override {
         SqlConnection con;
-        SqlQuery cmd(con, "company_select.xml", JsonParameterFormatter::fromJsonString(params->jsonparams()));
+        SqlQuery cmd(con, "company_select.sql", JsonParameterFormatter::fromJsonString(params->jsonparams()));
+        cmd.setColumnValidator("FILTER_FIELD", &COMPANY_COLUMNS);
         try {
             con.connect();
             while(cmd.query()) {
@@ -363,7 +365,7 @@ private:
             if (shouldLogSql()) {
                 LOG(INFO) << cmd.getSqlWithParameters();
             } else {
-                LOG(INFO) << "SQL applet: company_select.xml";
+                LOG(INFO) << "SQL applet: company_select.sql";
             }
             try {
                 con.rollback();
@@ -372,7 +374,7 @@ private:
             {
             }
             return Status::CANCELLED;
-        } catch(const SQLAppletException & e) {
+        } catch(const SqlTemplateException & e) {
             LOG(ERROR) << e.what();
             return Status(StatusCode::INTERNAL, e.what());
         } catch(...) {
@@ -380,15 +382,13 @@ private:
             return Status(StatusCode::ABORTED, "Unknown error!");
         }
 
-
-
         return Status::OK;
     }
 
     Status QueryCompanyByUid(ServerContext * context, const CompanyUid * request, Company * response) override
     {
         SqlConnection con;
-        SqlQuery cmd(con, "company_select_by_uid.xml");
+        SqlQuery cmd(con, "company_select_by_uid.sql");
         try {
             con.connect();
             cmd.addParameter("UID", request->uid().c_str());
@@ -423,7 +423,7 @@ private:
             if (shouldLogSql()) {
                 LOG(INFO) << cmd.getSqlWithParameters();
             } else {
-                LOG(INFO) << "SQL applet: company_select_by_uid.xml";
+                LOG(INFO) << "SQL applet: company_select_by_uid.sql";
             }
             try {
                 con.rollback();
@@ -432,7 +432,7 @@ private:
             {
             }
             return Status::CANCELLED;
-        } catch(const SQLAppletException & e) {
+        } catch(const SqlTemplateException & e) {
             LOG(ERROR) << e.what();
             return Status(StatusCode::INTERNAL, e.what());
         } catch(...) {
@@ -445,7 +445,8 @@ private:
 
     Status QueryCompanyTotalCount(ServerContext * context, const JsonParameters * request, TotalCount * response) override {
         SqlConnection con;
-        SqlQuery cmd(con, "company_count.xml", JsonParameterFormatter::fromJsonString(request->jsonparams()));
+        SqlQuery cmd(con, "company_count.sql", JsonParameterFormatter::fromJsonString(request->jsonparams()));
+        cmd.setColumnValidator("FILTER_FIELD", &COMPANY_COLUMNS);
         try {
             con.connect();
             if(cmd.query()) {
@@ -458,7 +459,7 @@ private:
             if (shouldLogSql()) {
                 LOG(INFO) << cmd.getSqlWithParameters();
             } else {
-                LOG(INFO) << "SQL applet: company_count.xml";
+                LOG(INFO) << "SQL applet: company_count.sql";
             }
             try {
                 con.rollback();
@@ -467,7 +468,7 @@ private:
             {
             }
             return Status::CANCELLED;
-        } catch(const SQLAppletException & e) {
+        } catch(const SqlTemplateException & e) {
             LOG(ERROR) << e.what();
             return Status(StatusCode::INTERNAL, e.what());
         } catch(...) {

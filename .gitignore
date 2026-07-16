@@ -23,3 +23,5 @@ assets/ssh-key.zip
 assets/ssh-key/
 task_time_by_time.txt
 AI-text/
+.qtcreator/
+*.user

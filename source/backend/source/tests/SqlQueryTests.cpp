@@ -196,7 +196,7 @@ TEST_F(SqlDirectQueryTests, Query_WithMultilineSQL_HandlesCorrectly)
 class SqlQueryTests : public ::testing::Test {
 protected:
     void SetUp() override {
-        SQLApplet::InitPathToApplets(ALL_BACKEND_TEST_APPDATA_PATH);
+        SqlTemplate::setSearchPath(ALL_BACKEND_TEST_APPDATA_PATH);
         SqlConnection::InitAllConnections(SA_PostgreSQL_Client, "host", "user", "pass");
     }
 
@@ -212,7 +212,7 @@ TEST_F(SqlQueryTests, Constructor_WithValidParams_CreatesObject)
 {
     SqlConnection con;
     EXPECT_NO_THROW({
-        SqlQuery query(con, "test.xml");
+        SqlQuery query(con, "test.sql");
     });
 }
 
@@ -222,7 +222,7 @@ TEST_F(SqlQueryTests, Constructor_WithValidParams_CreatesObject)
 TEST_F(SqlQueryTests, SqlQuery_InheritsFromSqlDirectQuery)
 {
     SqlConnection con;
-    SqlQuery query(con, "test.xml");
+    SqlQuery query(con, "test.sql");
     
     // SqlQuery should be usable as SqlDirectQuery
     SqlDirectQuery* queryPtr = &query;
@@ -242,7 +242,7 @@ TEST_F(SqlQueryTests, AddParameter_WithVariousTypes_BindsCorrectly)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SqlConnection con;
-    SqlQuery query(con, "test.xml");
+    SqlQuery query(con, "test.sql");
     
     // Test all parameter types
     EXPECT_NO_THROW({
@@ -265,7 +265,7 @@ TEST_F(SqlQueryTests, Query_FirstCall_ExecutesCommand)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SqlConnection con;
-    SqlQuery query(con, "test.xml");
+    SqlQuery query(con, "test.sql");
     
     query.addParameter("Money", 100.0);
     query.addParameter("Height", 180);
@@ -288,7 +288,7 @@ TEST_F(SqlQueryTests, Query_BeforeExecution_GeneratesCorrectSQL)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SqlConnection con;
-    SqlQuery query(con, "test.xml");
+    SqlQuery query(con, "test.sql");
     
     query.addParameter("Money", 99.99);
     query.addParameter("Height", 170);
@@ -322,7 +322,7 @@ TEST_F(SqlQueryTests, Query_StringWithSpecialChars_HandlesCorrectly)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SqlConnection con;
-    SqlQuery query(con, "test.xml");
+    SqlQuery query(con, "test.sql");
     
     query.addParameter("Money", 50.0);
     query.addParameter("Height", 165);
@@ -346,7 +346,7 @@ TEST_F(SqlQueryTests, Query_IntegerParameter_FormatsWithoutDecimal)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SqlConnection con;
-    SqlQuery query(con, "test.xml");
+    SqlQuery query(con, "test.sql");
     
     query.addParameter("Money", 100.0);
     query.addParameter("Height", 42); // The value we're testing
@@ -370,7 +370,7 @@ TEST_F(SqlQueryTests, Query_DoubleParameter_MaintainsPrecision)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SqlConnection con;
-    SqlQuery query(con, "test.xml");
+    SqlQuery query(con, "test.sql");
     
     query.addParameter("Money", 123.456789); // The value we're testing
     query.addParameter("Height", 175);
@@ -394,7 +394,7 @@ TEST_F(SqlQueryTests, Query_DateParameter_FormatsCorrectly)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SqlConnection con;
-    SqlQuery query(con, "test.xml");
+    SqlQuery query(con, "test.sql");
     
     query.addParameter("Money", 100.0);
     query.addParameter("Height", 175);
@@ -418,7 +418,7 @@ TEST_F(SqlQueryTests, Query_TimeParameter_FormatsCorrectly)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SqlConnection con;
-    SqlQuery query(con, "test.xml");
+    SqlQuery query(con, "test.sql");
     
     query.addParameter("Money", 100.0);
     query.addParameter("Height", 175);
@@ -442,7 +442,7 @@ TEST_F(SqlQueryTests, Query_DateTimeParameter_FormatsCorrectly)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SqlConnection con;
-    SqlQuery query(con, "test.xml");
+    SqlQuery query(con, "test.sql");
     
     query.addParameter("Money", 100.0);
     query.addParameter("Height", 175);
@@ -463,10 +463,10 @@ TEST_F(SqlQueryTests, Query_DateTimeParameter_FormatsCorrectly)
 TEST_F(SqlQueryTests, Query_MissingApplet_ThrowsException)
 {
     SqlConnection con;
-    SqlQuery query(con, "nonexistent.xml");
+    SqlQuery query(con, "nonexistent.sql");
     
-    // Should throw SQLAppletException when trying to execute
-    EXPECT_THROW(query.query(), SQLAppletException);
+    // Should throw SqlTemplateException when trying to execute
+    EXPECT_THROW(query.query(), SqlTemplateException);
 }
 
 /**
@@ -478,7 +478,7 @@ TEST_F(SqlQueryTests, Query_MinimalParameters_WorksCorrectly)
     
     // Test with just connection and applet name
     EXPECT_NO_THROW({
-        SqlQuery query(con, "test.xml");
+        SqlQuery query(con, "test.sql");
     });
 }
 
@@ -492,19 +492,19 @@ TEST_F(SqlQueryTests, Query_WithFormattedParams_InitializesCorrectly)
     preFormatted["Name"] = "PreFormattedValue";
     
     EXPECT_NO_THROW({
-        SqlQuery query(con, "test.xml", preFormatted);
+        SqlQuery query(con, "test.sql", preFormatted);
     });
 }
 
 /**
- * @test Verify query respects command type parameter
+ * @test Verify query constructs correctly with .sql template path
  */
-TEST_F(SqlQueryTests, Query_WithCommandType_InitializesCorrectly)
+TEST_F(SqlQueryTests, Query_ConstructWithSqlPath_InitializesCorrectly)
 {
     SqlConnection con;
     
     EXPECT_NO_THROW({
-        SqlQuery query(con, "test.xml", {}, SAString(), SA_CmdSQLStmt);
+        SqlQuery query(con, "test.sql");
     });
 }
 
@@ -517,7 +517,7 @@ TEST_F(SqlQueryTests, Sql_AfterParameterBinding_ReturnsProcessedSQL)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SqlConnection con;
-    SqlQuery query(con, "test.xml");
+    SqlQuery query(con, "test.sql");
     
     query.addParameter("Money", 100.0);
     query.addParameter("Height", 175);
@@ -543,7 +543,7 @@ TEST_F(SqlQueryTests, Query_BooleanParameter_FormatsCorrectly)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SqlConnection con;
-    SqlQuery query(con, "test.xml");
+    SqlQuery query(con, "test.sql");
     
     query.addParameter("Money", 100.0);
     query.addParameter("Height", 175);
@@ -567,7 +567,7 @@ TEST_F(SqlQueryTests, Query_EmptyStringParameter_HandlesCorrectly)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SqlConnection con;
-    SqlQuery query(con, "test.xml");
+    SqlQuery query(con, "test.sql");
     
     query.addParameter("Money", 100.0);
     query.addParameter("Height", 175);
@@ -591,7 +591,7 @@ TEST_F(SqlQueryTests, Query_LongStringParameter_HandlesCorrectly)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SqlConnection con;
-    SqlQuery query(con, "test.xml");
+    SqlQuery query(con, "test.sql");
     
     std::string longString(1000, 'A'); // 1000 character string
     
@@ -617,7 +617,7 @@ TEST_F(SqlQueryTests, Query_NegativeNumbers_HandlesCorrectly)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SqlConnection con;
-    SqlQuery query(con, "test.xml");
+    SqlQuery query(con, "test.sql");
     
     query.addParameter("Money", -99.99); // Negative double
     query.addParameter("Height", -50);   // Negative int
@@ -642,7 +642,7 @@ TEST_F(SqlQueryTests, Query_ZeroValues_HandlesCorrectly)
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
     SqlConnection con;
-    SqlQuery query(con, "test.xml");
+    SqlQuery query(con, "test.sql");
     
     query.addParameter("Money", 0.0);  // Zero double
     query.addParameter("Height", 0);   // Zero int

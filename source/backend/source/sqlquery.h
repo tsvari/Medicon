@@ -2,6 +2,8 @@
 #define SQLQUERY_H
 
 #include "sqlcommand.h"
+#include "sqltemplate.h"
+#include "column_allowlist.h"
 
 class SqlConnection;
 
@@ -65,15 +67,15 @@ public:
 
 /**
  * @class SqlQuery
- * @brief SQL query execution with applet support and automatic result set fetching
+ * @brief SQL query execution with .sql template support and automatic result set fetching
  * 
- * Extends SqlDirectQuery to add XML applet template support with parameter binding.
- * Inherits the query() method from SqlDirectQuery and adds applet functionality.
+ * Extends SqlDirectQuery to add SqlTemplate support with parameter binding.
+ * Inherits the query() method from SqlDirectQuery.
  * 
  * Usage:
  * @code
  * SqlConnection conn;
- * SqlQuery query(conn, "select_users.xml");
+ * SqlQuery query(conn, "select_users.sql");
  * query.addParameter("MinAge", 18);
  * 
  * while(query.query()) {
@@ -95,41 +97,30 @@ class SqlQuery : public SqlDirectQuery
 {
 public:
     /**
-     * @brief Construct SQL query from applet with optional parameters
+     * @brief Construct SQL query from .sql template file
      * @param connection Database connection
-     * @param appletName Name of XML applet file (without path)
+     * @param sqlFilePath Path to .sql template file
      * @param formattedParamValueList Pre-formatted parameters (optional)
-     * @param sCmd SQL command override (optional)
-     * @param eCmdType Command type (default SA_CmdUnknown)
      */
-    SqlQuery(SqlConnection & connection,
-             const char * appletName,
-             std::map<std::string, std::string> formattedParamValueList = {},
-             const SAString& sCmd = SAString(),
-             SACommandType_t eCmdType = SA_CmdUnknown);
-
-    // Delete rvalue constructor to prevent dangling references
-    SqlQuery(SqlConnection&& connection,
-             const char * appletName,
-             std::map<std::string, std::string> formattedParamValueList = {},
-             const SAString& sCmd = SAString(),
-             SACommandType_t eCmdType = SA_CmdUnknown) = delete;
+    SqlQuery(SqlConnection& connection,
+             std::string_view sqlFilePath,
+             std::map<std::string, std::string> formattedParamValueList = {});
 
     /**
      * @brief Add a parameter with automatic type deduction
-     * @tparam T Parameter type (int, int64_t, double, bool, const char*, std::string)
-     * @param name Parameter name matching placeholder in XML (:name:)
+     * @tparam T Parameter type
+     * @param name Parameter name matching placeholder in .sql file
      * @param paramValue Value to substitute
      */
     template<typename T>
     void addParameter(std::string_view name, T paramValue)
     {
-        m_applet.addParameter(name, paramValue);
+        m_template.addParameter(name, paramValue);
     }
 
     /**
      * @brief Add a time-based parameter with explicit type formatting
-     * @param name Parameter name matching placeholder in XML (:name:)
+     * @param name Parameter name matching placeholder in .sql file
      * @param paramValue Time value in milliseconds since epoch
      * @param nType Format type (DataInfo::Date, DataInfo::Time, DataInfo::DateTime)
      */
@@ -137,7 +128,7 @@ public:
 
     /**
      * @brief Add a string parameter with explicit type formatting
-     * @param name Parameter name matching placeholder in XML (:name:)
+     * @param name Parameter name matching placeholder in .sql file
      * @param paramValue String value or time string to parse
      * @param nType Format type (DataInfo::Date, DataInfo::Time, DataInfo::DateTime, etc.)
      */
@@ -145,10 +136,8 @@ public:
 
     /**
      * @brief Execute the SQL command with substituted parameters
-     * @throws SQLAppletException if applet parsing fails
+     * @throws SqlTemplateException if template parsing fails
      * @throws SAException if database execution fails
-     * 
-     * Overrides base class to parse applet template and substitute parameters.
      */
     void execute() override;
 
@@ -159,13 +148,26 @@ public:
     std::string sql() const override;
     
     /**
+     * @brief Register an allow-list validator for a COLUMN-type parameter
+     * @param paramName Parameter name (without colon prefix)
+     * @param validator Pointer to a ColumnAllowListBase instance
+     *
+     * Only valid for .sql template mode. Call before execute().
+     */
+    void setColumnValidator(std::string_view paramName,
+                            const ColumnAllowListBase* validator)
+    {
+        m_template.setColumnValidator(paramName, validator);
+    }
+
+    /**
      * @brief Get SQL with parameters substituted (without executing)
      * @return SQL command string with parameters replaced
      */
     std::string getSqlWithParameters();
 
 private:
-    SQLApplet m_applet; ///< Applet managing SQL template and parameters
+    SqlTemplate m_template; ///< SQL template (.sql file mode)
 };
 
 #endif // SQLQUERY_H
