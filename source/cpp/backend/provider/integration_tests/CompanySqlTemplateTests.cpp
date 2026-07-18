@@ -1,10 +1,14 @@
 /**
- * @file SqlTemplateValidationTests.cpp
- * @brief Validate all .sql template files in the provider's applet directory
+ * @file CompanySqlTemplateTests.cpp
+ * @brief Validate all company-level .sql template files
  *
  * Parses every .sql file in the provider's sql-applets directory to ensure
- * they are valid SqlTemplate files. This catches typos, broken -- @param
- * declarations, and mismatched placeholders at test time.
+ * they are valid for the Company domain. This catches typos, broken
+ * -- @param declarations, and mismatched placeholders at test time.
+ *
+ * These are provider/company-level integration tests — they verify the
+ * specific SQL templates used by CompanyRepository, not the SqlTemplate
+ * parser itself (which has its own unit tests in SqlTemplateTests.cpp).
  *
  * These tests do NOT require a database connection — they only verify
  * the SQL template files parse correctly.
@@ -26,7 +30,7 @@ namespace fs = std::filesystem;
 // Test fixture: loads sql-applet paths from ConfigFile
 // ============================================================================
 
-class SqlTemplateValidationTest : public ::testing::Test {
+class CompanySqlTemplateTest : public ::testing::Test {
 protected:
     void SetUp() override {
         // Discover .sql files in the provider's applet directory
@@ -54,7 +58,7 @@ protected:
 /**
  * @test Every .sql file can be loaded without throwing
  */
-TEST_F(SqlTemplateValidationTest, AllSqlFilesLoadWithoutError)
+TEST_F(CompanySqlTemplateTest, AllSqlFilesLoadWithoutError)
 {
     for (const auto& filePath : m_sqlFiles) {
         EXPECT_NO_THROW({
@@ -69,7 +73,7 @@ TEST_F(SqlTemplateValidationTest, AllSqlFilesLoadWithoutError)
  *
  * Tests that the SQL body is well-formed even when parameters get defaults.
  */
-TEST_F(SqlTemplateValidationTest, AllSqlFilesParseWithDefaults)
+TEST_F(CompanySqlTemplateTest, AllSqlFilesParseWithDefaults)
 {
     for (const auto& filePath : m_sqlFiles) {
         SqlTemplate tpl(filePath);
@@ -106,7 +110,7 @@ TEST_F(SqlTemplateValidationTest, AllSqlFilesParseWithDefaults)
 /**
  * @test Debug SQL output is generated without errors
  */
-TEST_F(SqlTemplateValidationTest, DebugSqlGeneratedWithoutError)
+TEST_F(CompanySqlTemplateTest, DebugSqlGeneratedWithoutError)
 {
     for (const auto& filePath : m_sqlFiles) {
         SqlTemplate tpl(filePath);
@@ -145,7 +149,7 @@ TEST_F(SqlTemplateValidationTest, DebugSqlGeneratedWithoutError)
 /**
  * @test SqlTemplate throws on non-existent file
  */
-TEST_F(SqlTemplateValidationTest, NonExistentFile_Throws)
+TEST_F(CompanySqlTemplateTest, NonExistentFile_Throws)
 {
     SqlTemplate tpl("/nonexistent/path/company_test.sql");
     EXPECT_THROW(tpl.parse(), SqlTemplateException);
@@ -157,7 +161,7 @@ TEST_F(SqlTemplateValidationTest, NonExistentFile_Throws)
  * ColumnAllowList::resolve() throws std::invalid_argument, which is
  * caught and re-thrown as SqlTemplateException by parse().
  */
-TEST_F(SqlTemplateValidationTest, InvalidColumnName_Throws)
+TEST_F(CompanySqlTemplateTest, InvalidColumnName_Throws)
 {
     SqlTemplate tpl(m_appletDir + "company_select.sql");
     tpl.addParameter("SERVER_UID", 1);
