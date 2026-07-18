@@ -9,16 +9,16 @@
 
 TEST(ConnectionIntegrationTests, LoadAndCheckData)
 {
-    ConfigFile config(ALL_PROJECT_PATH, PROJECT_NAME);
+    ConfigFile config(ALL_PROJECT_APPDATA_PATH, PROJECT_NAME);
     EXPECT_NO_THROW(config.load());
 
     // SqlTemplate takes full paths; no setSearchPath needed
 
     // Inilialize sql connections with data: host, user, pass
     SqlConnection::InitAllConnections(SA_PostgreSQL_Client,
-                                      config->value("host").c_str(),
-                                      config->value("user").c_str(),
-                                      config->value("pass").c_str());
+                                      config.value("host").c_str(),
+                                      config.value("user").c_str(),
+                                      config.value("pass").c_str());
 
     SqlConnection con;
     try {

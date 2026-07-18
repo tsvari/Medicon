@@ -5,7 +5,7 @@ using std::string;
 
 TEST(ConfigFileIntegrationTests, LoadAndCheckData)
 {
-    ConfigFile config(ALL_PROJECT_PATH, PROJECT_NAME);
+    ConfigFile config(ALL_PROJECT_APPDATA_PATH, PROJECT_NAME);
     EXPECT_NO_THROW(config.load());
 
     string alProjectPath(ALL_PROJECT_APPDATA_PATH);
@@ -15,15 +15,15 @@ TEST(ConfigFileIntegrationTests, LoadAndCheckData)
     string logFilePath = alProjectPath + string("provider/log/provider.log");
     string appletPath = alProjectPath + string("provider/sql-applets/");
 
-    EXPECT_EQ(config->appletPath(), appletPath);
-    EXPECT_EQ(config->templatePath(), templatetPath);
-    EXPECT_EQ(config->logFilePath(), logFilePath);
-    EXPECT_EQ(config->projectPath(), projectPath);
+    EXPECT_EQ(config.appletPath(), appletPath);
+    EXPECT_EQ(config.templatePath(), templatetPath);
+    EXPECT_EQ(config.logFilePath(), logFilePath);
+    EXPECT_EQ(config.projectPath(), projectPath);
 
-    EXPECT_NO_THROW(config->value("host"));
-    EXPECT_NO_THROW(config->value("user"));
-    EXPECT_NO_THROW(config->value("pass"));
-    EXPECT_THROW(config->value("WrongKey"), std::out_of_range);
+    EXPECT_NO_THROW(config.value("host"));
+    EXPECT_NO_THROW(config.value("user"));
+    EXPECT_NO_THROW(config.value("pass"));
+    EXPECT_THROW(config.value("WrongKey"), std::out_of_range);
 }
 
 

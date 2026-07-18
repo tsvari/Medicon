@@ -8,7 +8,7 @@ INITIALIZE_EASYLOGGINGPP
 int main()
 {
     // Create local config instance (no singleton dependency)
-    ConfigFile config(ALL_PROJECT_PATH, PROJECT_NAME);
+    ConfigFile config(ALL_PROJECT_APPDATA_PATH, PROJECT_NAME);
     try {
         config.load();
     } catch(std::runtime_error & x) {
