@@ -292,6 +292,10 @@ void RunCompanyServer(uint16_t port, bool logSql,
     builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
     builder.RegisterService(&impl);
     std::unique_ptr<Server> server(builder.BuildAndStart());
+    if (!server) {
+        std::cerr << "Failed to start server on " << server_address << std::endl;
+        return;
+    }
     std::cout << "Server listening on " << server_address << std::endl;
     server->Wait();
 }
