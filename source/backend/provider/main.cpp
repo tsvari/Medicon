@@ -1,4 +1,4 @@
-#include "../grpc/company_server.hpp"
+#include "../grpc/company/company_server.hpp"
 #include "include_backend_util.h"
 #include "configfile.h"
 
