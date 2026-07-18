@@ -42,7 +42,7 @@ set(HEADER_FILES
     ${BACKEND_GRPC_DIR}/company/company_types.h
     ${BACKEND_GRPC_DIR}/company/company_repository.h
     ${BACKEND_GRPC_DIR}/company/company_service.h
-    ${BACKEND_GRPC_DIR}/company/company_server.hpp
+    ${BACKEND_GRPC_DIR}/company/company_server.h
 )
 
 set(SOURCE_FILES
@@ -50,6 +50,7 @@ set(SOURCE_FILES
 
     ${BACKEND_GRPC_DIR}/company/company_repository.cpp
     ${BACKEND_GRPC_DIR}/company/company_service.cpp
+    ${BACKEND_GRPC_DIR}/company/company_server.cpp
 
     ${BACKEND_INCLUDE_DIR}/include_backend_util.cpp
     ${BACKEND_INCLUDE_DIR}/sqltemplate.cpp
