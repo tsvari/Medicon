@@ -60,11 +60,21 @@ int main()
     qGlobalLog.set(el::Level::Global, el::ConfigurationType::ToStandardOutput, "false");
     el::Loggers::setDefaultConfigurations(qGlobalLog, true);
 
+    // Read server port from config (default 12345)
+    uint16_t port = 12345;
+    try {
+        port = static_cast<uint16_t>(
+            std::stoi(config.valueOr("port", "12345")));
+    } catch (const std::exception&) {
+        std::cerr << "FATAL: Invalid 'port' value in config" << std::endl;
+        return 1;
+    }
+
     // ========================================================================
     // Phase 3: Start gRPC server
     // ========================================================================
 
-    RunCompanyServer(12345, logSql,
+    RunCompanyServer(port, logSql,
                      config.appletPath(),
                      dbHost, dbUser, dbPass);
 

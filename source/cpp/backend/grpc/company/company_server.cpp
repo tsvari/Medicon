@@ -13,10 +13,17 @@
 
 using grpc::Server;
 using grpc::ServerBuilder;
-
+using grpc::ServerContext;
 using grpc::Status;
 using grpc::StatusCode;
-using std::string;
+using CompanyEdit::CompanyEditor;
+using CompanyEdit::Company;
+using CompanyEdit::CompanyResult;
+using CompanyEdit::CompanyList;
+using CompanyEdit::JsonParameters;
+using CompanyEdit::CompanyUid;
+using CompanyEdit::TotalCount;
+using std::string; 
 
 // ============================================================================
 // Construction

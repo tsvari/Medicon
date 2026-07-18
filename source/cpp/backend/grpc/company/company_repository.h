@@ -34,6 +34,9 @@ public:
 private:
     [[nodiscard]] std::string sqlPath(const char* name) const;
 
+    /// Bind all template parameters to a command (shared by add/update)
+    static void bindParams(SACommand& cmd, const SqlTemplate& tpl);
+
     // Result mapping helper
     static CompanyData rowToCompany(SACommand& row);
 

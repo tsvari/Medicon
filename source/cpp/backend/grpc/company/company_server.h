@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COMPANY_SERVER_H
+#define COMPANY_SERVER_H
 
 #include <grpcpp/grpcpp.h>
 #include <memory>
@@ -8,12 +9,10 @@
 #include "company_service.h"
 #include "company_types.h"
 
+// Required in header for method signatures and base class
 using grpc::ServerContext;
 using grpc::Status;
-
-// Service
 using CompanyEdit::CompanyEditor;
-// Objects (messages)
 using CompanyEdit::Company;
 using CompanyEdit::CompanyResult;
 using CompanyEdit::CompanyList;
@@ -69,3 +68,5 @@ void RunCompanyServer(uint16_t port, bool logSql,
                       const std::string& dbHost,
                       const std::string& dbUser,
                       const std::string& dbPass);
+
+#endif // COMPANY_SERVER_H

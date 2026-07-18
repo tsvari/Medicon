@@ -59,29 +59,11 @@ CompanyData CompanyRepository::rowToCompany(SACommand& row)
 }
 
 // ============================================================================
-// CRUD — Add
+// Parameter binding helper
 // ============================================================================
 
-CompanyData CompanyRepository::add(const CompanyData& data)
+void CompanyRepository::bindParams(SACommand& cmd, const SqlTemplate& tpl)
 {
-    SqlTemplate tpl(sqlPath("company_insert.sql"));
-    tpl.addParameter("SERVER_UID", data.server_uid);
-    tpl.addParameter("COMPANY_TYPE", data.company_type);
-    tpl.addParameter("NAME", data.name.c_str());
-    tpl.addParameter("ADDRESS", data.address.c_str());
-    tpl.addParameter("REG_DATE", data.reg_date, DataInfo::Date);
-    tpl.addParameter("JOINT_DATE", data.joint_date, DataInfo::Date);
-    tpl.addParameter("LICENSE", data.license.c_str());
-    tpl.parse();
-
-    LOG_IF(m_logSql, INFO) << "[SQL] company_insert: " << tpl.getDebugSql();
-
-    SAString sql(tpl.sql().c_str());
-    SACommand cmd(m_conn.connectionSa(), sql);
-    m_conn.connect();
-    m_conn.setAutoCommit(true);
-
-    // Bind all parameters
     for (const auto& binding : tpl.paramBindings()) {
         if (binding.value == "NULL") {
             cmd.Param(_TSA(binding.name.c_str())).setAsNull();
@@ -108,6 +90,32 @@ CompanyData CompanyRepository::add(const CompanyData& data)
             }
         }
     }
+}
+
+// ============================================================================
+// CRUD — Add
+// ============================================================================
+
+CompanyData CompanyRepository::add(const CompanyData& data)
+{
+    SqlTemplate tpl(sqlPath("company_insert.sql"));
+    tpl.addParameter("SERVER_UID", data.server_uid);
+    tpl.addParameter("COMPANY_TYPE", data.company_type);
+    tpl.addParameter("NAME", data.name.c_str());
+    tpl.addParameter("ADDRESS", data.address.c_str());
+    tpl.addParameter("REG_DATE", data.reg_date, DataInfo::Date);
+    tpl.addParameter("JOINT_DATE", data.joint_date, DataInfo::Date);
+    tpl.addParameter("LICENSE", data.license.c_str());
+    tpl.parse();
+
+    LOG_IF(m_logSql, INFO) << "[SQL] company_insert: " << tpl.getDebugSql();
+
+    SAString sql(tpl.sql().c_str());
+    SACommand cmd(m_conn.connectionSa(), sql);
+    m_conn.connect();
+    m_conn.setAutoCommit(true);
+
+    bindParams(cmd, tpl);
 
     // Bind binary logo
     cmd.Param(_TSA("logo")).setAsLongBinary() = SaBinary::toSaString(data.logo);
@@ -144,33 +152,9 @@ CompanyData CompanyRepository::update(const CompanyData& data)
     m_conn.connect();
     m_conn.setAutoCommit(true);
 
-    for (const auto& binding : tpl.paramBindings()) {
-        if (binding.value == "NULL") {
-            cmd.Param(_TSA(binding.name.c_str())).setAsNull();
-        } else {
-            switch (binding.type) {
-                case DataInfo::Int:
-                    if (binding.value.find('.') != string::npos)
-                        cmd.Param(_TSA(binding.name.c_str())).setAsDouble() = std::stod(binding.value);
-                    else
-                        cmd.Param(_TSA(binding.name.c_str())).setAsLong() = std::stoll(binding.value);
-                    break;
-                case DataInfo::Int64:
-                    cmd.Param(_TSA(binding.name.c_str())).setAsLong() = std::stoll(binding.value);
-                    break;
-                case DataInfo::Double:
-                    cmd.Param(_TSA(binding.name.c_str())).setAsDouble() = std::stod(binding.value);
-                    break;
-                case DataInfo::Bool:
-                    cmd.Param(_TSA(binding.name.c_str())).setAsBool() = (binding.value == "true" || binding.value == "1");
-                    break;
-                default:
-                    cmd.Param(_TSA(binding.name.c_str())).setAsString() = SAString(binding.value.c_str());
-                    break;
-            }
-        }
-    }
+    bindParams(cmd, tpl);
 
+    // Bind binary logo
     cmd.Param(_TSA("logo")).setAsLongBinary() = SaBinary::toSaString(data.logo);
     cmd.Execute();
 
