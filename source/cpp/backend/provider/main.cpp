@@ -3,20 +3,56 @@
 #include "configfile.h"
 
 #include <easylogging++.h>
+#include <filesystem>
+#include <iostream>
+#include <string>
+
 INITIALIZE_EASYLOGGINGPP
+
+/**
+ * @brief Validate that a config key exists and return its value, or exit on failure
+ */
+static std::string requireConfig(ConfigFile& config, const char* key)
+{
+    if (!config.contains(key)) {
+        std::cerr << "FATAL: Missing required config key '" << key << "' in provider.json"
+                  << std::endl;
+        std::exit(1);
+    }
+    return config.value(key);
+}
 
 int main()
 {
-    // Create local config instance (no singleton dependency)
+    // ========================================================================
+    // Phase 1: Load and validate configuration
+    // ========================================================================
+
     ConfigFile config(ALL_PROJECT_APPDATA_PATH, PROJECT_NAME);
     try {
         config.load();
-    } catch(std::runtime_error & x) {
-        std::cout << x.what();
+    } catch (const std::exception& x) {
+        std::cerr << "FATAL: Failed to load configuration: " << x.what() << std::endl;
+        return 1;
     }
 
+    // Validate that all required config keys are present
+    // (catches misconfigured provider.json before the server starts)
+    const std::string dbHost   = requireConfig(config, "host");
+    const std::string dbUser   = requireConfig(config, "user");
+    const std::string dbPass   = requireConfig(config, "pass");
+    const bool logSql          = config.boolValueOr("log_sql", false);
 
-    // Initialize logger with global settings
+    // Validate resource paths exist
+    if (!std::filesystem::is_directory(config.appletPath())) {
+        std::cerr << "FATAL: Applet directory not found: " << config.appletPath() << std::endl;
+        return 1;
+    }
+
+    // ========================================================================
+    // Phase 2: Initialize logger
+    // ========================================================================
+
     el::Configurations qGlobalLog;
     qGlobalLog.setGlobally(el::ConfigurationType::Format, "%user:%fbase:%line:%datetime:%level:%msg:");
     qGlobalLog.setGlobally(el::ConfigurationType::Filename, config.logFilePath());
@@ -24,12 +60,13 @@ int main()
     qGlobalLog.set(el::Level::Global, el::ConfigurationType::ToStandardOutput, "false");
     el::Loggers::setDefaultConfigurations(qGlobalLog, true);
 
-    const bool logSql = config.boolValueOr("log_sql", false);
+    // ========================================================================
+    // Phase 3: Start gRPC server
+    // ========================================================================
+
     RunCompanyServer(12345, logSql,
                      config.appletPath(),
-                     config.value("host"),
-                     config.value("user"),
-                     config.value("pass"));
+                     dbHost, dbUser, dbPass);
 
     return 0;
 }
