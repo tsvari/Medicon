@@ -5,6 +5,7 @@ include(GoogleTest)
 
 add_executable(integration_tests
     ConfigFileIntegrationTests.cpp
+    SqlTemplateValidationTests.cpp
 )
 
 find_package(GTest REQUIRED)
