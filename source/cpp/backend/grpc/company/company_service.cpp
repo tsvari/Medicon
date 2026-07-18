@@ -24,65 +24,80 @@ CompanyService::CompanyService(std::unique_ptr<CompanyRepository> repo)
 {
 }
 
-std::unique_ptr<CompanyRepository> CompanyService::createRepo()
+// ============================================================================
+// Connection management — lazy init + auto-reconnect
+// ============================================================================
+
+void CompanyService::ensureConnected()
 {
-    auto conn = std::make_unique<SqlConnection>(
-        SA_PostgreSQL_Client, m_dbHost.c_str(), m_dbUser.c_str(), m_dbPass.c_str());
-    return std::make_unique<CompanyRepository>(*conn, m_appletPath);
+    if (!m_useInternalRepo) {
+        return;  // Testing mode — no DB needed
+    }
+
+    // Create connection on first access
+    if (!m_conn) {
+        m_conn = std::make_unique<SqlConnection>(
+            SA_PostgreSQL_Client, m_dbHost.c_str(), m_dbUser.c_str(), m_dbPass.c_str());
+    }
+
+    // Connect (or reconnect if dropped)
+    if (!m_conn->isConnected()) {
+        m_conn->connect();
+    }
 }
 
 // ============================================================================
-// CRUD — Add
+// CRUD — Add (with transaction)
 // ============================================================================
 
 CompanyData CompanyService::addCompany(const CompanyData& data)
 {
-    if (m_useInternalRepo) {
-        SqlConnection conn(SA_PostgreSQL_Client,
-                           m_dbHost.c_str(), m_dbUser.c_str(), m_dbPass.c_str());
-        CompanyRepository repo(conn, m_appletPath);
-        TransactionScope tx(conn);
-        CompanyData result = repo.add(data);
-        tx.commit();
-        return result;
+    if (!m_useInternalRepo) {
+        return m_repo->add(data);
     }
-    return m_repo->add(data);
+
+    ensureConnected();
+    CompanyRepository repo(*m_conn, m_appletPath);
+    TransactionScope tx(*m_conn);
+    CompanyData result = repo.add(data);
+    tx.commit();
+    return result;
 }
 
 // ============================================================================
-// CRUD — Update
+// CRUD — Update (with transaction)
 // ============================================================================
 
 CompanyData CompanyService::editCompany(const CompanyData& data)
 {
-    if (m_useInternalRepo) {
-        SqlConnection conn(SA_PostgreSQL_Client,
-                           m_dbHost.c_str(), m_dbUser.c_str(), m_dbPass.c_str());
-        CompanyRepository repo(conn, m_appletPath);
-        TransactionScope tx(conn);
-        CompanyData result = repo.update(data);
-        tx.commit();
-        return result;
+    if (!m_useInternalRepo) {
+        return m_repo->update(data);
     }
-    return m_repo->update(data);
+
+    ensureConnected();
+    CompanyRepository repo(*m_conn, m_appletPath);
+    TransactionScope tx(*m_conn);
+    CompanyData result = repo.update(data);
+    tx.commit();
+    return result;
 }
 
 // ============================================================================
-// CRUD — Delete
+// CRUD — Delete (with transaction)
 // ============================================================================
 
 DeleteResult CompanyService::deleteCompany(string_view uid)
 {
-    if (m_useInternalRepo) {
-        SqlConnection conn(SA_PostgreSQL_Client,
-                           m_dbHost.c_str(), m_dbUser.c_str(), m_dbPass.c_str());
-        CompanyRepository repo(conn, m_appletPath);
-        TransactionScope tx(conn);
-        DeleteResult result = repo.remove(uid);
-        tx.commit();
-        return result;
+    if (!m_useInternalRepo) {
+        return m_repo->remove(uid);
     }
-    return m_repo->remove(uid);
+
+    ensureConnected();
+    CompanyRepository repo(*m_conn, m_appletPath);
+    TransactionScope tx(*m_conn);
+    DeleteResult result = repo.remove(uid);
+    tx.commit();
+    return result;
 }
 
 // ============================================================================
@@ -91,13 +106,13 @@ DeleteResult CompanyService::deleteCompany(string_view uid)
 
 std::vector<CompanyData> CompanyService::queryCompanies(const CompanyFilter& filter)
 {
-    if (m_useInternalRepo) {
-        SqlConnection conn(SA_PostgreSQL_Client,
-                           m_dbHost.c_str(), m_dbUser.c_str(), m_dbPass.c_str());
-        CompanyRepository repo(conn, m_appletPath);
-        return repo.query(filter);
+    if (!m_useInternalRepo) {
+        return m_repo->query(filter);
     }
-    return m_repo->query(filter);
+
+    ensureConnected();
+    CompanyRepository repo(*m_conn, m_appletPath);
+    return repo.query(filter);
 }
 
 // ============================================================================
@@ -106,13 +121,13 @@ std::vector<CompanyData> CompanyService::queryCompanies(const CompanyFilter& fil
 
 std::optional<CompanyData> CompanyService::getCompanyByUid(string_view uid)
 {
-    if (m_useInternalRepo) {
-        SqlConnection conn(SA_PostgreSQL_Client,
-                           m_dbHost.c_str(), m_dbUser.c_str(), m_dbPass.c_str());
-        CompanyRepository repo(conn, m_appletPath);
-        return repo.findByUid(uid);
+    if (!m_useInternalRepo) {
+        return m_repo->findByUid(uid);
     }
-    return m_repo->findByUid(uid);
+
+    ensureConnected();
+    CompanyRepository repo(*m_conn, m_appletPath);
+    return repo.findByUid(uid);
 }
 
 // ============================================================================
@@ -121,11 +136,11 @@ std::optional<CompanyData> CompanyService::getCompanyByUid(string_view uid)
 
 int64_t CompanyService::countCompanies(const CompanyFilter& filter)
 {
-    if (m_useInternalRepo) {
-        SqlConnection conn(SA_PostgreSQL_Client,
-                           m_dbHost.c_str(), m_dbUser.c_str(), m_dbPass.c_str());
-        CompanyRepository repo(conn, m_appletPath);
-        return repo.count(filter);
+    if (!m_useInternalRepo) {
+        return m_repo->count(filter);
     }
-    return m_repo->count(filter);
+
+    ensureConnected();
+    CompanyRepository repo(*m_conn, m_appletPath);
+    return repo.count(filter);
 }

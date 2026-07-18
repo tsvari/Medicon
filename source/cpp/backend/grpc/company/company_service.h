@@ -45,8 +45,16 @@ public:
     int64_t countCompanies(const CompanyFilter& filter);
 
 private:
-    [[nodiscard]] std::unique_ptr<CompanyRepository> createRepo();
+    /**
+     * @brief Ensure a shared database connection is established (lazy + reconnect)
+     *
+     * Creates the connection on first call and reconnects if the connection
+     * was dropped. No-op in testing mode (injected repository).
+     * @throws SAException if connection fails
+     */
+    void ensureConnected();
 
+    std::unique_ptr<SqlConnection> m_conn;  ///< Shared connection (internal mode)
     std::unique_ptr<CompanyRepository> m_repo;  ///< Injected repo (for testing)
     std::string m_appletPath;
     std::string m_dbHost;
