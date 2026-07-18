@@ -128,15 +128,15 @@ protected:
  */
 class ConfigFile : public ConfigFileBase
 {
-private:
+public:
     /**
-     * @brief Private constructor for singleton pattern
+     * @brief Create ConfigFile with explicit paths (non-singleton)
      * @param allProjectPath Root path containing all projects
      * @param projectName Name of the specific project
      */
     explicit ConfigFile(const char* allProjectPath, const char* projectName);
 
-public:
+    /**
     /**
      * @brief Get singleton instance using default project paths
      * @return Pointer to ConfigFile singleton

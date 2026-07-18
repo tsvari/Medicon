@@ -7,10 +7,10 @@ INITIALIZE_EASYLOGGINGPP
 
 int main()
 {
-    // Initialize and open config file
-    ConfigFile * config = ConfigFile::Instance();
+    // Create local config instance (no singleton dependency)
+    ConfigFile config(ALL_PROJECT_PATH, PROJECT_NAME);
     try {
-        config->load();
+        config.load();
     } catch(std::runtime_error & x) {
         std::cout << x.what();
     }
@@ -19,17 +19,17 @@ int main()
     // Initialize logger with global settings
     el::Configurations qGlobalLog;
     qGlobalLog.setGlobally(el::ConfigurationType::Format, "%user:%fbase:%line:%datetime:%level:%msg:");
-    qGlobalLog.setGlobally(el::ConfigurationType::Filename, config->logFilePath());
+    qGlobalLog.setGlobally(el::ConfigurationType::Filename, config.logFilePath());
     qGlobalLog.set(el::Level::Global, el::ConfigurationType::ToFile, "true");
     qGlobalLog.set(el::Level::Global, el::ConfigurationType::ToStandardOutput, "false");
     el::Loggers::setDefaultConfigurations(qGlobalLog, true);
 
-    const bool logSql = config->boolValueOr("log_sql", false);
+    const bool logSql = config.boolValueOr("log_sql", false);
     RunCompanyServer(12345, logSql,
-                     config->appletPath(),
-                     config->value("host"),
-                     config->value("user"),
-                     config->value("pass"));
+                     config.appletPath(),
+                     config.value("host"),
+                     config.value("user"),
+                     config.value("pass"));
 
     return 0;
 }

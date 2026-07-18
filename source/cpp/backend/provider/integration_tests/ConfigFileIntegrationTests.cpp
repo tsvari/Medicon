@@ -5,9 +5,8 @@ using std::string;
 
 TEST(ConfigFileIntegrationTests, LoadAndCheckData)
 {
-    ConfigFile * config = nullptr;
-    EXPECT_NO_THROW(config = ConfigFile::Instance());
-    EXPECT_NO_THROW(config->load());
+    ConfigFile config(ALL_PROJECT_PATH, PROJECT_NAME);
+    EXPECT_NO_THROW(config.load());
 
     string alProjectPath(ALL_PROJECT_APPDATA_PATH);
 
