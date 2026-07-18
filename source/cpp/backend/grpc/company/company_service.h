@@ -27,7 +27,8 @@ public:
     CompanyService(std::string_view appletPath,
                    std::string_view dbHost,
                    std::string_view dbUser,
-                   std::string_view dbPass);
+                   std::string_view dbPass,
+                   bool logSql = false);
 
     /**
      * @brief Construct with pre-built repository (testing mode)
@@ -60,5 +61,6 @@ private:
     std::string m_dbHost;
     std::string m_dbUser;
     std::string m_dbPass;
+    bool m_logSql = false;
     bool m_useInternalRepo = true;  ///< false when repo is injected
 };

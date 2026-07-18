@@ -9,11 +9,13 @@ using std::string_view;
 
 CompanyService::CompanyService(string_view appletPath,
                                string_view dbHost, string_view dbUser,
-                               string_view dbPass)
+                               string_view dbPass,
+                               bool logSql)
     : m_appletPath(appletPath)
     , m_dbHost(dbHost)
     , m_dbUser(dbUser)
     , m_dbPass(dbPass)
+    , m_logSql(logSql)
     , m_useInternalRepo(true)
 {
 }
@@ -57,7 +59,7 @@ CompanyData CompanyService::addCompany(const CompanyData& data)
     }
 
     ensureConnected();
-    CompanyRepository repo(*m_conn, m_appletPath);
+    CompanyRepository repo(*m_conn, m_appletPath, m_logSql);
     TransactionScope tx(*m_conn);
     CompanyData result = repo.add(data);
     tx.commit();
@@ -75,7 +77,7 @@ CompanyData CompanyService::editCompany(const CompanyData& data)
     }
 
     ensureConnected();
-    CompanyRepository repo(*m_conn, m_appletPath);
+    CompanyRepository repo(*m_conn, m_appletPath, m_logSql);
     TransactionScope tx(*m_conn);
     CompanyData result = repo.update(data);
     tx.commit();
@@ -93,7 +95,7 @@ DeleteResult CompanyService::deleteCompany(string_view uid)
     }
 
     ensureConnected();
-    CompanyRepository repo(*m_conn, m_appletPath);
+    CompanyRepository repo(*m_conn, m_appletPath, m_logSql);
     TransactionScope tx(*m_conn);
     DeleteResult result = repo.remove(uid);
     tx.commit();
@@ -111,7 +113,7 @@ std::vector<CompanyData> CompanyService::queryCompanies(const CompanyFilter& fil
     }
 
     ensureConnected();
-    CompanyRepository repo(*m_conn, m_appletPath);
+    CompanyRepository repo(*m_conn, m_appletPath, m_logSql);
     return repo.query(filter);
 }
 
@@ -126,7 +128,7 @@ std::optional<CompanyData> CompanyService::getCompanyByUid(string_view uid)
     }
 
     ensureConnected();
-    CompanyRepository repo(*m_conn, m_appletPath);
+    CompanyRepository repo(*m_conn, m_appletPath, m_logSql);
     return repo.findByUid(uid);
 }
 
@@ -141,6 +143,6 @@ int64_t CompanyService::countCompanies(const CompanyFilter& filter)
     }
 
     ensureConnected();
-    CompanyRepository repo(*m_conn, m_appletPath);
+    CompanyRepository repo(*m_conn, m_appletPath, m_logSql);
     return repo.count(filter);
 }

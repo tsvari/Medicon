@@ -2,6 +2,7 @@
 
 #include "include_backend_util.h"
 #include "JsonParameterFormatter.h"
+#include <easylogging++.h>
 
 using std::string;
 using std::vector;
@@ -10,9 +11,11 @@ using std::vector;
 // Construction
 // ============================================================================
 
-CompanyRepository::CompanyRepository(SqlConnection& conn, std::string_view appletPath)
+CompanyRepository::CompanyRepository(SqlConnection& conn, std::string_view appletPath,
+                                       bool logSql)
     : m_conn(conn)
     , m_appletPath(appletPath)
+    , m_logSql(logSql)
 {
 }
 
@@ -70,6 +73,8 @@ CompanyData CompanyRepository::add(const CompanyData& data)
     tpl.addParameter("JOINT_DATE", data.joint_date, DataInfo::Date);
     tpl.addParameter("LICENSE", data.license.c_str());
     tpl.parse();
+
+    LOG_IF(m_logSql, INFO) << "[SQL] company_insert: " << tpl.getDebugSql();
 
     SAString sql(tpl.sql().c_str());
     SACommand cmd(m_conn.connectionSa(), sql);
@@ -132,6 +137,8 @@ CompanyData CompanyRepository::update(const CompanyData& data)
     tpl.addParameter("LICENSE", data.license.c_str());
     tpl.parse();
 
+    LOG_IF(m_logSql, INFO) << "[SQL] company_update: " << tpl.getDebugSql();
+
     SAString sql(tpl.sql().c_str());
     SACommand cmd(m_conn.connectionSa(), sql);
     m_conn.connect();
@@ -185,6 +192,7 @@ DeleteResult CompanyRepository::remove(std::string_view uid)
     m_conn.setAutoCommit(true);
 
     cmd.addParameter("UID", uid.data());
+    LOG_IF(m_logSql, INFO) << "[SQL] company_delete: " << cmd.getSqlWithParameters();
     cmd.execute();
 
     DeleteResult result;
@@ -215,6 +223,8 @@ vector<CompanyData> CompanyRepository::query(const CompanyFilter& filter)
     cmd.setColumnValidator("FILTER_FIELD", &COMPANY_COLUMNS);
     m_conn.connect();
 
+    LOG_IF(m_logSql, INFO) << "[SQL] company_select: " << cmd.getSqlWithParameters();
+
     vector<CompanyData> results;
     while (cmd.query()) {
         results.push_back(rowToCompany(cmd));
@@ -231,6 +241,8 @@ std::optional<CompanyData> CompanyRepository::findByUid(std::string_view uid)
     SqlQuery cmd(m_conn, sqlPath("company_select_by_uid.sql"));
     m_conn.connect();
     cmd.addParameter("UID", uid.data());
+
+    LOG_IF(m_logSql, INFO) << "[SQL] company_select_by_uid: " << cmd.getSqlWithParameters();
 
     if (cmd.query()) {
         return rowToCompany(cmd);
@@ -251,6 +263,8 @@ int64_t CompanyRepository::count(const CompanyFilter& filter)
     SqlQuery cmd(m_conn, sqlPath("company_count.sql"), std::move(params));
     cmd.setColumnValidator("FILTER_FIELD", &COMPANY_COLUMNS);
     m_conn.connect();
+
+    LOG_IF(m_logSql, INFO) << "[SQL] company_count: " << cmd.getSqlWithParameters();
 
     if (cmd.query()) {
         return cmd.Field("ROW_COUNT").asInt64();

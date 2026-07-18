@@ -280,7 +280,7 @@ void RunCompanyServer(uint16_t port, bool logSql,
                       const std::string& dbPass)
 {
     auto service = std::make_unique<CompanyService>(
-        appletPath, dbHost, dbUser, dbPass);
+        appletPath, dbHost, dbUser, dbPass, logSql);
 
     CompanyServiceImpl impl(std::move(service), logSql);
 

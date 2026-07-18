@@ -17,7 +17,8 @@
  */
 class CompanyRepository {
 public:
-    CompanyRepository(SqlConnection& conn, std::string_view appletPath);
+    CompanyRepository(SqlConnection& conn, std::string_view appletPath,
+                     bool logSql = false);
     virtual ~CompanyRepository() = default;
 
     // CRUD operations
@@ -38,4 +39,5 @@ private:
 
     SqlConnection& m_conn;
     std::string m_appletPath;
+    bool m_logSql = false;
 };
