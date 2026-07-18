@@ -48,14 +48,10 @@ set(SOURCE_FILES
     ${BACKEND_INCLUDE_DIR}/sqlcommand.cpp
     ${BACKEND_INCLUDE_DIR}/sqlquery.cpp
 
-    ${BACKEND_GRPC_DIR}/company/company_service.cpp
-    ${BACKEND_GRPC_DIR}/company/company_repository.cpp
-
     SqlConnectionTests.cpp
     SqlConnectionIntegrationTests.cpp
     SqlCommandTests.cpp
     SqlCommandIntegrationTests.cpp
-    company/CompanyServiceTests.cpp
     SaBinaryTests.cpp
     SqlQueryTests.cpp
     SqlQueryIntegrationTests.cpp

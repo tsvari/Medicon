@@ -1,6 +1,12 @@
 /**
  * @file CompanyServiceTests.cpp
- * @brief Tests for CompanyService, CompanyRepository mock, and CompanyServiceImpl conversions
+ * @brief Tests for CompanyService with MockCompanyRepository
+ *
+ * Provider-level unit tests that verify CompanyService business logic
+ * using a mock repository — no database required.
+ *
+ * Moved from shared BackendTestProject (tests/company/) to provider
+ * unit_tests since these tests validate provider-domain behavior.
  */
 #include "company/company_service.h"
 #include "company_repository_mock.h"
@@ -180,9 +186,3 @@ TEST_F(CompanyServiceTest, CountCompanies_DelegatesToRepository)
     filter.value = "CountMe";
     EXPECT_EQ(m_service->countCompanies(filter), 3);
 }
-
-// ============================================================================
-// Note: CompanyServiceImpl::toCompanyData and toCompanyFilter are private
-// static methods. They are tested indirectly through the service tests above.
-// To test them directly, make them public or add friend test declarations.
-// ============================================================================

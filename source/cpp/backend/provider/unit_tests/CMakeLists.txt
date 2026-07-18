@@ -5,6 +5,7 @@ include(GoogleTest)
 
 add_executable(unit_tests
     SentryTests.cpp
+    CompanyServiceTests.cpp
 )
 
 find_package(GTest REQUIRED)
