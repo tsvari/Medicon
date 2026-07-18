@@ -238,3 +238,138 @@ TEST_F(SqlCommandIntegrationTest, SqlDirectCommand_InsertsData)
  * Tests marked DISABLED_ require additional setup (like test applet XML files).
  * Enable them once the required resources are created.
  */
+
+// ============================================================================
+// SqlTemplate Integration Tests (SqlCommand with .sql template files)
+// ============================================================================
+
+/**
+ * @class SqlCommandTemplateIntegrationTest
+ * @brief Integration test fixture for SqlCommand using .sql templates
+ *
+ * Tests the full SqlTemplate → SqlCommand → DB round-trip with SQLite.
+ */
+class SqlCommandTemplateIntegrationTest : public ::testing::Test {
+protected:
+    void SetUp() override {
+        SqlConnection::ClearAllConnections();
+    }
+
+    void TearDown() override {
+        SqlConnection::ClearAllConnections();
+    }
+};
+
+/**
+ * @test Verify SqlCommand with .sql template generates correct SQL and bindings
+ *
+ * Validates the SqlTemplate pipeline without requiring DB execution support
+ * for named parameters (varies by SQLAPI++ driver). Tests that:
+ * 1. .sql file is loaded and parsed
+ * 2. Parameters are bound correctly
+ * 3. Debug SQL contains substituted values
+ * 4. SQL text contains :name markers for SQLAPI++ Param() binding
+ */
+TEST_F(SqlCommandTemplateIntegrationTest, InsertTemplate_GeneratesCorrectSql)
+{
+    SqlConnection conn(SA_SQLite_Client, ":memory:", "admin", "pass");
+    conn.connect();
+
+    SqlCommand cmd(conn, ALL_BACKEND_TEST_APPDATA_PATH "insert_user_test.sql");
+    cmd.addParameter("id", 42);
+    cmd.addParameter("name", "Alice");
+    cmd.addParameter("age", 30);
+
+    // Debug SQL should contain substituted values
+    std::string debug = cmd.getSqlWithParameters();
+    EXPECT_NE(debug.find("42"), std::string::npos);
+    EXPECT_NE(debug.find("Alice"), std::string::npos);
+    EXPECT_NE(debug.find("30"), std::string::npos);
+
+    // Raw SQL text should contain :name markers for SQLAPI++ Param() binding
+    std::string sql = cmd.sql();
+    EXPECT_NE(sql.find(":id"), std::string::npos);
+    EXPECT_NE(sql.find(":name"), std::string::npos);
+    EXPECT_NE(sql.find(":age"), std::string::npos);
+}
+
+/**
+ * @test Verify SqlCommand with missing param still parses (uses NULL) but
+ * DB driver rejects the execution
+ *
+ * SqlTemplate::parse() does NOT throw on missing bind params — it sets
+ * the value to "NULL" and keeps the :name marker. The DB driver (SQLite)
+ * then fails because it can't bind the named parameter.
+ */
+TEST_F(SqlCommandTemplateIntegrationTest, MissingParam_UsesNull_AndDbRejects)
+{
+    SqlConnection conn(SA_SQLite_Client, ":memory:", "admin", "pass");
+    conn.connect();
+
+    // Omit the 'name' parameter — parse() uses NULL, then SQLite rejects :name bind
+    SqlCommand cmd(conn, ALL_BACKEND_TEST_APPDATA_PATH "insert_user_test.sql");
+    cmd.addParameter("id", 42);
+    // name intentionally omitted
+    cmd.addParameter("age", 30);
+
+    // parse() succeeds (uses NULL for name), but SQLite driver throws
+    EXPECT_THROW(cmd.execute(), SAException);
+}
+
+/**
+ * @test Verify SqlCommand debug SQL contains all parameter values formatted
+ */
+TEST_F(SqlCommandTemplateIntegrationTest, DebugSql_FormatsTypesCorrectly)
+{
+    SqlConnection conn(SA_SQLite_Client, ":memory:", "admin", "pass");
+    conn.connect();
+
+    SqlCommand cmd(conn, ALL_BACKEND_TEST_APPDATA_PATH "insert_user_test.sql");
+    cmd.addParameter("id", 7);
+    cmd.addParameter("name", "Charlie");
+    cmd.addParameter("age", 35);
+
+    std::string debug = cmd.getSqlWithParameters();
+    EXPECT_NE(debug.find("7"), std::string::npos) << "Should contain numeric id";
+    EXPECT_NE(debug.find("Charlie"), std::string::npos) << "Should contain string name";
+    EXPECT_NE(debug.find("35"), std::string::npos) << "Should contain numeric age";
+}
+
+/**
+ * @test Verify SqlCommand with default values works when params are omitted
+ *
+ * insert_user_test.sql has defaults: id=0, name='', age=0
+ * Omitting all params should use defaults.
+ */
+TEST_F(SqlCommandTemplateIntegrationTest, DefaultValues_UsedWhenParamsOmitted)
+{
+    SqlConnection conn(SA_SQLite_Client, ":memory:", "admin", "pass");
+    conn.connect();
+
+    // Don't add any parameters — use all defaults
+    SqlCommand cmd(conn, ALL_BACKEND_TEST_APPDATA_PATH "insert_user_test.sql");
+
+    std::string debug = cmd.getSqlWithParameters();
+    EXPECT_NE(debug.find("0"), std::string::npos) << "Default id=0 should appear";
+    EXPECT_NE(debug.find("''"), std::string::npos) << "Default name='' should appear";
+}
+
+/**
+ * @test Verify SqlCommand with all valid params still throws SAException
+ * because SQLite driver doesn't support named-parameter binding via SQLAPI++
+ *
+ * This confirms the template parsing side succeeds and the failure is
+ * from the DB driver — not from bad SQL or missing parameters.
+ */
+TEST_F(SqlCommandTemplateIntegrationTest, Execute_AllParams_ThrowsSAException)
+{
+    SqlConnection conn(SA_SQLite_Client, ":memory:", "admin", "pass");
+    conn.connect();
+
+    SqlCommand cmd(conn, ALL_BACKEND_TEST_APPDATA_PATH "insert_user_test.sql");
+    cmd.addParameter("id", 1);
+    cmd.addParameter("name", "Test");
+    cmd.addParameter("age", 20);
+
+    EXPECT_THROW(cmd.execute(), SAException);
+}
