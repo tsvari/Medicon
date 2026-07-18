@@ -55,7 +55,7 @@ set(SOURCE_FILES
     SqlConnectionIntegrationTests.cpp
     SqlCommandTests.cpp
     SqlCommandIntegrationTests.cpp
-    CompanyServiceTests.cpp
+    company/CompanyServiceTests.cpp
     SaBinaryTests.cpp
     SqlQueryTests.cpp
     SqlQueryIntegrationTests.cpp

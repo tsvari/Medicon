@@ -3,7 +3,7 @@
  * @brief Tests for CompanyService, CompanyRepository mock, and CompanyServiceImpl conversions
  */
 #include "company/company_service.h"
-#include "company/company_repository_mock.h"
+#include "company_repository_mock.h"
 #include "gtest/gtest.h"
 
 #include <memory>
