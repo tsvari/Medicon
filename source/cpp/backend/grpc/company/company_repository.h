@@ -18,16 +18,17 @@
 class CompanyRepository {
 public:
     CompanyRepository(SqlConnection& conn, std::string_view appletPath);
+    virtual ~CompanyRepository() = default;
 
     // CRUD operations
-    CompanyData add(const CompanyData& data);
-    CompanyData update(const CompanyData& data);
-    DeleteResult remove(std::string_view uid);
+    virtual CompanyData add(const CompanyData& data);
+    virtual CompanyData update(const CompanyData& data);
+    virtual DeleteResult remove(std::string_view uid);
 
     // Query operations
-    std::vector<CompanyData> query(const CompanyFilter& filter);
-    std::optional<CompanyData> findByUid(std::string_view uid);
-    int64_t count(const CompanyFilter& filter);
+    virtual std::vector<CompanyData> query(const CompanyFilter& filter);
+    virtual std::optional<CompanyData> findByUid(std::string_view uid);
+    virtual int64_t count(const CompanyFilter& filter);
 
 private:
     [[nodiscard]] std::string sqlPath(const char* name) const;
