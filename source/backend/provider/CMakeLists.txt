@@ -38,10 +38,17 @@ set(HEADER_FILES
 
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.pb.h
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.h
+
+    ${BACKEND_GRPC_DIR}/company_types.h
+    ${BACKEND_GRPC_DIR}/company_repository.h
+    ${BACKEND_GRPC_DIR}/company_service.h
 )
 
 set(SOURCE_FILES
     ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.cpp
+
+    ${BACKEND_GRPC_DIR}/company_repository.cpp
+    ${BACKEND_GRPC_DIR}/company_service.cpp
 
     ${BACKEND_INCLUDE_DIR}/include_backend_util.cpp
     ${BACKEND_INCLUDE_DIR}/sqltemplate.cpp
