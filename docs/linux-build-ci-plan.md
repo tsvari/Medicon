@@ -72,6 +72,46 @@
 
 ---
 
+## AI Agent State — Transfer & Restore on Linux
+
+All agent rules and tools are committed, but local state DBs are gitignored.
+Restore full AI support on the Linux machine with:
+
+### What's already committed (transfers automatically via clone)
+- `source/AGENTS.md`, `source/CLAUDE.md` — agent rules
+- `source/ToolsForAI/*.py` — all AI tools (ai_memory, session_mgr, source_graph, taskctl)
+- `docs/ai-state/ai_memory_export.json` — snapshot of AI memory records
+- `docs/ai-state/handoffs/` — session handoff briefs
+- `docs/linux-build-ci-plan.md` — this plan
+
+### Restore steps on Linux (after clone)
+
+```bash
+# 1. Rebuild the source graph index (220MB local DB, not committed)
+cd source
+python ToolsForAI/source_graph.py build -i
+
+# 2. Restore AI memory from the committed snapshot
+python ToolsForAI/ai_memory.py import docs/ai-state/ai_memory_export.json
+
+# 3. Handoffs are readable at docs/ai-state/handoffs/ — the active
+#    handoff is the most recent one; read it for full context.
+
+# 4. Session state (ai_session.db) is machine-local. The handoff briefs
+#    serve as the cross-machine handoff mechanism — start a new session:
+python ToolsForAI/session_mgr.py start "linux-migration" --goal "..." 
+```
+
+### Important: update the snapshot after significant work
+After meaningful new decisions/facts, re-export and commit:
+
+```bash
+python ToolsForAI/ai_memory.py export --format json > docs/ai-state/ai_memory_export.json
+git add docs/ai-state && git commit -m "Update AI state snapshot"
+```
+
+---
+
 ## Key Rule
 
 **Do NOT set up CI before the backend builds on Linux.** CI automates what already works; the Linux build is the real engineering work.

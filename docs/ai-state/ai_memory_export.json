@@ -1,0 +1,420 @@
+[
+  {
+    "key": "Backend Provider current state",
+    "value": "149 tests all passing. Company Service/Repository layered architecture done. Connection reuse per-request (no pool). SQL logging flag exists but not wired to Repository. gRPC insecure (TLS+Auth0 planned). Config: local instance, no singleton.",
+    "tags": [
+      "state",
+      "backend"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-07-18T19:45:44+00:00",
+    "updated_at": "2026-07-18T19:45:44+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "Backend review completed 2026-07-18",
+    "value": "Review HTML in AI-text/Backend_Provider_Review_2026-07-18.html. All 3 immediate recommendations implemented. 152 tests passing. Next: TLS/Auth0, InitAllConnections removal.",
+    "tags": [
+      "review",
+      "complete"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-07-18T20:38:46+00:00",
+    "updated_at": "2026-07-18T20:38:46+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "Company tests co-located",
+    "value": "Company domain tests now live in grpc/company/tests/ (standalone company_tests target, linked via provider CMakeLists add_subdirectory). Pattern for future entities: each domain gets its own tests/ sibling. Also fixed toCompanyFilter crash on empty/malformed JSON (tryFromJsonString). 160 tests passing.",
+    "tags": [
+      "decision",
+      "architecture",
+      "complete"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-08-02T19:47:37+00:00",
+    "updated_at": "2026-08-02T19:47:37+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "ConfigFile path fix",
+    "value": "ConfigFile::Instance() used ALL_PROJECT_APPDATA_PATH internally. When removed, all 4 callers wrongly used ALL_PROJECT_PATH. Fixed in commit da1465d. Provider tests and provider.exe now work correctly.",
+    "tags": [
+      "decision",
+      "bugfix",
+      "complete"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-07-18T18:40:58+00:00",
+    "updated_at": "2026-07-18T18:40:58+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "ConfigFile singleton removal",
+    "value": "ConfigFile::Instance() no longer used in production code. main.cpp and all provider tests now create local ConfigFile(path, name) instances. Instance() kept only for backward compat and ConfigFile's own unit tests. This completes critique item #3 (Global State).",
+    "tags": [
+      "decision",
+      "architecture",
+      "complete"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-07-18T18:20:16+00:00",
+    "updated_at": "2026-07-18T18:20:16+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "Connection reuse implemented",
+    "value": "CompanyService now shares one SqlConnection across all CRUD methods. Lazy init on first use, auto-reconnect if dropped. Commit a8d16ab.",
+    "tags": [
+      "decision",
+      "backend",
+      "complete"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-07-18T19:47:24+00:00",
+    "updated_at": "2026-07-18T19:47:24+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "Development queue 2026-08-02 (revised v2)",
+    "value": "DONE: [1] InitAllConnections removed, [2] stale company_server.hpp removed. REMAINING ORDER: [3] Query composition (dynamic query builder) [4] Connection pool [5] Frontend abstraction layers (cache/retry/offline) [6] One service per bounded context [7] New entities User/License/Audit (DEFERRED - do after services stable, but BEFORE TLS) [8] gRPC TLS + Auth0 (MOST DEFERRED - just before first real deployment). Rationale: build services/entities once the bounded-context split is settled, avoid rework; TLS last keeps dev friction low.",
+    "tags": [
+      "plan",
+      "roadmap",
+      "backend"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-08-02T20:51:34+00:00",
+    "updated_at": "2026-08-02T20:51:34+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "GrpcProtoTests project",
+    "value": "Standalone gRPC domain test project at backend/grpc/tests/ (GrpcProtoTests). Own conanfile.py + CMakeLists + build/. Tests all gRPC domain services independent of provider. Future entities (User/License/Audit) add tests here. Build: cd backend/grpc/tests && conan install . --output-folder build/x86-64/Debug -pr:b x86_64-windows-msvc194 -pr:h x86_64-windows-msvc194 -s build_type=Debug --build missing && cmake -S . -B build/x86-64/Debug/build -G 'Visual Studio 17 2022' -DCMAKE_TOOLCHAIN_FILE=build/x86-64/Debug/build/generators/conan_toolchain.cmake && cmake --build build/x86-64/Debug/build --config Debug. 160 tests total.",
+    "tags": [
+      "build",
+      "architecture",
+      "complete"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-08-02T19:58:13+00:00",
+    "updated_at": "2026-08-02T19:58:13+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "GrpcProtoTests restructured by domain",
+    "value": "grpc/tests/ now organized: company/unit/ (service+server tests+mock) and company/integration/ (sql template+CRUD+logging). Company tests moved out of provider. Provider integration_tests has only ConfigFileIntegrationTests. Future entities: tests/user/, tests/license/. All 154 tests passing.",
+    "tags": [
+      "architecture",
+      "complete",
+      "test"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-08-02T20:45:07+00:00",
+    "updated_at": "2026-08-02T20:45:07+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "InitAllConnections removed - queue item 1 done",
+    "value": "SqlConnection global state fully eliminated (default ctor, InitAllConnections, ClearAllConnections, IsGloballyInitialized, static members). Only parameterized per-instance construction. 484 lines removed. 154 tests passing. Next queue item: remove stale company_server.hpp at old path.",
+    "tags": [
+      "decision",
+      "architecture",
+      "complete"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-08-02T20:20:24+00:00",
+    "updated_at": "2026-08-02T20:20:24+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "Linux backend build + CI plan",
+    "value": "PLAN: Backend must run on Linux in production; frontend Windows then Mac/Android/iOS. STEP 1 (IN PROGRESS): Linux build readiness - compile SQLAPI++ from Linux source in assets/SQLAPI_installers/sqlapi-5.3.5.tar.gz (has g++ binaries + Makefile.gnu), create Conan profile x86_64-linux-gcc, adjust sqlapi-config.cmake (Windows-specific now), test global-settings.cmake Linux branches, get all 154 tests passing on Linux. User has a Linux machine ready. STEP 2 (AFTER Step 1 works): choose CI - no Jenkins server/experience; recommend GitHub Actions (hosted Linux/Windows/Mac runners) OR self-hosted Jenkins if user wants to learn it; then CI stages: checkout > conan install > cmake configure > build provider > build tests > run unit > run integration > publish reports; per-PR build+unit, nightly full+integration. Do NOT do CI before Linux build works.",
+    "tags": [
+      "plan",
+      "ci",
+      "linux",
+      "backend"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-08-02T21:06:38+00:00",
+    "updated_at": "2026-08-02T21:06:38+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "Stale company_server.hpp removed - queue item 2 done",
+    "value": "Deleted grpc/company/company_server.hpp redirect; main.cpp includes company_server.h. Next queue item: #3 New entities User/License/Audit.",
+    "tags": [
+      "cleanup",
+      "complete"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-08-02T20:49:53+00:00",
+    "updated_at": "2026-08-02T20:49:53+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "abandoned-frontend-tests",
+    "value": "NOTE: source/cpp/frontend/ProviderDesktop/integration_tests/ appears abandoned/stale. May need review or removal later. Not urgent. Also: source/cpp/frontend/source/WebViewAuth/ and source/cpp/frontend/source/ItemModelTestUI/ may be in similar state. Investigate when doing frontend work.",
+    "tags": [
+      "note",
+      "future"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-07-18T17:16:05+00:00",
+    "updated_at": "2026-07-18T17:16:05+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "agent-rules",
+    "value": "AGENTS.md and CLAUDE.md updated with ZERO-TOLERANCE rules: (1) Source Graph is the ONLY navigation tool - grep/file_search/semantic_search FORBIDDEN for project code (2) Startup sequence is MANDATORY before any work (3) Session manager is the handoff protocol - all events logged LIVE (4) AI memory is the persistent brain for durable facts (5) Deviation requires session event + user approval",
+    "tags": [
+      "decision",
+      "config"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-06-30T20:08:06+00:00",
+    "updated_at": "2026-06-30T20:08:06+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "build-rules",
+    "value": "BUILD RULES (after migration to cpp/) \u2014 Provider: cd source/cpp/backend/provider/build/x86-64/Debug && conan install ../../.. --output-folder . -pr:b x86_64-windows-msvc194 -pr:h x86_64-windows-msvc194 -s build_type=Debug --build missing && cd source/cpp/backend/provider && cmake --preset conan-default && cmake --build build/x86-64/Debug/build --config Debug. Tests: cd source/cpp/backend/source/tests/build/x86-64/Debug && conan install ../../.. --output-folder . -pr:b x86_64-windows-msvc194 -pr:h x86_64-windows-msvc194 -s build_type=Debug --build missing && cd source/cpp/backend/source/tests && cmake -S . -B build/x86-64/Debug/build -G 'Visual Studio 17 2022' -DCMAKE_TOOLCHAIN_FILE=build/x86-64/Debug/build/generators/conan_toolchain.cmake -DCMAKE_POLICY_DEFAULT_CMP0091=NEW && cmake --build build/x86-64/Debug/build --config Debug && ./build/x86-64/Debug/build/Debug/BackendTestProject.exe. Note: use absolute TOOLCHAIN_FILE path if relative fails.",
+    "tags": [
+      "build",
+      "config"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-07-18T16:05:09+00:00",
+    "updated_at": "2026-07-18T16:23:14+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "cmake-hardcoded-analysis",
+    "value": "Reviewed 15 CMake files. Major issues: (1) global-settings.cmake uses hardcoded absolute paths (C:/projects/MediCon, /home/tsvari/Projects/Medicon) instead of CMAKE_SOURCE_DIR. (2) source/source duplication in path structure. (3) SQLAPI import duplicated in backend/provider/CMakeLists.txt and backend/source/tests/CMakeLists.txt. (4) include_directories() used everywhere instead of modern target_include_directories(). (5) backend/providerQt/CMakeLists.txt is standalone, doesn't include global-settings.cmake. (6) Test CMakeLists duplicate library setup instead of linking provider_lib. (7) C++ standard hardcoded per file.",
+    "tags": [
+      "cmake",
+      "pattern",
+      "refactoring"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-07-09T20:04:10+00:00",
+    "updated_at": "2026-07-09T20:04:10+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "code-quality-stats",
+    "value": "Medicon code quality: 668K LOC total, 2704 source files. Classes: 4302. Dead methods: 12713. Duplicate blocks: 3102-4296. TODO/FIXME: 1818. Crash risks (critical): 23. Memory leak risk files: 40. C-style casts: 555. Raw ptr members: 185. Low coverage files (<40%): 1276. Review queue items: 1461. Untested function maps: 978.",
+    "tags": [
+      "pattern",
+      "config"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-06-30T20:12:55+00:00",
+    "updated_at": "2026-06-30T20:12:55+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "crash-leak-review-findings",
+    "value": "Crash/leak review of parameterized-SQL diff (sqlapplet/sqlcommand/sqlquery/company_server.hpp). NO crash/UB/leak found - both defects are caught exceptions = functional regressions. ROOT A (HIGH): FILTER_VALUE declared Type=FIELD in company_select.xml/company_count.xml but used as free-text inside LIKE '%:FILTER_VALUE:%'; new isValidIdentifier() regex ^[a-zA-Z_][a-zA-Z0-9_]{0,62}$ rejects spaces/apostrophes/empty -> every normal company search/count throws SQLAppletException -> Status INTERNAL. FILTER_FIELD (real column) is fine. Fix: make FILTER_VALUE a bound STRING (LIKE '%'||:v||'%') not FIELD. ROOT B (MEDIUM): unguarded std::stod/stoll on NUMERIC bindings (sqlquery.cpp:76-87, sqlcommand.cpp:76-87, company_server.hpp:101-114 AddCompany + 204-217 EditCompany) throw std::invalid_argument/out_of_range on non-numeric client JSON (SERVER_UID/OFFSET/LIMIT); these are std::logic_error, NOT caught by catch(SAException&)/catch(SQLAppletException&), fall to catch(...) ABORTED which skips con.rollback(). Fix: wrap conversions, rethrow as SQLAppletException, add catch(std::exception&) with rollback. Refuted: DeleteCompany/SqlCommand malformed-numeric (company_delete.xml UID is STRING-only).",
+    "tags": [
+      "bug",
+      "review",
+      "security"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-06-30T21:34:27+00:00",
+    "updated_at": "2026-06-30T21:34:27+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "gRPC TLS + Auth0 plan",
+    "value": "Future task: Add TLS support to gRPC server with optional config and Auth0 token verification. Currently uses InsecureServerCredentials(). Need to add SslServerCredentials() with server cert/key, plus interceptor for Auth0 JWT validation. Config keys: tls_enabled, tls_cert_path, tls_key_path, auth0_domain, auth0_audience.",
+    "tags": [
+      "plan",
+      "security",
+      "backend"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-07-18T19:45:40+00:00",
+    "updated_at": "2026-07-18T19:45:40+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "layered-architecture-done",
+    "value": "Steps 1-3 of #4 complete: Created CompanyData/CompanyFilter domain types, CompanyRepository (all SQL extracted from company_server.hpp), CompanyService (business logic + TransactionScope + repo injection). 6 new files. 113/113 tests passing. Next: Step 4 (split company_server.hpp into .h+.cpp), Step 5 (wire layers), Step 6 (add tests).",
+    "tags": [
+      "architecture",
+      "phase4"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-07-18T15:52:57+00:00",
+    "updated_at": "2026-07-18T15:52:57+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "migration-plan",
+    "value": "Architectural migration plan: 3 phases, total ~6-8 days. Phase 1 (3-4d): Create SqlTemplate class (replaces SQLApplet), ColumnAllowList utility, new .sql file format with --@param headers, add DI to SqlConnection. Phase 2 (2-3d): Port 6 XML applets to .sql files, update callers and tests. Phase 3 (1d): Delete old XML code, cleanup. Key change: FIELD type replaced by COLUMN type with explicit constexpr allow-lists instead of regex validation.",
+    "tags": [
+      "architecture",
+      "plan"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-07-16T19:19:11+00:00",
+    "updated_at": "2026-07-16T19:19:11+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "phase1-complete",
+    "value": "Phase 1 foundation built: (1) Added DataInfo::Column enum to include_util.h, (2) Created column_allowlist.h with constexpr ColumnAllowList<>, (3) Created sqltemplate.h/.cpp with .sql file parser using --@param header format, (4) Added .sql constructors to SqlCommand/SqlQuery, deprecated old XML ones, (5) Created transactionscope.h RAII helper, (6) Updated both CMakeLists.txt. SqlTemplate handles COLUMN types via allow-lists, uses m_formatter.toMap() for value extraction.",
+    "tags": [
+      "architecture",
+      "phase1"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-07-16T19:43:24+00:00",
+    "updated_at": "2026-07-16T19:43:24+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "phase2-complete",
+    "value": "Phase 2 migration complete: Created 6 .sql files (insert/update/delete/select/count/select_by_uid) in assets/app-data/provider/sql-applets/. Created company_column_allowlist.h with constexpr COMPANY_COLUMNS allow-list. Updated company_server.hpp all 6 gRPC methods to use SqlTemplate/SqlCommand/SqlQuery with .sql paths. Old XML applets preserved but no longer referenced from server code. FILTER_VALUE fixed from FIELD to STRING with safe LIKE binding.",
+    "tags": [
+      "architecture",
+      "phase2"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-07-16T19:48:38+00:00",
+    "updated_at": "2026-07-16T19:48:38+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "phase3-complete",
+    "value": "Phase 3 cleanup complete: All XML/SQLApplet code removed. Cleaned up SqlCommand/SqlQuery classes (no more m_applet/m_useTemplate). SqlTemplate has static setSearchPath. Added .sql test file for integration tests. All source code references to old SQLApplet eliminated.",
+    "tags": [
+      "architecture",
+      "phase3"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-07-16T19:58:18+00:00",
+    "updated_at": "2026-07-16T19:58:18+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "project-architecture",
+    "value": "Medicon: C++23/Qt6/gRPC/PostgreSQL/SQLAPI++ desktop app. Backend: gRPC server (company_server.hpp) with SQLApplet XML-based SQL templating, SqlConnection/SqlCommand/SqlQuery wrappers around SQLAPI++. Frontend: Qt6 desktop (ProviderDesktop) with gRPC client. Shared: ConfigFile (JSON/INI), JsonParameterFormatter, TypeToStringFormatter, easyloggingpp. 3rd party: nlohmann/json, Markup XML parser, SQLAPI++, gRPC. C++23 standard. Conan deps: easyloggingpp/9.97.1, gtest/1.16.0, sentry-native/0.11.3",
+    "tags": [
+      "architecture",
+      "config"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-06-30T20:12:51+00:00",
+    "updated_at": "2026-06-30T20:12:51+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "project-estimation",
+    "value": "Medicon project estimation: ~669K LOC, 2704 files, C++23/Qt6/gRPC/PostgreSQL/SQLAPI++ desktop app. Key metrics: 4302 classes, 29179 functions, 23 crash risks, 40 leak-risk files, 1818 TODOs, 12713 dead methods, 1461 review items, 1276 low-coverage files, 555 C-style casts, 185 raw ptr members. Backend: SQLAPI++ wrappers + SQLApplet XML templating + gRPC server. Frontend: Qt6 desktop + gRPC client. Tech debt is significant.",
+    "tags": [
+      "architecture",
+      "estimation"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-07-16T17:52:39+00:00",
+    "updated_at": "2026-07-16T17:52:39+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "project-size-correction",
+    "value": "CRITICAL CORRECTION: Medicon project's OWN code is only ~26K LOC (application) + ~11K LOC (tests) = ~37K LOC total, NOT 669K LOC. The original 669K LOC included 640K LOC of 3rd-party code (json-develop, easyloggingpp, Markup, grpc build headers) stored in the repo under 3party/ and grpc/cpp-source/. All 26 crash risks, 555 C-style casts, 185 raw pointers, 1818 TODOs, 12713 dead methods are in 3rd-party code, not project code. The actual project has: 1 memory leak risk, 775 duplicate blocks, 20 review queue items, and ~5K LOC of tests.",
+    "tags": [
+      "estimation",
+      "correction",
+      "architecture"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-07-16T18:12:38+00:00",
+    "updated_at": "2026-07-16T18:12:38+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "security-risks",
+    "value": "Medicon security hotspots (from SECURITY_AUDIT_2026-01-31): (1) SQL injection via string-substitution SQL templating in SQLApplet - XML placeholders :Param: replaced by raw string replace (2) gRPC insecure credentials + reflection enabled (3) SQL logged on exceptions may leak PII (4) Need prepared statements, type validation, string escaping",
+    "tags": [
+      "security",
+      "decision"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-06-30T20:12:53+00:00",
+    "updated_at": "2026-06-30T20:12:53+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "sql-injection-fix",
+    "value": "Fixed SQL injection vulnerability in Medicon. Changes: (1) Added SQLApplet::parseParameterized() - generates SQL with :Name markers instead of substituted values (2) Added SQLApplet::isValidIdentifier() - strict validation for FIELD-type params (3) Added SqlCommand::executeParameterized() - binds via SQLAPI++ Param() API (4) Added SqlQuery::executeParameterized() + setParameterized() flag for query() compat (5) Updated company_server.hpp - all 6 gRPC methods use parameterized mode. Files: backend/source/sqlapplet.h/.cpp, backend/source/sqlcommand.h/.cpp, backend/source/sqlquery.h/.cpp, backend/grpc/company_server.hpp, backend/source/tests/SqlAppletTests.cpp, SqlCommandTests.cpp, SqlQueryTests.cpp",
+    "tags": [
+      "security",
+      "decision"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-06-30T20:32:44+00:00",
+    "updated_at": "2026-06-30T20:32:44+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "sql-injection-fix-v2",
+    "value": "Refactored SQL injection fix using true parameterized queries via SQLAPI++ Param() API (not string escaping). Key changes: (1) SQLApplet::parse() generates :name markers instead of inline values for all non-FIELD types (2) SQLApplet::isValidIdentifier() validates FIELD params with regex ^[a-zA-Z_][a-zA-Z0-9_]{0,62}$ (3) SQLApplet::paramBindings() exposes binding info (4) SQLApplet::getDebugSql() returns human-readable SQL with inlined values (5) SqlCommand::execute() and SqlQuery::execute() bind params via SACommand::Param() (6) company_server.hpp AddCompany/EditCompany updated with binding loops. All function names preserved. Database never sees raw user values in SQL text.",
+    "tags": [
+      "security",
+      "decision",
+      "pattern"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-06-30T20:49:11+00:00",
+    "updated_at": "2026-06-30T20:49:11+00:00",
+    "access_count": 0
+  },
+  {
+    "key": "step4-complete",
+    "value": "Step 4 (#4 Layered Architecture) complete: company_server.hpp split into .h + .cpp. CompanyServiceImpl is now a thin gRPC adapter that delegates to CompanyService. RunCompanyServer wires layers. 113/113 tests passing. Build: all 5 targets clean. Next: Step 5 (none, already wired in RunCompanyServer) and Step 6 (add CompanyService+Repository tests).",
+    "tags": [
+      "architecture",
+      "phase4"
+    ],
+    "scope": "persistent",
+    "project": "",
+    "created_at": "2026-07-18T17:22:03+00:00",
+    "updated_at": "2026-07-18T17:22:03+00:00",
+    "access_count": 0
+  }
+]
