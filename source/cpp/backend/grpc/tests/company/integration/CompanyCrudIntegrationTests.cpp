@@ -34,7 +34,8 @@ protected:
     void SetUp() override
     {
         // Determine applet path from project config
-        ConfigFile cfg(ALL_PROJECT_APPDATA_PATH, PROJECT_NAME);
+        // Provider's app-data holds the company .sql templates
+        ConfigFile cfg(ALL_PROJECT_APPDATA_PATH, "provider");
         ASSERT_NO_THROW(cfg.load());
         m_appletPath = cfg.appletPath();
 

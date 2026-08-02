@@ -41,6 +41,7 @@ set(SOURCE_FILES
     ${INCLUDE_DIR}/include_util.cpp
     ${INCLUDE_DIR}/JsonParameterFormatter.cpp
     ${INCLUDE_DIR}/TypeToStringFormatter.cpp
+    ${INCLUDE_DIR}/configfile.cpp
     ${THIRD_PARTY_INCLUDE_DIR}/Markup/Markup.cpp
 
     # SQL infrastructure
@@ -59,10 +60,13 @@ set(SOURCE_FILES
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.pb.cc
     ${ALL_PROJECT_GRPC_CPP_SOURCE}/company.grpc.pb.cc
 
-    # Test files
+    # Test files — company domain (unit + integration)
     test_main.cpp
-    CompanyServiceTests.cpp
-    CompanyServiceImplTests.cpp
+    company/unit/CompanyServiceTests.cpp
+    company/unit/CompanyServiceImplTests.cpp
+    company/integration/CompanySqlTemplateTests.cpp
+    company/integration/CompanyCrudIntegrationTests.cpp
+    company/integration/CompanyLoggingIntegrationTests.cpp
 )
 
 add_executable(grpc_proto_tests

@@ -27,7 +27,8 @@ class CompanyLoggingIntegrationTest : public ::testing::Test {
 protected:
     void SetUp() override
     {
-        ConfigFile config(ALL_PROJECT_APPDATA_PATH, PROJECT_NAME);
+        // Provider's app-data holds the company .sql templates
+        ConfigFile config(ALL_PROJECT_APPDATA_PATH, "provider");
         ASSERT_NO_THROW(config.load());
         m_appletPath = config.appletPath();
     }
