@@ -11,7 +11,10 @@ assets/app-data/provider/log
 /source/source/3party/grpc
 /source/source/3party
 /source/backend/source/3party/SQLAPI
-source/cpp/backend/source/3party/SQLAPI/linux/
+# SQLAPI++ is a third-party prebuilt binary tree (~1.4 GB) — not kept in git.
+# Restore it with scripts/fetch_sqlapi.ps1 (Windows) / fetch_sqlapi.sh (Linux).
+# Installers are kept locally under assets/SQLAPI_installers/ (also ignored).
+source/cpp/backend/source/3party/SQLAPI/
 /assets/app-data/provider/provider.json
 assets/app-data/provider/provider.xml
 __pycache__/
