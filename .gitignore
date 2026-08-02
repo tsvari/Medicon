@@ -11,6 +11,7 @@ assets/app-data/provider/log
 /source/source/3party/grpc
 /source/source/3party
 /source/backend/source/3party/SQLAPI
+source/cpp/backend/source/3party/SQLAPI/linux/
 /assets/app-data/provider/provider.json
 assets/app-data/provider/provider.xml
 __pycache__/
