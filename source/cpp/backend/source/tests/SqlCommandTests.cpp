@@ -14,16 +14,11 @@
 /**
  * @class SqlCommandTests
  * @brief Test fixture for SqlCommand functionality
+ *
+ * No global state — each test creates its own SqlConnection.
  */
 class SqlCommandTests : public ::testing::Test {
 protected:
-    void SetUp() override {
-        SqlConnection::InitAllConnections(SA_PostgreSQL_Client, "host", "user", "pass");
-    }
-
-    void TearDown() override {
-        SqlConnection::ClearAllConnections();
-    }
 };
 
 /**
@@ -35,7 +30,7 @@ TEST_F(SqlCommandTests, AddParameter_AllTypes_GeneratesCorrectSQL)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlCommand command(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     // Add various parameter types
@@ -70,7 +65,7 @@ TEST_F(SqlCommandTests, AddParameter_StringWithQuotes_EscapesCorrectly)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
     
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlCommand command(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     // Add all required parameters from test.xml
@@ -95,7 +90,7 @@ TEST_F(SqlCommandTests, AddParameter_Integer_FormatsCorrectly)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
     
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlCommand command(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     // Add all required parameters from test.xml
@@ -118,7 +113,7 @@ TEST_F(SqlCommandTests, AddParameter_Double_MaintainsPrecision)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
     
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlCommand command(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     // Add all required parameters from test.xml
@@ -138,7 +133,7 @@ TEST_F(SqlCommandTests, AddParameter_Double_MaintainsPrecision)
  */
 TEST_F(SqlCommandTests, SqlDirectCommand_ExecutesDirect)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlDirectCommand command(con, SAString("SELECT 1"));
     
     // Should throw because connection is not established

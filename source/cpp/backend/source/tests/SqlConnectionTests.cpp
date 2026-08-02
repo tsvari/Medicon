@@ -2,129 +2,26 @@
  * @file SqlConnectionTests.cpp
  * @brief Unit tests for SqlConnection class
  * 
- * This file contains comprehensive Google Test unit tests for the improved
- * SqlConnection class, verifying thread safety, error handling, credential
- * validation, and transaction management.
+ * This file contains Google Test unit tests for the SqlConnection class,
+ * verifying error handling, credential validation, move semantics,
+ * and transaction management. No global state.
  * 
- * @version 2.0
- * @date 2026-01-05
+ * @version 3.0
+ * @date 2026-08-02
  */
 
 #include "sqlconnection.h"
 #include "gtest/gtest.h"
-#include <thread>
-#include <vector>
 
 /**
  * @class SqlConnectionTest
  * @brief Test fixture for SqlConnection tests
  * 
- * Sets up and tears down test environment, ensuring global state is clean.
+ * No setup needed — no global state.
  */
 class SqlConnectionTest : public ::testing::Test {
 protected:
-    /**
-     * @brief Set up test environment before each test
-     */
-    void SetUp() override {
-        // Ensure global state is clear before each test
-        SqlConnection::ClearAllConnections();
-    }
-
-    /**
-     * @brief Clean up test environment after each test
-     */
-    void TearDown() override {
-        // Clean up global state after each test
-        SqlConnection::ClearAllConnections();
-    }
 };
-
-/**
- * @test Verify that default constructor throws when global params not initialized
- * 
- * This test ensures that creating a SqlConnection object using the default
- * constructor throws std::runtime_error when InitAllConnections has not been called.
- */
-TEST_F(SqlConnectionTest, DefaultConstructorWithoutInit_ThrowsException)
-{
-    // Attempting to create connection without initialization should throw
-    EXPECT_THROW({
-        SqlConnection connection;
-    }, std::runtime_error);
-}
-
-/**
- * @test Verify that InitAllConnections rejects empty parameters
- * 
- * Ensures input validation catches invalid credentials.
- */
-TEST_F(SqlConnectionTest, InitAllConnections_WithEmptyParams_ThrowsException)
-{
-    // Empty host should throw
-    EXPECT_THROW({
-        SqlConnection::InitAllConnections(SA_Client_NotSpecified, "", "user", "pass");
-    }, std::invalid_argument);
-    
-    // Empty user should throw
-    EXPECT_THROW({
-        SqlConnection::InitAllConnections(SA_Client_NotSpecified, "host", "", "pass");
-    }, std::invalid_argument);
-    
-    // Empty password should throw
-    EXPECT_THROW({
-        SqlConnection::InitAllConnections(SA_Client_NotSpecified, "host", "user", "");
-    }, std::invalid_argument);
-    
-    // Null parameters should throw
-    EXPECT_THROW({
-        SqlConnection::InitAllConnections(SA_Client_NotSpecified, nullptr, "user", "pass");
-    }, std::invalid_argument);
-}
-
-/**
- * @test Verify successful initialization and default constructor
- * 
- * Tests that after proper initialization, default constructor works correctly.
- */
-TEST_F(SqlConnectionTest, InitAllConnections_ValidParams_AllowsDefaultConstructor)
-{
-    // Initialize with valid parameters (using NotSpecified to avoid loading drivers)
-    ASSERT_NO_THROW({
-        SqlConnection::InitAllConnections(SA_Client_NotSpecified, "localhost", "testuser", "testpass");
-    });
-    
-    // Verify initialization status
-    EXPECT_TRUE(SqlConnection::IsGloballyInitialized());
-    
-    // Default constructor should now work
-    EXPECT_NO_THROW({
-        SqlConnection connection;
-    });
-}
-
-/**
- * @test Verify ClearAllConnections properly erases global state
- * 
- * Ensures sensitive credentials can be cleared from memory.
- */
-TEST_F(SqlConnectionTest, ClearAllConnections_ErasesGlobalState)
-{
-    // Initialize global parameters
-    SqlConnection::InitAllConnections(SA_Client_NotSpecified, "dbserver", "admin", "secret");
-    ASSERT_TRUE(SqlConnection::IsGloballyInitialized());
-    
-    // Clear global parameters
-    SqlConnection::ClearAllConnections();
-    
-    // Verify state is cleared
-    EXPECT_FALSE(SqlConnection::IsGloballyInitialized());
-    
-    // Default constructor should now throw
-    EXPECT_THROW({
-        SqlConnection connection;
-    }, std::runtime_error);
-}
 
 /**
  * @test Verify parameterized constructor with valid credentials
@@ -224,79 +121,6 @@ TEST_F(SqlConnectionTest, MoveAssignment_TransfersOwnership)
     std::string info = conn2.getConnectionInfo();
     EXPECT_NE(info.find("user1"), std::string::npos);
     EXPECT_NE(info.find("server1"), std::string::npos);
-}
-
-/**
- * @test Verify thread safety of InitAllConnections
- * 
- * Tests that multiple threads can safely call InitAllConnections concurrently.
- */
-TEST_F(SqlConnectionTest, InitAllConnections_ThreadSafety_MultipleThreads)
-{
-    const int num_threads = 10;
-    std::vector<std::thread> threads;
-    std::atomic<int> success_count{0};
-    
-    // Launch multiple threads all calling InitAllConnections
-    for (int i = 0; i < num_threads; ++i) {
-        threads.emplace_back([&success_count, i]() {
-            try {
-                std::string host = "host" + std::to_string(i);
-                std::string user = "user" + std::to_string(i);
-                std::string pass = "pass" + std::to_string(i);
-                SqlConnection::InitAllConnections(SA_Client_NotSpecified, host.c_str(), user.c_str(), pass.c_str());
-                ++success_count;
-            } catch (...) {
-                // Should not throw
-            }
-        });
-    }
-    
-    // Wait for all threads
-    for (auto& t : threads) {
-        t.join();
-    }
-    
-    // All calls should succeed (thread-safe)
-    EXPECT_EQ(success_count, num_threads);
-    
-    // Global state should be initialized (last writer wins)
-    EXPECT_TRUE(SqlConnection::IsGloballyInitialized());
-}
-
-/**
- * @test Verify thread safety of default constructor
- * 
- * Tests that multiple threads can safely create connections using default constructor.
- */
-TEST_F(SqlConnectionTest, DefaultConstructor_ThreadSafety_MultipleThreads)
-{
-    // First initialize global parameters
-    SqlConnection::InitAllConnections(SA_Client_NotSpecified, "localhost", "user", "pass");
-    
-    const int num_threads = 10;
-    std::vector<std::thread> threads;
-    std::atomic<int> success_count{0};
-    
-    // Launch multiple threads all creating connections
-    for (int i = 0; i < num_threads; ++i) {
-        threads.emplace_back([&success_count]() {
-            try {
-                SqlConnection connection;
-                ++success_count;
-            } catch (...) {
-                // Should not throw
-            }
-        });
-    }
-    
-    // Wait for all threads
-    for (auto& t : threads) {
-        t.join();
-    }
-    
-    // All connections should be created successfully
-    EXPECT_EQ(success_count, num_threads);
 }
 
 /**

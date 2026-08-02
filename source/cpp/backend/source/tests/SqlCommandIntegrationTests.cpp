@@ -18,14 +18,6 @@
  */
 class SqlCommandIntegrationTest : public ::testing::Test {
 protected:
-    void SetUp() override {
-        // SqlTemplate takes full paths; no setSearchPath needed
-        SqlConnection::ClearAllConnections();
-    }
-
-    void TearDown() override {
-        SqlConnection::ClearAllConnections();
-    }
 };
 
 /**
@@ -251,13 +243,6 @@ TEST_F(SqlCommandIntegrationTest, SqlDirectCommand_InsertsData)
  */
 class SqlCommandTemplateIntegrationTest : public ::testing::Test {
 protected:
-    void SetUp() override {
-        SqlConnection::ClearAllConnections();
-    }
-
-    void TearDown() override {
-        SqlConnection::ClearAllConnections();
-    }
 };
 
 /**

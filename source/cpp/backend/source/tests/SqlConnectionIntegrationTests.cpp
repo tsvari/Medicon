@@ -18,13 +18,6 @@
  */
 class SqlConnectionIntegrationTest : public ::testing::Test {
 protected:
-    void SetUp() override {
-        SqlConnection::ClearAllConnections();
-    }
-
-    void TearDown() override {
-        SqlConnection::ClearAllConnections();
-    }
 };
 
 /**

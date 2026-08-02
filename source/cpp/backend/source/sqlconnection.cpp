@@ -1,59 +1,21 @@
 /**
  * @file sqlconnection.cpp
- * @brief Implementation of improved SQL database connection wrapper
+ * @brief Implementation of SQL database connection wrapper
  * 
- * This file implements the SqlConnection class methods with thread-safe
- * global credential management and enhanced error handling.
+ * This file implements the SqlConnection class methods.
+ * No global state — all credentials are per-instance.
  * 
- * @version 2.0
- * @date 2026-01-05
+ * @version 3.0
+ * @date 2026-08-02
  */
 
 #include "sqlconnection.h"
-#include "configfile.h"
-#include <stdexcept>
 #include <sstream>
-
-// Initialize static members
-std::mutex SqlConnection::g_mutex;
-eSAClient SqlConnection::g_client = SA_Client_NotSpecified;
-SAString SqlConnection::g_host;
-SAString SqlConnection::g_user;
-SAString SqlConnection::g_pass;
-bool SqlConnection::g_initialized = false;
-
-/**
- * Default constructor implementation.
- * Uses thread-safe access to global connection parameters.
- */
-SqlConnection::SqlConnection()
-{
-    eSAClient client_copy;
-    
-    // Thread-safe access to global parameters
-    {
-        std::lock_guard<std::mutex> lock(g_mutex);
-        
-        // Verify global connection parameters were set via InitAllConnections
-        if (!g_initialized) {
-            throw std::runtime_error(SQL_CONNECTION_ERR_INIT);
-        }
-        
-        // Copy all parameters while holding lock
-        client_copy = g_client;
-        db_host = g_host;
-        db_user = g_user;
-        db_pass = g_pass;
-    }
-    
-    // Set client type after copying strings (outside lock)
-    db_client = client_copy;
-    db_con.setClient(db_client);
-}
+#include <stdexcept>
 
 /**
  * Parameterized constructor implementation.
- * Preferred method for creating connections to avoid global state.
+ * Creates a connection with explicit per-instance credentials.
  */
 SqlConnection::SqlConnection(eSAClient client, const char * host, const char * user, const char * pass)
 {
@@ -132,61 +94,6 @@ SqlConnection& SqlConnection::operator=(SqlConnection&& other)
         other.db_client = SA_Client_NotSpecified;
     }
     return *this;
-}
-
-/**
- * Initialize global connection parameters (thread-safe).
- * Static method that sets default values used by the default constructor.
- */
-void SqlConnection::InitAllConnections(eSAClient client, const char * host, const char * user, const char * pass)
-{
-    // Validate input parameters
-    if (!host || !user || !pass || 
-        std::string(host).empty() || std::string(user).empty() || std::string(pass).empty()) {
-        throw std::invalid_argument(SQL_CONNECTION_ERR_INVALID);
-    }
-    
-    // Thread-safe update of global parameters
-    std::lock_guard<std::mutex> lock(g_mutex);
-    
-    // Set global database client type
-    g_client = client;
-
-    // Set global connection credentials
-    g_host = host;
-    g_user = user;
-    g_pass = pass;
-    
-    // Mark as initialized
-    g_initialized = true;
-}
-
-/**
- * Clear global connection parameters (thread-safe).
- * Erases sensitive credential data from memory.
- */
-void SqlConnection::ClearAllConnections()
-{
-    // Thread-safe clearing of global parameters
-    std::lock_guard<std::mutex> lock(g_mutex);
-    
-    // Clear all credential data
-    g_client = SA_Client_NotSpecified;
-    g_host.Empty();
-    g_user.Empty();
-    g_pass.Empty();
-    
-    // Mark as uninitialized
-    g_initialized = false;
-}
-
-/**
- * Check if global credentials are initialized (thread-safe).
- */
-bool SqlConnection::IsGloballyInitialized()
-{
-    std::lock_guard<std::mutex> lock(g_mutex);
-    return g_initialized;
 }
 
 /**

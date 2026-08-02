@@ -1,20 +1,18 @@
 /**
  * @file sqlconnection.h
- * @brief Improved SQL database connection wrapper class
+ * @brief SQL database connection wrapper class
  * 
- * This file contains the SqlConnection class which provides an improved,
- * thread-safe RAII wrapper around the SQLAPI++ SAConnection class.
+ * This file contains the SqlConnection class which provides an RAII wrapper
+ * around the SQLAPI++ SAConnection class.
  * 
- * Improvements in this version:
- * - Thread-safe global credential management with mutex protection
+ * Features:
  * - Move semantics support (C++11)
- * - Ability to clear global credentials
  * - Better error messages with validation
- * - Deprecation of default constructor (prefers explicit credentials)
  * - Connection state queries
+ * - No global state (all credentials are per-instance)
  * 
- * @version 2.0
- * @date 2026-01-05
+ * @version 3.0
+ * @date 2026-08-02
  */
 
 #ifndef SQLCONNECTION_H
@@ -22,12 +20,8 @@
 
 #include <SQLAPI.h>
 #include <string>
-#include <mutex>
 
 namespace {
-    /// Error message when connection parameters are not initialized
-    const char * SQL_CONNECTION_ERR_INIT = "Connection data not initialized! Call InitAllConnections() or use parameterized constructor.";
-    
     /// Error message when connection parameters are invalid
     const char * SQL_CONNECTION_ERR_INVALID = "Invalid connection parameters: host, user, and password must not be empty.";
     
@@ -37,62 +31,35 @@ namespace {
 
 /**
  * @class SqlConnection
- * @brief Thread-safe RAII wrapper for SQL database connections
+ * @brief RAII wrapper for SQL database connections
  * 
- * The SqlConnection class manages database connections using SQLAPI++ library
- * with enhanced thread safety and security features.
+ * The SqlConnection class manages database connections using SQLAPI++ library.
+ * All credentials are per-instance — no global state.
  * 
- * Construction modes:
- * 1. Parameterized constructor (RECOMMENDED) - Explicit credentials per instance
- * 2. Default constructor (DEPRECATED) - Uses global credentials set via InitAllConnections
+ * Construction:
+ * - Parameterized constructor - Explicit credentials per instance
  * 
  * Thread Safety:
- * - Global credential access is protected by mutex
  * - Each instance should be used by a single thread
  * - Multiple instances can be created safely in different threads
  * 
  * Security Considerations:
  * - Credentials stored in SAString (SQLAPI++ managed)
- * - Use parameterized constructor to avoid global state
- * - Call ClearAllConnections() to erase global credentials when no longer needed
- * 
- * @note Prefer parameterized constructor over default constructor
- * @note Always call ClearAllConnections() before application shutdown
+ * - No global credentials — nothing to clear at shutdown
  * 
  * Example usage:
  * @code
- * // Recommended: Explicit credentials
  * SqlConnection conn(SA_MySQL_Client, "localhost", "user", "pass");
  * conn.connect();
  * // ... use connection ...
  * // Automatic cleanup via destructor
- * 
- * // Alternative: Global credentials (thread-safe but not recommended)
- * SqlConnection::InitAllConnections(SA_MySQL_Client, "localhost", "user", "pass");
- * SqlConnection conn;
- * conn.connect();
- * // ... use connection ...
- * SqlConnection::ClearAllConnections(); // Clear sensitive data
  * @endcode
  */
 class SqlConnection
 {
 public:
     /**
-     * @brief Default constructor using global connection parameters (DEPRECATED)
-     * 
-     * Creates a connection object using thread-safe global parameters set by 
-     * InitAllConnections(). The connection is not established until connect() is called.
-     * 
-     * @deprecated Prefer using parameterized constructor for better security
-     * @throws std::runtime_error if InitAllConnections was not called first
-     * @see InitAllConnections
-     * @see SqlConnection(eSAClient, const char*, const char*, const char*)
-     */
-    SqlConnection();
-    
-    /**
-     * @brief Constructor with explicit connection parameters (RECOMMENDED)
+     * @brief Constructor with explicit connection parameters
      * 
      * Creates a connection object with specified database credentials.
      * This is the preferred way to create connections as it avoids global state.
@@ -145,50 +112,6 @@ public:
      * @note Not noexcept due to SAString operations and disconnect()
      */
     SqlConnection& operator=(SqlConnection&& other);
-
-    /**
-     * @brief Initialize global connection parameters (thread-safe)
-     * 
-     * Sets default connection parameters used by the default constructor.
-     * This method is thread-safe and can be called from multiple threads.
-     * Must be called before creating SqlConnection objects with default constructor.
-     * 
-     * @param client Database client type (e.g., SA_MySQL_Client, SA_PostgreSQL_Client)
-     * @param host Database host address
-     * @param user Database username
-     * @param pass Database password
-     * 
-     * @throws std::invalid_argument if any parameter is empty/null
-     * 
-     * @note This is a static method affecting all future default-constructed instances
-     * @note Thread-safe: Uses mutex to protect global state
-     * @warning Global credentials remain in memory until ClearAllConnections() is called
-     * 
-     * @see ClearAllConnections
-     */
-    static void InitAllConnections(eSAClient client, const char * host, const char * user, const char * pass);
-
-    /**
-     * @brief Clear global connection parameters (thread-safe)
-     * 
-     * Erases global credentials from memory for security purposes.
-     * Should be called when global credentials are no longer needed,
-     * typically before application shutdown.
-     * 
-     * @note Thread-safe: Uses mutex to protect global state
-     * @note After calling this, default constructor will throw until InitAllConnections is called again
-     */
-    static void ClearAllConnections();
-
-    /**
-     * @brief Check if global connection parameters are initialized
-     * 
-     * Determines whether InitAllConnections has been called with valid parameters.
-     * 
-     * @return true if global credentials are set, false otherwise
-     * @note Thread-safe: Uses mutex to protect global state
-     */
-    static bool IsGloballyInitialized();
 
     /**
      * @brief Establish connection to the database
@@ -307,25 +230,6 @@ private:
 
     /// Underlying SQLAPI++ connection object
     SAConnection db_con;
-
-    // Static members for global connection parameters
-    /// Mutex protecting global connection parameters
-    static std::mutex g_mutex;
-    
-    /// Global database client type
-    static eSAClient g_client;
-    
-    /// Global database host address
-    static SAString  g_host;
-    
-    /// Global database username
-    static SAString  g_user;
-    
-    /// Global database password
-    static SAString  g_pass;
-    
-    /// Flag indicating if global parameters are initialized
-    static bool g_initialized;
 };
 
 #endif // SQLCONNECTION_H

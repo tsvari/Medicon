@@ -16,7 +16,7 @@ class SqlConnection;
  * 
  * Usage:
  * @code
- * SqlConnection conn;
+ * SqlConnection conn(SA_SQLite_Client, ":memory:", "user", "pass");
  * SqlDirectQuery query(conn, SAString("SELECT * FROM users WHERE age > 18"));
  * 
  * while(query.query()) {
@@ -74,7 +74,7 @@ public:
  * 
  * Usage:
  * @code
- * SqlConnection conn;
+ * SqlConnection conn(SA_PostgreSQL_Client, "localhost", "user", "pass");
  * SqlQuery query(conn, "select_users.sql");
  * query.addParameter("MinAge", 18);
  * 

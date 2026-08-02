@@ -54,7 +54,7 @@ protected:
  * Supports automatic type deduction and explicit date/time formatting.
  * 
  * @example
- * SqlConnection conn;
+ * SqlConnection conn(SA_PostgreSQL_Client, "localhost", "user", "pass");
  * SqlCommand cmd(conn, "insert_user.sql");
  * cmd.addParameter("Name", "John");
  * cmd.addParameter("Age", 30);

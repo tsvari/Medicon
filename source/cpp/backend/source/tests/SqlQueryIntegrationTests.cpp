@@ -18,14 +18,6 @@
  */
 class SqlQueryIntegrationTest : public ::testing::Test {
 protected:
-    void SetUp() override {
-        // SqlTemplate takes full paths; no setSearchPath needed
-        SqlConnection::ClearAllConnections();
-    }
-
-    void TearDown() override {
-        SqlConnection::ClearAllConnections();
-    }
 };
 
 // ============================================================================

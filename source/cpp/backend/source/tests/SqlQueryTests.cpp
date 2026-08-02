@@ -12,13 +12,7 @@
  */
 class SqlDirectQueryTests : public ::testing::Test {
 protected:
-    void SetUp() override {
-        SqlConnection::InitAllConnections(SA_PostgreSQL_Client, "host", "user", "pass");
-    }
-
-    void TearDown() override {
-        SqlConnection::ClearAllConnections();
-    }
+    // No global state — each test creates its own SqlConnection
 };
 
 /**
@@ -26,7 +20,7 @@ protected:
  */
 TEST_F(SqlDirectQueryTests, Constructor_WithSimpleSelect_CreatesObject)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     EXPECT_NO_THROW({
         SqlDirectQuery query(con, SAString("SELECT 1"));
     });
@@ -37,7 +31,7 @@ TEST_F(SqlDirectQueryTests, Constructor_WithSimpleSelect_CreatesObject)
  */
 TEST_F(SqlDirectQueryTests, SqlDirectQuery_InheritsFromSqlDirectCommand)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlDirectQuery query(con, SAString("SELECT 1"));
     
     // SqlDirectQuery should be usable as SqlDirectCommand
@@ -50,7 +44,7 @@ TEST_F(SqlDirectQueryTests, SqlDirectQuery_InheritsFromSqlDirectCommand)
  */
 TEST_F(SqlDirectQueryTests, Query_WithDirectSQL_AttemptsExecution)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlDirectQuery query(con, SAString("SELECT * FROM users"));
     
     // Should throw SAException because connection is not established
@@ -62,7 +56,7 @@ TEST_F(SqlDirectQueryTests, Query_WithDirectSQL_AttemptsExecution)
  */
 TEST_F(SqlDirectQueryTests, Sql_ReturnsCommandText)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlDirectQuery query(con, SAString("SELECT * FROM users WHERE age > 18"));
     
     std::string sql = query.sql();
@@ -74,7 +68,7 @@ TEST_F(SqlDirectQueryTests, Sql_ReturnsCommandText)
  */
 TEST_F(SqlDirectQueryTests, Query_WithInsertReturning_HandlesCorrectly)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlDirectQuery query(con, SAString("INSERT INTO users (name) VALUES ('John') RETURNING id"));
     
     // Should throw because connection is not real, but validates SQL structure
@@ -89,7 +83,7 @@ TEST_F(SqlDirectQueryTests, Query_WithInsertReturning_HandlesCorrectly)
  */
 TEST_F(SqlDirectQueryTests, Query_WithUpdateReturning_HandlesCorrectly)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlDirectQuery query(con, SAString("UPDATE users SET name='Jane' WHERE id=1 RETURNING id"));
     
     std::string sql = query.sql();
@@ -102,7 +96,7 @@ TEST_F(SqlDirectQueryTests, Query_WithUpdateReturning_HandlesCorrectly)
  */
 TEST_F(SqlDirectQueryTests, Query_WithComplexSelect_HandlesCorrectly)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     std::string complexSQL = "SELECT u.id, u.name, o.total "
                             "FROM users u "
                             "JOIN orders o ON u.id = o.user_id "
@@ -120,7 +114,7 @@ TEST_F(SqlDirectQueryTests, Query_WithComplexSelect_HandlesCorrectly)
  */
 TEST_F(SqlDirectQueryTests, Query_WithStoredProcedure_HandlesCorrectly)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlDirectQuery query(con, SAString("CALL get_user_report(18)"), SA_CmdStoredProc);
     
     // Verify command type can be specified
@@ -134,7 +128,7 @@ TEST_F(SqlDirectQueryTests, Query_WithStoredProcedure_HandlesCorrectly)
  */
 TEST_F(SqlDirectQueryTests, Query_MultipleCalls_DontReexecute)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlDirectQuery query(con, SAString("SELECT * FROM users"));
     
     // First call should attempt execution
@@ -149,7 +143,7 @@ TEST_F(SqlDirectQueryTests, Query_MultipleCalls_DontReexecute)
  */
 TEST_F(SqlDirectQueryTests, Constructor_WithEmptySQL_CreatesObject)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     
     // Should be able to create with empty SQL
     EXPECT_NO_THROW({
@@ -162,7 +156,7 @@ TEST_F(SqlDirectQueryTests, Constructor_WithEmptySQL_CreatesObject)
  */
 TEST_F(SqlDirectQueryTests, Query_WithSpecialCharacters_HandlesCorrectly)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlDirectQuery query(con, SAString("SELECT * FROM users WHERE name = 'O''Brien'"));
     
     std::string sql = query.sql();
@@ -174,7 +168,7 @@ TEST_F(SqlDirectQueryTests, Query_WithSpecialCharacters_HandlesCorrectly)
  */
 TEST_F(SqlDirectQueryTests, Query_WithMultilineSQL_HandlesCorrectly)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     std::string multilineSQL = "SELECT id, name\n"
                               "FROM users\n"
                               "WHERE age > 18";
@@ -195,13 +189,7 @@ TEST_F(SqlDirectQueryTests, Query_WithMultilineSQL_HandlesCorrectly)
  */
 class SqlQueryTests : public ::testing::Test {
 protected:
-    void SetUp() override {
-        SqlConnection::InitAllConnections(SA_PostgreSQL_Client, "host", "user", "pass");
-    }
-
-    void TearDown() override {
-        SqlConnection::ClearAllConnections();
-    }
+    // No global state — each test creates its own SqlConnection
 };
 
 /**
@@ -209,7 +197,7 @@ protected:
  */
 TEST_F(SqlQueryTests, Constructor_WithValidParams_CreatesObject)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     EXPECT_NO_THROW({
         SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     });
@@ -220,7 +208,7 @@ TEST_F(SqlQueryTests, Constructor_WithValidParams_CreatesObject)
  */
 TEST_F(SqlQueryTests, SqlQuery_InheritsFromSqlDirectQuery)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     // SqlQuery should be usable as SqlDirectQuery
@@ -240,7 +228,7 @@ TEST_F(SqlQueryTests, AddParameter_WithVariousTypes_BindsCorrectly)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     // Test all parameter types
@@ -263,7 +251,7 @@ TEST_F(SqlQueryTests, Query_FirstCall_ExecutesCommand)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     query.addParameter("Money", 100.0);
@@ -286,7 +274,7 @@ TEST_F(SqlQueryTests, Query_BeforeExecution_GeneratesCorrectSQL)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     query.addParameter("Money", 99.99);
@@ -320,7 +308,7 @@ TEST_F(SqlQueryTests, Query_StringWithSpecialChars_HandlesCorrectly)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     query.addParameter("Money", 50.0);
@@ -344,7 +332,7 @@ TEST_F(SqlQueryTests, Query_IntegerParameter_FormatsWithoutDecimal)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     query.addParameter("Money", 100.0);
@@ -368,7 +356,7 @@ TEST_F(SqlQueryTests, Query_DoubleParameter_MaintainsPrecision)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     query.addParameter("Money", 123.456789); // The value we're testing
@@ -392,7 +380,7 @@ TEST_F(SqlQueryTests, Query_DateParameter_FormatsCorrectly)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     query.addParameter("Money", 100.0);
@@ -416,7 +404,7 @@ TEST_F(SqlQueryTests, Query_TimeParameter_FormatsCorrectly)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     query.addParameter("Money", 100.0);
@@ -440,7 +428,7 @@ TEST_F(SqlQueryTests, Query_DateTimeParameter_FormatsCorrectly)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     query.addParameter("Money", 100.0);
@@ -461,7 +449,7 @@ TEST_F(SqlQueryTests, Query_DateTimeParameter_FormatsCorrectly)
  */
 TEST_F(SqlQueryTests, Query_MissingApplet_ThrowsException)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "nonexistent.sql");
     
     // Should throw SqlTemplateException when trying to execute
@@ -473,7 +461,7 @@ TEST_F(SqlQueryTests, Query_MissingApplet_ThrowsException)
  */
 TEST_F(SqlQueryTests, Query_MinimalParameters_WorksCorrectly)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     
     // Test with just connection and applet name
     EXPECT_NO_THROW({
@@ -486,7 +474,7 @@ TEST_F(SqlQueryTests, Query_MinimalParameters_WorksCorrectly)
  */
 TEST_F(SqlQueryTests, Query_WithFormattedParams_InitializesCorrectly)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     std::map<std::string, std::string> preFormatted;
     preFormatted["Name"] = "PreFormattedValue";
     
@@ -500,7 +488,7 @@ TEST_F(SqlQueryTests, Query_WithFormattedParams_InitializesCorrectly)
  */
 TEST_F(SqlQueryTests, Query_ConstructWithSqlPath_InitializesCorrectly)
 {
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     
     EXPECT_NO_THROW({
         SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
@@ -515,7 +503,7 @@ TEST_F(SqlQueryTests, Sql_AfterParameterBinding_ReturnsProcessedSQL)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     query.addParameter("Money", 100.0);
@@ -541,7 +529,7 @@ TEST_F(SqlQueryTests, Query_BooleanParameter_FormatsCorrectly)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     query.addParameter("Money", 100.0);
@@ -565,7 +553,7 @@ TEST_F(SqlQueryTests, Query_EmptyStringParameter_HandlesCorrectly)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     query.addParameter("Money", 100.0);
@@ -589,7 +577,7 @@ TEST_F(SqlQueryTests, Query_LongStringParameter_HandlesCorrectly)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     std::string longString(1000, 'A'); // 1000 character string
@@ -615,7 +603,7 @@ TEST_F(SqlQueryTests, Query_NegativeNumbers_HandlesCorrectly)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     query.addParameter("Money", -99.99); // Negative double
@@ -640,7 +628,7 @@ TEST_F(SqlQueryTests, Query_ZeroValues_HandlesCorrectly)
     std::string input = "2007-01-20 10:11:12";
     std::chrono::milliseconds sysSecs = TimeFormatHelper::stringTochronoSysSec(input, DataInfo::DateTime);
 
-    SqlConnection con;
+    SqlConnection con(SA_PostgreSQL_Client, "host", "user", "pass");
     SqlQuery query(con, ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
     
     query.addParameter("Money", 0.0);  // Zero double
