@@ -58,7 +58,14 @@ CompanyData CompanyServiceImpl::toCompanyData(const Company& company)
 CompanyFilter CompanyServiceImpl::toCompanyFilter(const JsonParameters& params)
 {
     CompanyFilter filter;
-    auto map = JsonParameterFormatter::fromJsonString(params.jsonparams());
+
+    // Use non-throwing parse: empty or malformed JSON must not crash the server
+    auto mapOpt = JsonParameterFormatter::tryFromJsonString(params.jsonparams());
+    if (!mapOpt) {
+        return filter;  // empty/invalid — return defaults
+    }
+    const auto& map = *mapOpt;
+
     auto it = map.find("FILTER_FIELD");
     if (it != map.end()) filter.field = it->second;
     it = map.find("FILTER_VALUE");

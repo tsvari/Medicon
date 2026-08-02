@@ -2,11 +2,11 @@
  * @file CompanyServiceTests.cpp
  * @brief Tests for CompanyService with MockCompanyRepository
  *
- * Provider-level unit tests that verify CompanyService business logic
+ * Company-domain unit tests that verify CompanyService business logic
  * using a mock repository — no database required.
  *
- * Moved from shared BackendTestProject (tests/company/) to provider
- * unit_tests since these tests validate provider-domain behavior.
+ * Co-located with the company domain code (grpc/company/tests/) since the
+ * domain is shared between backend and frontend consumers.
  */
 #include "company/company_service.h"
 #include "company_repository_mock.h"

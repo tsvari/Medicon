@@ -50,12 +50,13 @@ public:
                                   const JsonParameters* request,
                                   TotalCount* response) override;
 
-private:
     // Protobuf ↔ domain type conversion helpers
+    // Public (pure static functions) so they can be unit-tested directly.
     static CompanyData toCompanyData(const Company& company);
     static CompanyFilter toCompanyFilter(const JsonParameters& params);
     static void toProto(const CompanyData& data, Company* proto);
 
+private:
     void logError(const char* op, const std::string& detail) const;
 
     std::unique_ptr<CompanyService> m_service;
