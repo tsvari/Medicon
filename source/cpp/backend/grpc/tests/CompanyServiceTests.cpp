@@ -5,8 +5,8 @@
  * Company-domain unit tests that verify CompanyService business logic
  * using a mock repository — no database required.
  *
- * Co-located with the company domain code (grpc/company/tests/) since the
- * domain is shared between backend and frontend consumers.
+ * Part of the standalone GrpcProtoTests project (grpc/tests/) that is
+ * independent of the provider application and shared with frontend consumers.
  */
 #include "company/company_service.h"
 #include "company_repository_mock.h"
