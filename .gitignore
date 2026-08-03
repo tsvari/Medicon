@@ -4,6 +4,7 @@ CMakeSettings.json
 CMakeLists.txt.user
 out
 build
+build_linux/
 github.txt
 assets/CA
 assets/SQLAPI_installers
