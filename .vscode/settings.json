@@ -1,0 +1,84 @@
+// ============================================================
+// Zoo Code — auto-approve config for Medicon
+// PASTE THIS into:  <project>/.vscode/settings.json
+// (create the .vscode folder if missing)
+// ============================================================
+{
+  // Allowed commands run without confirmation (longest-prefix wins).
+  "zoo-code.allowedCommands": [
+    // Build / configure toolchain
+    "conan",
+    "cmake",
+    "make",
+    "ninja",
+    "g++",
+    "gcc",
+    "clang",
+    "clang++",
+    "ctest",
+    // Python (ToolsForAI scripts, tests)
+    "python",
+    "python3",
+    "pytest",
+    "pip",
+    "pip3",
+    // Run the C++ test binaries
+    "./BackendTestProject",
+    "./grpc_proto_tests",
+    "./provider_tests",
+    "./Medicon",
+    // Git (read + local ops)
+    "git log",
+    "git diff",
+    "git show",
+    "git status",
+    "git branch",
+    "git checkout",
+    "git stash",
+    // Navigation / inspection
+    "ls",
+    "cat",
+    "pwd",
+    "cd",
+    "echo",
+    "find",
+    "file",
+    "head",
+    "tail",
+    "wc",
+    // Package/project inspection
+    "pkg-config",
+    "ldconfig",
+    "uname",
+    "which",
+    "whereis"
+  ],
+  // NEVER auto-run, even if a prefix matches an allowed command.
+  "zoo-code.deniedCommands": [
+    "sudo",
+    "su",
+    "rm -rf /",
+    "rm -rf ~",
+    "rm -rf /etc",
+    "rm -rf /usr",
+    "mkfs",
+    "dd",
+    "shutdown",
+    "reboot",
+    "kill -9",
+    "chmod -R",
+    "chown -R",
+    "git push",
+    "git push --force",
+    "npm publish",
+    "yarn publish",
+    "pnpm publish",
+    "curl | sh",
+    "wget | sh",
+    "curl | bash",
+    "wget | bash"
+  ],
+  // Zoo Code reads AGENTS.md rules automatically (default true).
+  "zoo-code.useAgentRules": true,
+  "zoo-code.commandExecutionTimeout": 0
+}

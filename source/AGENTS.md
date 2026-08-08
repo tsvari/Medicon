@@ -7,6 +7,22 @@ code tree and `assets/app-data/` as the local application data/config mirror.
 
 ---
 
+## 🖥️ PLATFORM — Python Invocation (READ FIRST)
+
+All ToolsForAI commands are run **from the repository root** with the
+platform's Python binary. The two machines use different binaries:
+
+| Machine | Python binary | Example |
+|---------|--------------|---------|
+| **Linux** | `python3` | `python3 source/ToolsForAI/source_graph.py summary` |
+| **Windows** | `python` (or `py -3`) | `python source/ToolsForAI/source_graph.py summary` |
+
+All command examples below use the **Linux form** (`python3`). On Windows,
+replace `python3` with `python` and keep the rest of the command identical.
+The path `source/ToolsForAI/...` is the same on both machines.
+
+---
+
 ## ⚠️ ZERO-TOLERANCE RULES
 
 These rules are **ABSOLUTE**. Violation voids all trust in the agent.
@@ -47,10 +63,14 @@ navigation is FORBIDDEN.
 
 | Tool | Command | Purpose |
 |------|---------|---------|
-| source graph | `python ToolsForAI/source_graph.py` | **ONLY** allowed project navigation tool |
-| ai memory | `python ToolsForAI/ai_memory.py` | Agent's persistent working memory |
-| session manager | `python ToolsForAI/session_mgr.py` | Cross-model session state and handoff |
-| task cards | `python ToolsForAI/taskctl.py` | Multi-model task queue and worker contracts |
+| source graph | `python3 source/ToolsForAI/source_graph.py` | **ONLY** allowed project navigation tool |
+| ai memory | `python3 source/ToolsForAI/ai_memory.py` | Agent's persistent working memory |
+| session manager | `python3 source/ToolsForAI/session_mgr.py` | Cross-model session state and handoff |
+| task cards | `python3 source/ToolsForAI/taskctl.py` | Multi-model task queue and worker contracts |
+
+> NOTE: run all commands from the repo root; `source/ToolsForAI/` is the same
+> path on both Linux and Windows. Only the Python binary differs (see the
+> PLATFORM section above: Linux `python3` / Windows `python`).
 
 ---
 
@@ -59,13 +79,13 @@ navigation is FORBIDDEN.
 This sequence SHALL be executed at the BEGINNING of every investigation or
 code change. NOT OPTIONAL.
 
-```powershell
-python ToolsForAI/ai_memory.py recent --limit 10
-python ToolsForAI/ai_memory.py context "<topic>"
-python ToolsForAI/source_graph.py build -i
-python ToolsForAI/source_graph.py summary
-python ToolsForAI/session_mgr.py list
-python ToolsForAI/session_mgr.py status
+```bash
+python3 source/ToolsForAI/ai_memory.py recent --limit 10
+python3 source/ToolsForAI/ai_memory.py context "<topic>"
+python3 source/ToolsForAI/source_graph.py build -i
+python3 source/ToolsForAI/source_graph.py summary
+python3 source/ToolsForAI/session_mgr.py list
+python3 source/ToolsForAI/session_mgr.py status
 ```
 
 ### Session Creation Rule
@@ -74,8 +94,8 @@ If there is no active session AND the task is more than a quick read-only
 check (e.g., any code change, multi-step investigation, debugging), you MUST
 create one:
 
-```powershell
-python ToolsForAI/session_mgr.py start "<short title>" --goal "<goal>"
+```bash
+python3 source/ToolsForAI/session_mgr.py start "<short title>" --goal "<goal>"
 ```
 
 ### Event Logging Rule (LIVE, NOT BATCH)
@@ -83,46 +103,47 @@ python ToolsForAI/session_mgr.py start "<short title>" --goal "<goal>"
 You SHALL log events **as they happen**, NOT at the end. Every meaningful
 step requires an event:
 
-```powershell
-python ToolsForAI/session_mgr.py event progress "<what changed>" --files source/path.cpp
-python ToolsForAI/session_mgr.py event decision "<decision and reason>"
-python ToolsForAI/session_mgr.py event finding "<bug or risk found>" --files source/path.cpp
-python ToolsForAI/session_mgr.py event falsepos "<finding ruled out and why>"
-python ToolsForAI/session_mgr.py event blocker "<what blocks progress>"
+```bash
+python3 source/ToolsForAI/session_mgr.py event progress "<what changed>" --files source/path.cpp
+python3 source/ToolsForAI/session_mgr.py event decision "<decision and reason>"
+python3 source/ToolsForAI/session_mgr.py event finding "<bug or risk found>" --files source/path.cpp
+python3 source/ToolsForAI/session_mgr.py event falsepos "<finding ruled out and why>"
+python3 source/ToolsForAI/session_mgr.py event blocker "<what blocks progress>"
 ```
 
 ---
 
 ## 🗺️ SOURCE GRAPH — THE ONLY NAVIGATION TOOL
 
-**YOU ARE FORBIDDEN** from using `grep_search`, `file_search`, `semantic_search`,
+**YOU ARE FORBIDDEN** from using agent `grep`/`glob` tools (e.g. Continue's
+`grep_search`/`file_search`, Zoo Code's `grep`/`glob`, or any other),
 `Get-ChildItem`, `Select-String`, or any other direct filesystem search for
 project code discovery. Source graph is the **SOLE** navigation layer.
 
 ### Allowed Commands
 
-```powershell
-python ToolsForAI/source_graph.py func <name>       # Find function/method
-python ToolsForAI/source_graph.py class <name>       # Find class/struct/enum
-python ToolsForAI/source_graph.py file <pattern>     # Find file by name
-python ToolsForAI/source_graph.py find <term>        # Search indexed text
-python ToolsForAI/source_graph.py context <file>     # File context overview
-python ToolsForAI/source_graph.py trace <term>       # Trace call flow
-python ToolsForAI/source_graph.py impact <term>      # Change impact analysis
-python ToolsForAI/source_graph.py testmap <term>     # Find related tests
-python ToolsForAI/source_graph.py coverage <term>    # Coverage signals
-python ToolsForAI/source_graph.py reviewqueue <term> # Review queue
-python ToolsForAI/source_graph.py crashes            # Crash patterns
-python ToolsForAI/source_graph.py nullrisks          # Null safety risks
-python ToolsForAI/source_graph.py stats              # Index statistics
+```bash
+python3 source/ToolsForAI/source_graph.py func <name>       # Find function/method
+python3 source/ToolsForAI/source_graph.py class <name>       # Find class/struct/enum
+python3 source/ToolsForAI/source_graph.py file <pattern>     # Find file by name
+python3 source/ToolsForAI/source_graph.py find <term>        # Search indexed text
+python3 source/ToolsForAI/source_graph.py context <file>     # File context overview
+python3 source/ToolsForAI/source_graph.py trace <term>       # Trace call flow
+python3 source/ToolsForAI/source_graph.py impact <term>      # Change impact analysis
+python3 source/ToolsForAI/source_graph.py testmap <term>     # Find related tests
+python3 source/ToolsForAI/source_graph.py coverage <term>    # Coverage signals
+python3 source/ToolsForAI/source_graph.py reviewqueue <term> # Review queue
+python3 source/ToolsForAI/source_graph.py crashes            # Crash patterns
+python3 source/ToolsForAI/source_graph.py nullrisks          # Null safety risks
+python3 source/ToolsForAI/source_graph.py stats              # Index statistics
 ```
 
 ### Stale Index Recovery
 
 If the graph returns stale or missing results, rebuild it ONCE:
 
-```powershell
-python ToolsForAI/source_graph.py build
+```bash
+python3 source/ToolsForAI/source_graph.py build
 ```
 
 Then retry the graph query. If it STILL fails, log a session event and ONLY
@@ -151,8 +172,8 @@ model types) read it. Use it liberally.
 
 ### Storage Command
 
-```powershell
-python ToolsForAI/ai_memory.py store "<key>" "<finding>" --tag decision,pattern,config
+```bash
+python3 source/ToolsForAI/ai_memory.py store "<key>" "<finding>" --tag decision,pattern,config
 ```
 
 ---
@@ -166,10 +187,10 @@ up where another left off. You SHALL keep it populated.
 
 Before finishing work, you MUST execute:
 
-```powershell
-python ToolsForAI/ai_memory.py store "<key>" "<finding>" --tag decision,pattern,config
-python ToolsForAI/source_graph.py build -i
-python ToolsForAI/session_mgr.py handoff
+```bash
+python3 source/ToolsForAI/ai_memory.py store "<key>" "<finding>" --tag decision,pattern,config
+python3 source/ToolsForAI/source_graph.py build -i
+python3 source/ToolsForAI/session_mgr.py handoff
 ```
 
 The handoff is what lets the next agent continue seamlessly. Without it, the
@@ -199,8 +220,8 @@ next agent starts blind.
 - Use `_scratch/` for command output, experiments, and disposable notes.
 - Durable findings go in `ai_memory`; scratch files are disposable.
 
-```powershell
-python ToolsForAI/source_graph.py find company --out _scratch/sg_company.txt
+```bash
+python3 source/ToolsForAI/source_graph.py find company --out _scratch/sg_company.txt
 ```
 
 ---
@@ -209,13 +230,13 @@ python ToolsForAI/source_graph.py find company --out _scratch/sg_company.txt
 
 Use task cards ONLY when work is split across external/helper AI workers.
 
-```powershell
-python ToolsForAI/taskctl.py auto-pickup --runner <runner> --topic <topic>
-python ToolsForAI/taskctl.py contract <TASK_ID>
-python ToolsForAI/taskctl.py review <TASK_ID> --runner <runner> --notes "<summary>"
-python ToolsForAI/taskctl.py guard-staged <TASK_ID>
-python ToolsForAI/taskctl.py done <TASK_ID>
-python ToolsForAI/taskctl.py verify
+```bash
+python3 source/ToolsForAI/taskctl.py auto-pickup --runner <runner> --topic <topic>
+python3 source/ToolsForAI/taskctl.py contract <TASK_ID>
+python3 source/ToolsForAI/taskctl.py review <TASK_ID> --runner <runner> --notes "<summary>"
+python3 source/ToolsForAI/taskctl.py guard-staged <TASK_ID>
+python3 source/ToolsForAI/taskctl.py done <TASK_ID>
+python3 source/ToolsForAI/taskctl.py verify
 ```
 
 External worker copy block:

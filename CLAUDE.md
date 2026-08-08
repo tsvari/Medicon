@@ -3,42 +3,47 @@
 ## Use The Local AI Tools
 
 This repository uses the same agent workflow style as the DevEmu server, adapted
-for Medicon paths. The tools live in `ToolsForAI/`, not `tools/` or `AITools/`.
+for Medicon paths. The tools live in `source/ToolsForAI/`, not `tools/` or `AITools/`.
+
+> 🖥️ **PLATFORM — Python invocation (READ FIRST):** All commands run from the
+> **repository root**. Linux uses `python3`, Windows uses `python` (or `py -3`).
+> Examples below use the Linux form; on Windows replace `python3` with `python`
+> and keep the rest identical. Path `source/ToolsForAI/...` is the same on both.
 
 Required commands:
 
 | Goal | Command |
 |------|---------|
-| Build/update index | `python ToolsForAI/source_graph.py build -i` |
-| Project overview | `python ToolsForAI/source_graph.py summary` |
-| Find symbol/function/class | `python ToolsForAI/source_graph.py func <name>` / `class <name>` |
-| Find file by pattern | `python ToolsForAI/source_graph.py file <pattern>` |
-| Search indexed text | `python ToolsForAI/source_graph.py find <term>` |
-| Inspect file context | `python ToolsForAI/source_graph.py context <file>` |
-| Trace/impact | `python ToolsForAI/source_graph.py trace <term>` / `impact <term>` |
-| Tests/coverage signals | `python ToolsForAI/source_graph.py testmap <term>` / `coverage <term>` |
-| Risk scans | `python ToolsForAI/source_graph.py crashes` / `nullrisks` / `reviewqueue` |
-| Memory | `python ToolsForAI/ai_memory.py recent --limit 10` / `context <topic>` |
-| Session | `python ToolsForAI/session_mgr.py list` / `status` / `start` / `event` |
-| Worker tasks | `python ToolsForAI/taskctl.py ...` |
+| Build/update index | `python3 source/ToolsForAI/source_graph.py build -i` |
+| Project overview | `python3 source/ToolsForAI/source_graph.py summary` |
+| Find symbol/function/class | `python3 source/ToolsForAI/source_graph.py func <name>` / `class <name>` |
+| Find file by pattern | `python3 source/ToolsForAI/source_graph.py file <pattern>` |
+| Search indexed text | `python3 source/ToolsForAI/source_graph.py find <term>` |
+| Inspect file context | `python3 source/ToolsForAI/source_graph.py context <file>` |
+| Trace/impact | `python3 source/ToolsForAI/source_graph.py trace <term>` / `impact <term>` |
+| Tests/coverage signals | `python3 source/ToolsForAI/source_graph.py testmap <term>` / `coverage <term>` |
+| Risk scans | `python3 source/ToolsForAI/source_graph.py crashes` / `nullrisks` / `reviewqueue` |
+| Memory | `python3 source/ToolsForAI/ai_memory.py recent --limit 10` / `context <topic>` |
+| Session | `python3 source/ToolsForAI/session_mgr.py list` / `status` / `start` / `event` |
+| Worker tasks | `python3 source/ToolsForAI/taskctl.py ...` |
 
 ## Mandatory Startup
 
 At the beginning of a code investigation or review:
 
-```powershell
-python ToolsForAI/ai_memory.py recent --limit 10
-python ToolsForAI/ai_memory.py context "<topic>"
-python ToolsForAI/source_graph.py build -i
-python ToolsForAI/source_graph.py summary
-python ToolsForAI/session_mgr.py list
-python ToolsForAI/session_mgr.py status
+```bash
+python3 source/ToolsForAI/ai_memory.py recent --limit 10
+python3 source/ToolsForAI/ai_memory.py context "<topic>"
+python3 source/ToolsForAI/source_graph.py build -i
+python3 source/ToolsForAI/source_graph.py summary
+python3 source/ToolsForAI/session_mgr.py list
+python3 source/ToolsForAI/session_mgr.py status
 ```
 
 Start a session for non-trivial work:
 
-```powershell
-python ToolsForAI/session_mgr.py start "<title>" --goal "<goal>"
+```bash
+python3 source/ToolsForAI/session_mgr.py start "<title>" --goal "<goal>"
 ```
 
 Log significant findings, decisions, progress, blockers, and false positives
@@ -58,8 +63,8 @@ the first-pass navigation layer for:
 
 If results look stale:
 
-```powershell
-python ToolsForAI/source_graph.py build
+```bash
+python3 source/ToolsForAI/source_graph.py build
 ```
 
 Then retry the graph query.
@@ -83,7 +88,7 @@ and tests together before editing.
 - Relevant source graph queries were used.
 - Durable project facts were stored in `ai_memory`.
 - Session state was updated or a handoff was generated for larger tasks.
-- `python ToolsForAI/source_graph.py build -i` was run after meaningful changes.
+- `python3 source/ToolsForAI/source_graph.py build -i` was run after meaningful changes.
 - Tests were reviewed, updated, or explicitly noted as not run/not applicable.
 
 ## Git And Scratch Rules
@@ -97,13 +102,13 @@ and tests together before editing.
 
 Worker contracts are coordinated through:
 
-```powershell
-python ToolsForAI/taskctl.py auto-pickup --runner <runner> --topic <topic>
-python ToolsForAI/taskctl.py contract <TASK_ID>
-python ToolsForAI/taskctl.py review <TASK_ID> --runner <runner> --notes "<summary>"
-python ToolsForAI/taskctl.py guard-staged <TASK_ID>
-python ToolsForAI/taskctl.py done <TASK_ID>
-python ToolsForAI/taskctl.py verify
+```bash
+python3 source/ToolsForAI/taskctl.py auto-pickup --runner <runner> --topic <topic>
+python3 source/ToolsForAI/taskctl.py contract <TASK_ID>
+python3 source/ToolsForAI/taskctl.py review <TASK_ID> --runner <runner> --notes "<summary>"
+python3 source/ToolsForAI/taskctl.py guard-staged <TASK_ID>
+python3 source/ToolsForAI/taskctl.py done <TASK_ID>
+python3 source/ToolsForAI/taskctl.py verify
 ```
 
 External worker copy block:

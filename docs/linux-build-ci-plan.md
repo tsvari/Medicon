@@ -89,24 +89,24 @@ Restore full AI support on the Linux machine with:
 ```bash
 # 1. Rebuild the source graph index (220MB local DB, not committed)
 cd source
-python ToolsForAI/source_graph.py build -i
+python3 ToolsForAI/source_graph.py build -i
 
 # 2. Restore AI memory from the committed snapshot
-python ToolsForAI/ai_memory.py import docs/ai-state/ai_memory_export.json
+python3 ToolsForAI/ai_memory.py import docs/ai-state/ai_memory_export.json
 
 # 3. Handoffs are readable at docs/ai-state/handoffs/ — the active
 #    handoff is the most recent one; read it for full context.
 
 # 4. Session state (ai_session.db) is machine-local. The handoff briefs
 #    serve as the cross-machine handoff mechanism — start a new session:
-python ToolsForAI/session_mgr.py start "linux-migration" --goal "..." 
+python3 ToolsForAI/session_mgr.py start "linux-migration" --goal "..." 
 ```
 
 ### Important: update the snapshot after significant work
 After meaningful new decisions/facts, re-export and commit:
 
 ```bash
-python ToolsForAI/ai_memory.py export --format json > docs/ai-state/ai_memory_export.json
+python3 ToolsForAI/ai_memory.py export --format json > docs/ai-state/ai_memory_export.json
 git add docs/ai-state && git commit -m "Update AI state snapshot"
 ```
 
