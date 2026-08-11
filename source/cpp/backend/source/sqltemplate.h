@@ -75,7 +75,7 @@ public:
      * @brief Parameter binding info (same structure as SQLApplet for compatibility)
      */
     struct ParamBinding {
-        std::string name;       ///< Parameter name with colon prefix (e.g., ":SERVER_UID")
+        std::string name;       ///< Parameter name without colon prefix (e.g., "SERVER_UID")
         std::string value;      ///< Formatted string value
         DataInfo::Type type;    ///< Declared parameter type
     };

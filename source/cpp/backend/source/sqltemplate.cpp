@@ -263,22 +263,12 @@ SqlTemplate::findPlaceholders(string_view sql) const
 string SqlTemplate::formatDefault(const ParamDecl& decl) const
 {
     if (!decl.hasDefault) return string();
-    
-    switch (decl.type) {
-        case DataInfo::Int:
-        case DataInfo::Int64:
-        case DataInfo::Double:
-        case DataInfo::Bool:
-            return decl.defaultValue;
-        case DataInfo::String:
-        case DataInfo::DateTime:
-        case DataInfo::DateTimeNoSec:
-        case DataInfo::Date:
-        case DataInfo::Time:
-            return "'" + decl.defaultValue + "'";
-        default:
-            return decl.defaultValue;
-    }
+
+    // Return the raw default value. Quotes are already stripped when the
+    // `default='...'` header is parsed, and both the bind path (setAsString)
+    // and the debug-SQL quoting in parse() expect the RAW value — re-wrapping
+    // it here would bind the literal quote characters (e.g. "" instead of "").
+    return decl.defaultValue;
 }
 
 // ============================================================================
@@ -358,8 +348,11 @@ void SqlTemplate::parse()
             // :NAME — bind parameter: keep marker for SQLAPI++ binding
             resultSql += ':' + ph.name;
 
-            // For debug SQL, inline the value with proper SQL quoting
-            if (!valueStr.empty()) {
+            // For debug SQL, inline the value with proper SQL quoting.
+            // Inline whenever a value exists (explicitly added OR a declared
+            // default) — even an empty string default renders as ''. Only a
+            // parameter with no value and no default keeps the :name marker.
+            if (hasValue || declIt->hasDefault) {
                 switch (declIt->type) {
                     case DataInfo::String:
                     case DataInfo::DateTime:
@@ -386,8 +379,14 @@ void SqlTemplate::parse()
             }
 
             ParamBinding binding;
-            binding.name = ':' + ph.name;
-            binding.value = valueStr.empty() ? "NULL" : valueStr;
+             // Store the bare name (no ':' prefix): SQLAPI++ Param() expects the
+             // parameter name without the colon. The debug SQL below re-adds
+             // the colon when building the human-readable placeholder.
+             binding.name = ph.name;
+            // Keep the value as-is. An empty string stays an empty string
+            // (e.g. FILTER_VALUE='' must match-all, not become NULL); SQL NULL
+            // is expressed by the literal "NULL" value (e.g. JSON null).
+            binding.value = valueStr;
             binding.type = declIt->type;
             m_paramBindings.push_back(std::move(binding));
         }
