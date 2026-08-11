@@ -63,22 +63,22 @@ TEST(GrpcObjectTableModelTests, GrpcDataContainerTests)
     company2.set_reg_date(current.toSecsSinceEpoch());
     company2.set_joint_date(current.toSecsSinceEpoch());
     company2.set_license("12345");
-    company1.set_logo("file.jpeg");
+    company2.set_logo("file.jpeg");
 
     std::vector<Company> objects;
     objects.push_back(company1);
     objects.push_back(company2);
 
     GrpcDataContainer<Company> container(std::move(objects));
-    container.addProperty("", DataInfo::String, &Company::set_uid, &Company::uid);
+    container.addProperty("", DataInfo::String, stringSetter<Company>(&Company::set_uid), &Company::uid);
     container.addProperty("", DataInfo::Int, &Company::set_server_uid, &Company::server_uid);
     container.addProperty("Company type", DataInfo::Int, &Company::set_company_type, &Company::company_type);
-    container.addProperty("Name", DataInfo::String, &Company::set_name, &Company::name);
-    container.addProperty("Address", DataInfo::String, &Company::set_address, &Company::address);
+    container.addProperty("Name", DataInfo::String, stringSetter<Company>(&Company::set_name), &Company::name);
+    container.addProperty("Address", DataInfo::String, stringSetter<Company>(&Company::set_address), &Company::address);
     container.addProperty("Reg. Date", DataInfo::Date, &Company::set_reg_date, &Company::reg_date);
     container.addProperty("Join Date", DataInfo::Date, &Company::set_joint_date, &Company::joint_date);
-    container.addProperty("License", DataInfo::String, &Company::set_license, &Company::license);
-    container.addProperty("Logo", DataInfo::String, &Company::set_logo, &Company::logo);
+    container.addProperty("License", DataInfo::String, stringSetter<Company>(&Company::set_license), &Company::license);
+    container.addProperty("Logo", DataInfo::String, stringSetter<Company>(&Company::set_logo), &Company::logo);
     container.initialize();
 
     Company CompanyExpect1 = container.object(0);
@@ -202,10 +202,5 @@ TEST(GrpcObjectTableModelTests, GrpcDataContainerTests)
     //////////////////////////////////////////////////////
     /// \brief
     ///
-}
-
-TEST(GrpcObjectTableModelTests, ModelTest)
-{
-
 }
 

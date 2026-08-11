@@ -30,3 +30,6 @@ task_time_by_time.txt
 AI-text/
 .qtcreator/
 *.user
+# Test-generated binary artifacts (recreated on every logo test run)
+source/cpp/frontend/ProviderDesktop/integration_tests/app-data/logo2.png
+source/cpp/frontend/ProviderDesktop/integration_tests/app-data/logo-edit2.jpg

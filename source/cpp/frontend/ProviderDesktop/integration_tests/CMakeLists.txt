@@ -23,7 +23,7 @@ find_package(GTest REQUIRED)
 set(TEST_DATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/app-data/)
 include_directories(${TEST_DATA_DIR})
 add_definitions("-DTEST_DATA_DIR=\"${TEST_DATA_DIR}\"")
-HEADER_FILES
+set(HEADER_FILES
     ${INCLUDE_DIR}/include_util.h
     ${INCLUDE_DIR}/TypeToStringFormatter.h
     ${INCLUDE_DIR}/JsonParameterFormatter.h
@@ -42,6 +42,7 @@ HEADER_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcObjectWrapper.hpp
     ${FRONTEND_INCLUDE_DIR}/GrpcSearchForm.h
     ${FRONTEND_INCLUDE_DIR}/GrpcTableView.h
+    ${FRONTEND_INCLUDE_DIR}/GrpcImagePickerWidget.h
     ${FRONTEND_INCLUDE_DIR}/GrpcThreadWorker.h
     ${FRONTEND_INCLUDE_DIR}/GrpcViewNavigator.h
 
@@ -68,6 +69,7 @@ set(SOURCE_FILES
     ${FRONTEND_INCLUDE_DIR}/GrpcMasterSlaveController.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcSearchForm.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcTableView.cpp
+    ${FRONTEND_INCLUDE_DIR}/GrpcImagePickerWidget.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcThreadWorker.cpp
     ${FRONTEND_INCLUDE_DIR}/GrpcViewNavigator.cpp
 
@@ -99,4 +101,7 @@ target_link_libraries(FrontendTestProject
     Qt6::Widgets
 )
 
-
+# Register tests with CTest (model/unit tests run standalone; the gRPC
+# CompanyIntegrationTests require a running provider on 127.0.0.1:12345
+# plus PostgreSQL — see docs/linux-build-ci-plan.md run guidance).
+gtest_discover_tests(FrontendTestProject)

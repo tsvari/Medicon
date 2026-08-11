@@ -14,6 +14,7 @@
 
 using FrontConverter::to_str;
 using CommonUtil::sqlRowOffset;
+using std::string;
 
 namespace {
 const string logoPath = string(TEST_DATA_DIR) + "logo.png";
@@ -130,13 +131,13 @@ TEST(CompanyIntegrationTests, SelectCompanieTests)
     }
     // Check count
     JsonParameterFormatter jsonFormatter;
-    jsonFormatter.AddDataInfo("SERVER_UID", server_uid);
-    jsonFormatter.AddDataInfo("FILTER_FIELD", "NAME");
-    jsonFormatter.AddDataInfo("FILTER_VALUE", "");
+    jsonFormatter.addParameter("SERVER_UID", server_uid);
+    jsonFormatter.addParameter("FILTER_FIELD", "NAME");
+    jsonFormatter.addParameter("FILTER_VALUE", "");
 
     TotalCount totalCount;
     JsonParameters parametersCount;
-    parametersCount.set_jsonparams(jsonFormatter.toJsonString());
+    parametersCount.set_jsonparams(jsonFormatter.toJson());
     status = client.QueryCompanyTotalCount(parametersCount, totalCount);
     EXPECT_TRUE(status.ok());
     EXPECT_EQ(totalCount.count(), rows);
@@ -148,9 +149,9 @@ TEST(CompanyIntegrationTests, SelectCompanieTests)
 
     JsonParameters parametersSelect;
     std::vector<Company> object_list;
-    jsonFormatter.AddDataInfo("OFFSET", ofset);
-    jsonFormatter.AddDataInfo("LIMIT", limitationPerPage);
-    parametersSelect.set_jsonparams(jsonFormatter.toJsonString());
+    jsonFormatter.addParameter("OFFSET", ofset);
+    jsonFormatter.addParameter("LIMIT", limitationPerPage);
+    parametersSelect.set_jsonparams(jsonFormatter.toJson());
     status = client.QueryCompanies(parametersSelect, object_list);
     EXPECT_TRUE(status.ok());
     EXPECT_EQ(object_list.size(), limitationPerPage);
