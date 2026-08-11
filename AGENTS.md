@@ -21,6 +21,11 @@ All command examples below use the **Linux form** (`python3`). On Windows,
 replace `python3` with `python` and keep the rest of the command identical.
 The path `source/ToolsForAI/...` is the same on both machines.
 
+> 💡 **Working directory:** examples assume the **repository root**
+> (e.g. `C:/projects/Medicon` / `~/Medicon`). If your shell is already inside
+> `source/` (the VS Code workspace folder), DROP the `source/` prefix and use
+> `ToolsForAI/...` instead — do NOT use `source/ToolsForAI/...` from there.
+
 ---
 
 ## ⚠️ ZERO-TOLERANCE RULES

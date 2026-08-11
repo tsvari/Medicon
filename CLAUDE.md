@@ -9,6 +9,9 @@ for Medicon paths. The tools live in `source/ToolsForAI/`, not `tools/` or `AITo
 > **repository root**. Linux uses `python3`, Windows uses `python` (or `py -3`).
 > Examples below use the Linux form; on Windows replace `python3` with `python`
 > and keep the rest identical. Path `source/ToolsForAI/...` is the same on both.
+>
+> 💡 **Working directory:** examples assume the repo root. If your shell is
+> already inside `source/`, DROP the `source/` prefix (`ToolsForAI/...`).
 
 Required commands:
 
