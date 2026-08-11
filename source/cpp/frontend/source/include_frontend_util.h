@@ -19,6 +19,14 @@ using GrpcVariantSet = std::variant<int32_t, std::string, int64_t, bool, double>
 template<class... Ts> struct overload : Ts... { using Ts::operator()...; };
 template<class... Ts> overload(Ts...) -> overload<Ts...>;
 
+/// Resolve a protobuf-generated templated string setter (e.g.
+/// template<Arg_=const std::string&,...> void set_name(...)) to a concrete
+/// member-pointer so it can be passed to addProperty()'s generic template.
+template<typename T>
+void (T::*stringSetter(void (T::*setter)(const std::string&)))(const std::string&) {
+    return setter;
+}
+
 namespace DataMask {
 enum {
     NoMask = 0,
