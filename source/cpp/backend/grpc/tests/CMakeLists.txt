@@ -66,7 +66,10 @@ set(SOURCE_FILES
     company/unit/CompanyServiceImplTests.cpp
     company/integration/CompanySqlTemplateTests.cpp
     company/integration/CompanyCrudIntegrationTests.cpp
-    company/integration/CompanyLoggingIntegrationTests.cpp    company/integration/CompanyRepositoryPostgresTests.cpp)
+    company/integration/CompanyLoggingIntegrationTests.cpp
+    company/integration/CompanyRepositoryPostgresTests.cpp
+    company/integration/CompanyServerIntegrationTests.cpp
+)
 
 add_executable(grpc_proto_tests
     ${SOURCE_FILES}
