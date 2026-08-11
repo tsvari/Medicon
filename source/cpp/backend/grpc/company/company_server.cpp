@@ -66,7 +66,9 @@ CompanyFilter CompanyServiceImpl::toCompanyFilter(const JsonParameters& params)
     }
     const auto& map = *mapOpt;
 
-    auto it = map.find("FILTER_FIELD");
+    auto it = map.find("SERVER_UID");
+    if (it != map.end()) filter.server_uid = std::stoi(it->second);
+    it = map.find("FILTER_FIELD");
     if (it != map.end()) filter.field = it->second;
     it = map.find("FILTER_VALUE");
     if (it != map.end()) filter.value = it->second;

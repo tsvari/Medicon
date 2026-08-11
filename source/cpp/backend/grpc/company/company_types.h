@@ -27,6 +27,7 @@ struct CompanyData {
  * @brief Filter parameters for company queries
  */
 struct CompanyFilter {
+    int server_uid = 0;      ///< Owner server id (matches SERVER_UID column)
     std::string field;       ///< Column name to filter by (validated via allow-list)
     std::string value;       ///< Search term (LIKE match)
     int offset = 0;

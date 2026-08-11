@@ -24,6 +24,13 @@ string CompanyRepository::sqlPath(const char* name) const
     return m_appletPath + name;
 }
 
+void CompanyRepository::ensureConnected()
+{
+    if (!m_conn.isConnected()) {
+        m_conn.connect();
+    }
+}
+
 // ============================================================================
 // Result mapping
 // ============================================================================
@@ -53,7 +60,13 @@ CompanyData CompanyRepository::rowToCompany(SACommand& row)
     license.TrimRight();
     data.license = license.GetMultiByteChars();
 
-    data.logo = row.Field("LOGO").asString().GetMultiByteChars();
+    // LOGO is bytea: asBytes() returns the raw binary (not the hex-encoded
+    // text that asString() would). Copy with the explicit byte length —
+    // GetMultiByteChars() alone is a C-string and truncates at the first
+    // null byte.
+    SAString logoBytes = row.Field("LOGO").asBytes();
+    data.logo.assign(logoBytes.GetMultiByteChars(),
+                     static_cast<size_t>(logoBytes.GetLength()));
 
     return data;
 }
@@ -110,10 +123,10 @@ CompanyData CompanyRepository::add(const CompanyData& data)
 
     LOG_IF(m_logSql, INFO) << "[SQL] company_insert: " << tpl.getDebugSql();
 
+    ensureConnected();
+
     SAString sql(tpl.sql().c_str());
     SACommand cmd(m_conn.connectionSa(), sql);
-    m_conn.connect();
-    m_conn.setAutoCommit(true);
 
     bindParams(cmd, tpl);
 
@@ -147,10 +160,10 @@ CompanyData CompanyRepository::update(const CompanyData& data)
 
     LOG_IF(m_logSql, INFO) << "[SQL] company_update: " << tpl.getDebugSql();
 
+    ensureConnected();
+
     SAString sql(tpl.sql().c_str());
     SACommand cmd(m_conn.connectionSa(), sql);
-    m_conn.connect();
-    m_conn.setAutoCommit(true);
 
     bindParams(cmd, tpl);
 
@@ -171,9 +184,9 @@ CompanyData CompanyRepository::update(const CompanyData& data)
 
 DeleteResult CompanyRepository::remove(std::string_view uid)
 {
+    ensureConnected();
+
     SqlCommand cmd(m_conn, sqlPath("company_delete.sql"));
-    m_conn.connect();
-    m_conn.setAutoCommit(true);
 
     cmd.addParameter("UID", uid.data());
     LOG_IF(m_logSql, INFO) << "[SQL] company_delete: " << cmd.getSqlWithParameters();
@@ -198,14 +211,16 @@ vector<CompanyData> CompanyRepository::query(const CompanyFilter& filter)
 {
     // Build param map from structured filter
     std::map<std::string, std::string> params;
+    params["SERVER_UID"] = std::to_string(filter.server_uid);
     if (!filter.field.empty()) params["FILTER_FIELD"] = filter.field;
     if (!filter.value.empty()) params["FILTER_VALUE"] = filter.value;
     params["OFFSET"] = std::to_string(filter.offset);
     params["LIMIT"] = std::to_string(filter.limit);
 
+    ensureConnected();
+
     SqlQuery cmd(m_conn, sqlPath("company_select.sql"), std::move(params));
     cmd.setColumnValidator("FILTER_FIELD", &COMPANY_COLUMNS);
-    m_conn.connect();
 
     LOG_IF(m_logSql, INFO) << "[SQL] company_select: " << cmd.getSqlWithParameters();
 
@@ -222,8 +237,9 @@ vector<CompanyData> CompanyRepository::query(const CompanyFilter& filter)
 
 std::optional<CompanyData> CompanyRepository::findByUid(std::string_view uid)
 {
+    ensureConnected();
+
     SqlQuery cmd(m_conn, sqlPath("company_select_by_uid.sql"));
-    m_conn.connect();
     cmd.addParameter("UID", uid.data());
 
     LOG_IF(m_logSql, INFO) << "[SQL] company_select_by_uid: " << cmd.getSqlWithParameters();
@@ -241,12 +257,14 @@ std::optional<CompanyData> CompanyRepository::findByUid(std::string_view uid)
 int64_t CompanyRepository::count(const CompanyFilter& filter)
 {
     std::map<std::string, std::string> params;
+    params["SERVER_UID"] = std::to_string(filter.server_uid);
     if (!filter.field.empty()) params["FILTER_FIELD"] = filter.field;
     if (!filter.value.empty()) params["FILTER_VALUE"] = filter.value;
 
+    ensureConnected();
+
     SqlQuery cmd(m_conn, sqlPath("company_count.sql"), std::move(params));
     cmd.setColumnValidator("FILTER_FIELD", &COMPANY_COLUMNS);
-    m_conn.connect();
 
     LOG_IF(m_logSql, INFO) << "[SQL] company_count: " << cmd.getSqlWithParameters();
 

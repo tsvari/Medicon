@@ -34,6 +34,9 @@ public:
 private:
     [[nodiscard]] std::string sqlPath(const char* name) const;
 
+    /// Ensure the database connection is established (connects only if needed)
+    void ensureConnected();
+
     /// Bind all template parameters to a command (shared by add/update)
     static void bindParams(SACommand& cmd, const SqlTemplate& tpl);
 
