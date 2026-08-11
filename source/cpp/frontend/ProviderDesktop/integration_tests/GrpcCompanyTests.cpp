@@ -20,6 +20,7 @@
 #include "front_common.h"
 
 #include <QDateTime>
+#include <QTcpSocket>
 
 using FrontConverter::to_str;
 using CommonUtil::sqlRowOffset;
@@ -66,6 +67,23 @@ void fillCompany(Company& c, const std::string& name)
     c.set_license("0123456789");
 }
 
+// Pre-flight check: is provider.exe actually listening on channelAddress?
+bool providerReachable(int timeoutMs = 1000)
+{
+    const std::string addr = channelAddress;                 // "127.0.0.1:12345"
+    const auto colon = addr.rfind(':');
+    if (colon == std::string::npos) {
+        return false;
+    }
+    const QString host = QString::fromStdString(addr.substr(0, colon));
+    const quint16 port = static_cast<quint16>(std::stoul(addr.substr(colon + 1)));
+    QTcpSocket socket;
+    socket.connectToHost(host, port);
+    const bool ok = socket.waitForConnected(timeoutMs);
+    socket.abort();
+    return ok;
+}
+
 } // namespace
 
 // ============================================================================
@@ -76,6 +94,11 @@ class CompanyEditorTest : public ::testing::Test {
 protected:
     void SetUp() override
     {
+        if (!providerReachable()) {
+            GTEST_SKIP()
+                << "provider.exe is NOT running on " << channelAddress
+                << " - start it first (e.g. scripts/run_frontend_tests.ps1)";
+        }
         m_client = std::make_unique<CompanyEditorClient>(
             grpc::CreateChannel(channelAddress, grpc::InsecureChannelCredentials()));
     }
@@ -250,4 +273,16 @@ TEST_F(CompanyEditorTest, LogoBinaryRoundTrip)
 
     // Clean up
     EXPECT_GRPC_OK(client().DeleteCompany(companyToSend, result));
+}
+
+// ============================================================================
+// Connectivity smoke test - first signal that the backend is down
+// ============================================================================
+
+TEST(ProviderSmoke, IsProviderRunning)
+{
+    EXPECT_TRUE(providerReachable())
+        << "provider.exe is NOT running on " << channelAddress
+        << " - start it first (e.g. scripts/run_frontend_tests.ps1). "
+           "CompanyEditorTest is skipped until then.";
 }

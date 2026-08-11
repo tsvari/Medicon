@@ -10,7 +10,7 @@ add_definitions("-DPROJECT_NAME=\"${PROJECT_NAME}\"")
 set(CMAKE_GTEST_DISCOVER_TESTS_DISCOVER_MODE PRE_TEST)
 include(GoogleTest)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets Network)
 
 qt_standard_project_setup()
 
@@ -99,9 +99,19 @@ target_link_libraries(FrontendTestProject
 
     Qt6::Core
     Qt6::Widgets
+    Qt6::Network
 )
 
 # Register tests with CTest (model/unit tests run standalone; the gRPC
 # CompanyIntegrationTests require a running provider on 127.0.0.1:12345
 # plus PostgreSQL — see docs/linux-build-ci-plan.md run guidance).
-gtest_discover_tests(FrontendTestProject)
+#
+# DISCOVERY_MODE PRE_TEST moves test discovery from build time to ctest run
+# time. Build-time (POST_BUILD) discovery executes the test binary during
+# `cmake --build`, which fails with MSB3073 unless Qt bin is on PATH — so it
+# broke every build (including the frontend_smoke_test target). With PRE_TEST
+# the plain build succeeds; discovery happens only when running ctest.
+gtest_discover_tests(FrontendTestProject DISCOVERY_MODE PRE_TEST)
+
+# The gRPC e2e tests self-check provider connectivity at runtime and skip with
+# a clear message when provider.exe is down (see GrpcCompanyTests.cpp).
