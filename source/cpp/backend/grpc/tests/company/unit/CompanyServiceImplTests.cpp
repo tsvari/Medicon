@@ -163,3 +163,34 @@ TEST(CompanyServiceImplTest, ToCompanyFilter_PartialParams_OnlySetFields)
     EXPECT_EQ(filter.offset, 0);
     EXPECT_EQ(filter.limit, 100);  // default limit when not specified
 }
+
+/**
+ * @test REGRESSION (real production bug): toCompanyFilter must parse
+ * SERVER_UID. It was dropped, so query()/count() always filtered
+ * SERVER_UID = 0 — returning 0 rows for real data.
+ */
+TEST(CompanyServiceImplTest, ToCompanyFilter_ParsesServerUid)
+{
+    JsonParameters params;
+    params.set_jsonparams("{\"SERVER_UID\":\"1001\",\"FILTER_FIELD\":\"NAME\",\"FILTER_VALUE\":\"Acme\"}");
+
+    CompanyFilter filter = CompanyServiceImpl::toCompanyFilter(params);
+
+    EXPECT_EQ(filter.server_uid, 1001);
+    EXPECT_EQ(filter.field, "NAME");
+    EXPECT_EQ(filter.value, "Acme");
+}
+
+/**
+ * @test toCompanyFilter defaults server_uid to 0 when not provided
+ */
+TEST(CompanyServiceImplTest, ToCompanyFilter_MissingServerUid_DefaultsZero)
+{
+    JsonParameters params;
+    params.set_jsonparams("{\"FILTER_VALUE\":\"search\"}");
+
+    CompanyFilter filter = CompanyServiceImpl::toCompanyFilter(params);
+
+    EXPECT_EQ(filter.server_uid, 0);
+    EXPECT_EQ(filter.value, "search");
+}

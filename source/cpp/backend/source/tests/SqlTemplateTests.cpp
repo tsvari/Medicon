@@ -6,6 +6,8 @@
 #include "column_allowlist.h"
 #include "gtest/gtest.h"
 
+#include <algorithm>
+
 // ============================================================================
 // ColumnAllowList tests
 // ============================================================================
@@ -225,5 +227,71 @@ TEST_F(SqlTemplateTest, DebugSql_FormatsTypesCorrectly)
     // Date/string — single-quoted
     EXPECT_NE(debug.find("'2007-01-20'"), std::string::npos);
     EXPECT_NE(debug.find("'Hello'"), std::string::npos);
+}
+
+// ============================================================================
+// Regression tests for PostgreSQL named-parameter binding fixes
+// ============================================================================
+
+/**
+ * @test REGRESSION: ParamBinding::name must be BARE (no ':' prefix).
+ *
+ * Was: binding.name = ':' + ph.name, which made SQLAPI++ Param() fail with
+ * "Bind variable/parameter ':SERVER_UID' not found" — breaking ALL
+ * PostgreSQL CRUD through the repository.
+ */
+TEST_F(SqlTemplateTest, ParamBindings_BareNames_NoColonPrefix)
+{
+    SqlTemplate tpl(ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
+    tpl.addParameter("Name", "Givi");
+    tpl.addParameter("Height", 175);
+    tpl.parse();
+
+    const auto& bindings = tpl.paramBindings();
+    ASSERT_FALSE(bindings.empty());
+    for (const auto& b : bindings) {
+        EXPECT_FALSE(b.name.empty());
+        EXPECT_NE(b.name.front(), ':')
+            << "ParamBinding::name must not carry a ':' prefix, got: '" << b.name << "'";
+    }
+}
+
+/**
+ * @test REGRESSION: an explicitly empty string value must stay an empty
+ * string — it must NOT become SQL NULL.
+ *
+ * Was: binding.value = valueStr.empty() ? "NULL" : valueStr, which turned
+ * FILTER_VALUE="" into NULL and broke `LIKE '%' || :p || '%'` match-all
+ * filters ("show all" queries returned 0 rows).
+ */
+TEST_F(SqlTemplateTest, EmptyStringValue_StaysEmptyString_NotNull)
+{
+    SqlTemplate tpl(ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
+    tpl.addParameter("Name", "");  // explicit empty value
+    tpl.parse();
+
+    auto it = std::find_if(tpl.paramBindings().begin(), tpl.paramBindings().end(),
+        [](const auto& b) { return b.name == "Name"; });
+    ASSERT_NE(it, tpl.paramBindings().end());
+    EXPECT_EQ(it->value, "") << "empty string must not become NULL";
+}
+
+/**
+ * @test REGRESSION: string defaults are bound as RAW values — formatDefault
+ * must not wrap them in quotes.
+ *
+ * Was: formatDefault() returned "'" + value + "'" for strings, so a
+ * default='' bound the literal 2-char string "''" (and default='Givi'
+ * bound "'Givi'") — wrong values sent to the database.
+ */
+TEST_F(SqlTemplateTest, StringDefault_BindsRawValue_NoQuotes)
+{
+    SqlTemplate tpl(ALL_BACKEND_TEST_APPDATA_PATH "test.sql");
+    tpl.parse();  // Name default='Givi' — omit the param to use the default
+
+    auto it = std::find_if(tpl.paramBindings().begin(), tpl.paramBindings().end(),
+        [](const auto& b) { return b.name == "Name"; });
+    ASSERT_NE(it, tpl.paramBindings().end());
+    EXPECT_EQ(it->value, "Givi") << "default must bind raw 'Givi', not a quoted literal";
 }
 

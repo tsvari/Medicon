@@ -179,3 +179,40 @@ TEST_F(CompanySqlTemplateTest, InvalidColumnName_Throws)
     // ColumnAllowList::resolve() throws std::invalid_argument
     EXPECT_THROW(tpl.parse(), std::invalid_argument);
 }
+
+/**
+ * @test REGRESSION (real production bug): company_count.sql with FILTER_VALUE
+ * omitted must bind an EMPTY STRING (template default is ''), not SQL NULL
+ * and not the quoted literal "''". This was broken two ways (empty->NULL
+ * and formatDefault quote-wrapping) and made "show all" count queries
+ * return 0 rows for existing data.
+ */
+TEST_F(CompanySqlTemplateTest, CompanyCount_EmptyFilterDefault_BindsEmptyString)
+{
+    SqlTemplate tpl(m_appletDir + "company_count.sql");
+    tpl.addParameter("SERVER_UID", 1001);  // FILTER_VALUE / FILTER_FIELD use defaults
+
+    // $FILTER_FIELD is an identifier — register the allow-list validator
+    static constexpr auto COMPANY_COLUMNS = ColumnAllowList<9>({
+        "UID", "SERVER_UID", "COMPANY_TYPE", "NAME",
+        "ADDRESS", "REG_DATE", "JOINT_DATE", "LICENSE", "LOGO"
+    });
+    tpl.setColumnValidator("FILTER_FIELD", &COMPANY_COLUMNS);
+    tpl.parse();
+
+    // FILTER_VALUE default='' must bind as a raw empty string
+    auto fv = std::find_if(tpl.paramBindings().begin(), tpl.paramBindings().end(),
+        [](const auto& b) { return b.name == "FILTER_VALUE"; });
+    ASSERT_NE(fv, tpl.paramBindings().end());
+    EXPECT_EQ(fv->value, "") << "empty filter default must stay empty string";
+
+    // SERVER_UID must bind the provided value with a bare name
+    auto su = std::find_if(tpl.paramBindings().begin(), tpl.paramBindings().end(),
+        [](const auto& b) { return b.name == "SERVER_UID"; });
+    ASSERT_NE(su, tpl.paramBindings().end());
+    EXPECT_EQ(su->value, "1001");
+
+    // Debug SQL must render the match-all pattern with an empty literal
+    std::string debug = tpl.getDebugSql();
+    EXPECT_NE(debug.find("'%' || '' || '%'"), std::string::npos) << debug;
+}
